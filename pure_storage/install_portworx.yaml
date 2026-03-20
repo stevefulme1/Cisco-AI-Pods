@@ -1,0 +1,92 @@
+---
+- name: Deploy Portworx 3.5.2 on OpenShift 4.21
+  hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Load variables from script folder
+      ansible.builtin.include_vars:
+        dir: "{{ playbook_dir }}/script_vars"
+
+    - name: Log in to OpenShift (requires oc binary on host)
+      ansible.builtin.command:
+        cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
+      register: login_result
+      no_log: true # Prevent sensitive info in logs
+    
+    - name: Create Portworx Namespace
+      kubernetes.core.k8s:
+        name: "{{ pure_storage.portworx.namespace }}"
+        kind: Namespace
+        state: present
+
+    - name: Get secret information
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Secret
+        name: px-pure-secret
+        namespace: "{{ pure_storage.portworx.namespace }}"
+      register: secret_check
+
+    - name: Create Portworx Secret
+      ansible.builtin.shell:
+        cmd: "oc create secret generic px-pure-secret --from-literal=pure.json={{ playbook_dir }}/pure.json -n {{ pure_storage.portworx.namespace }}"
+      no_log: true
+      register: portworx_result
+      when: secret_check.resources | length == 0
+
+    - name: Create OperatorGroup
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: operators.coreos.com/v1
+          kind: OperatorGroup
+          metadata:
+            name: portworx-operator-group
+            namespace: "{{ pure_storage.portworx.namespace }}"
+          spec:
+            targetNamespaces:
+              - "{{ pure_storage.portworx.namespace }}"
+
+    - name: Create Subscription for Portworx Operator
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: operators.coreos.com/v1alpha1
+          kind: Subscription
+          metadata:
+            name: portworx-operator
+            namespace: "{{ pure_storage.portworx.namespace }}"
+          spec:
+            channel: stable
+            installPlanApproval: Automatic
+            name: portworx-operator
+            source: "{{ pure_storage.portworx.operator_source }}"
+            sourceNamespace: openshift-marketplace
+
+    - name: Wait for Portworx Operator to be ready
+      kubernetes.core.k8s_info:
+        kind: Deployment
+        name: portworx-operator
+        namespace: "{{ pure_storage.portworx.namespace }}"
+      register: operator_deploy
+      until: 
+        - operator_deploy.resources | length > 0
+        - operator_deploy.resources[0].status.readyReplicas | default(0) > 0
+      retries: 30
+      delay: 15
+
+    - name: Deploy Portworx StorageCluster (Version 3.5.2)
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'storage-cluster.yaml.j2') | from_yaml }}"
+
+    - name: Deploy Portworx Flash Array Storage Class
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'storage-class-fada.yaml.j2') | from_yaml }}"
+
+    - name: Deploy Portworx Flash Blade Storage Class
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'storage-fbda.yaml.j2') | from_yaml }}"

@@ -1,0 +1,28 @@
+---
+- name: Create Portworx Secret pure.json file
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Pure Storage | Load global vars
+      ansible.builtin.include_vars:
+        dir: "{{ playbook_dir }}/script_vars"
+
+    - name: Pure Storage | Flash Array | Portworx
+      include_tasks:
+        file: "{{ playbook_dir }}/tasks/portworx/flash_array.yaml"
+      vars:
+        flash_arrays: "{{ pure_storage.flash_arrays }}"
+      when: pure_storage.flash_arrays is defined
+
+    - name: Pure Storage | Flash Blade | Portworx
+      include_tasks:
+        file: "{{ playbook_dir }}/tasks/portworx/flash_blade.yaml"
+      vars:
+        flash_blades: "{{ pure_storage.flash_blades }}"
+      when: pure_storage.flash_blades is defined
+
+    - name: create the pure.json secret from the result outputs
+      ansible.builtin.copy:
+        content: "{{ lookup('template', 'pure.json.j2') | to_nice_json }}"
+        dest: pure.json

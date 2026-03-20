@@ -1,0 +1,23 @@
+{
+{% if fa_results is defined %}
+  "FlashArrays": [
+    {% for fa in fa_results.results %}
+    {
+      "MgmtEndPoint": "{{ fa['item']['array_url'] }}",
+      "APIToken": "{{ fa['user_info'] }}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]{% if fb_results is defined %},{% endif %}
+{% endif %}
+{% if fb_results is defined %}
+  "FlashBlades": [
+    {% for fb in fb_results.results %}
+    {
+      "MgmtEndPoint": "{{ fb['item']['array_url'] }}",
+      "APIToken": "{{ fb['user_info'] }}"
+      "NFSEndPoint":"{{ fb['item']['nfs_endpoint']}}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+{% endif %}
+}

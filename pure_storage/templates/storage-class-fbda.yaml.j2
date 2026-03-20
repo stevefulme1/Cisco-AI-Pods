@@ -1,0 +1,14 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: fbda-sc
+  annotations:
+    storageclass.kubernetes.io/is-default-class: 'true'
+provisioner: pxd.portworx.com
+parameters:
+  backend: "pure_file"
+  pure_export_rules: "*(rw,no_root_squash)"
+mountOptions:
+  - nfsvers=3
+  - tcp
+allowVolumeExpansion: true

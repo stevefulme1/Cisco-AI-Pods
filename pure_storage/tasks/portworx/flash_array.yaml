@@ -1,0 +1,27 @@
+---
+  - name: Flash Array | Portworx | Ensure user is missing
+    purestorage.flasharray.purefa_user:
+      fa_url: "{{ item.array_url }}"
+      api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token_{{ item.api_token_id }}') }}"
+      state: absent
+      name: "{{ pure_storage.portworx.array_user }}"
+    loop: "{{ flash_arrays }}"
+    delegate_to: localhost
+
+  - name: Flash Array | Portworx | Create Storage Admin user for each Array
+    purestorage.flasharray.purefa_user:
+      fa_url: "{{ item.array_url }}"
+      api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token_{{ item.api_token_id }}') }}"
+      state: present
+      name: "{{ pure_storage.portworx.array_user }}"
+      password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_lowercase', 'ascii_uppercase', 'digits'], length=20) }}"
+      role: "storage_admin"
+      public_key: ""
+      api: true
+    loop: "{{ flash_arrays }}"
+    delegate_to: localhost
+    register: fa_results
+
+  # - name: Print all fa variables
+  #   debug:
+  #     var: fa_results.results

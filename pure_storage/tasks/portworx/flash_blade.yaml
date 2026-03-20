@@ -1,0 +1,27 @@
+---
+  - name: Flash Blade | Portworx | Ensure user is missing
+    purestorage.flashblade.purefb_user:
+      fb_url: "{{ item.array_url }}"
+      api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token_{{ item.api_token_id }}') }}"
+      state: absent
+      name: "{{ pure_storage.portworx.array_user }}"
+    loop: "{{ flash_blades }}"
+    delegate_to: localhost
+
+  - name: Flash Blade | Portworx | Create Storage Admin user for each Array
+    purestorage.flashblade.purefb_user:
+      name: "{{ pure_storage.portworx.array_user }}"
+      role: storage_admin
+      api: true
+      public_key: ""
+      fb_url: "{{ item.array_url }}"
+      api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token_{{ item.api_token_id }}') }}"
+      password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_lowercase', 'ascii_uppercase', 'digits'], length=20) }}"
+      state: present
+    loop: "{{ flash_blades }}"
+    delegate_to: localhost
+    register: fb_results
+
+  # - name: Print all fb variables
+  #   debug:
+  #     var: fb_results.results

@@ -1,0 +1,57 @@
+---
+- name: Install Red Hat OpenShift GitOps Operator
+  connection: local
+  gather_facts: no
+  hosts: localhost
+  vars:
+    namespace: "openshift-gitops-operator"
+
+  tasks:
+    - name: Log in to OpenShift (requires oc binary on host)
+      ansible.builtin.command:
+        cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
+      register: login_result
+      no_log: true # Prevent sensitive info in logs
+
+    - name: Create GitOps namespace
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: "{{ namespace }}"
+        state: present
+        validate_certs: false
+
+    - name: Create GitOps Operator subscription
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'subscription.yaml.j2') | from_yaml }}"
+        state: present
+        validate_certs: false
+
+    - name: Create GitOps Operator Group
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'operator-group.yaml.j2') | from_yaml }}"
+        state: present
+        validate_certs: false
+
+    - name: Create GitOps Operator RBAC
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'rbac.yaml.j2') | from_yaml }}"
+        state: present
+        validate_certs: false
+
+    - name: Wait for GitOps Operator deployment to be ready
+      kubernetes.core.k8s_info:
+        kind: Deployment
+        namespace: "{{ namespace }}"
+        name: openshift-gitops-operator-controller-manager
+        validate_certs: false
+      register: deployment_info
+      until: deployment_info.resources[0].status.availableReplicas | default(0) > 0
+      retries: 10
+      delay: 30
+
+    - name: Deploy Argo CD instance (GitOps)
+      kubernetes.core.k8s:
+        definition: "{{ lookup('template', 'instance.yaml.j2') | from_yaml }}"
+        state: present
+        validate_certs: false

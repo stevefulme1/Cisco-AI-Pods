@@ -1,0 +1,42 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+
+    # - name: Day0 Provisioning | Confirm the latest SDKs are installed
+    #   pip:
+    #     name:
+    #       - datetime
+    #       - distro
+    #       - netaddr
+    #       - purity_fb
+    #       - purestorage
+    #       - py-pure-client
+    #       - pycountry
+    #       - pytz
+    #     state: latest
+
+    - name: Day0 Provisioning | Load variables from custom file
+      ansible.builtin.include_vars:
+        dir: "{{ playbook_dir }}/vars"
+    
+    - name: Day0 Provisioning | FlashArray
+      include_tasks:
+        file: "{{ playbook_dir }}/tasks/flash_array/main.yaml"
+      vars:
+        api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token_{{ item.api_token_id }}') }}"
+        array_fqdn: "{{ item.array_fqdn }}"
+        array_url: "{{ item.array_url }}"
+      when: pure_storage.flash_arrays is defined
+      with_items: "{{ pure_storage.flash_arrays }}"
+
+    - name: Day0 Provisioning | FlashBlade
+      include_tasks:
+        file: "{{ playbook_dir }}/tasks/flash_blade/main.yaml"
+      vars:
+        api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token_{{ item.api_token_id }}') }}"
+        array_fqdn: "{{ item.array_fqdn }}"
+        array_url: "{{ item.array_url }}"
+      when: pure_storage.flash_blades is defined
+      with_items: "{{ pure_storage.flash_blades }}"

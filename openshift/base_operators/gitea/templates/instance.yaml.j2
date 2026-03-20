@@ -1,0 +1,15 @@
+apiVersion: pfe.rhpds.com/v1
+kind: Gitea
+metadata:
+  name: gitea-with-admin
+  namespace: "{{ namespace }}"
+spec:
+  giteaSsl: true
+  giteaAdminUser: opentlc-mgr
+  giteaAdminPassword: ""
+  giteaAdminPasswordLength: 32
+  giteaAdminEmail: opentlc-mgr@redhat.com
+  giteaCreateUsers: true
+  giteaGenerateUserFormat: lab-user
+  giteaUserNumber: 1
+  giteaUserPasswordLength: 16

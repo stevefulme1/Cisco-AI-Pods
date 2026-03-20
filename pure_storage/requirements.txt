@@ -1,0 +1,10 @@
+# For Pure Storage FlashBlade and FlashArray
+py-pure-client>=1.67.2  # Pure Storage FlashBlade Python Client
+purestorage>=1.19        # Pure Storage FlashArray Python Client
+netaddr
+distro
+pycountry
+datetime
+pyOpenSSL
+pytz
+urllib3>=1.26.5

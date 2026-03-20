@@ -1,0 +1,45 @@
+---
+  ############################
+  # Certificates
+  ############################
+
+  - name: Slack Notifications | Change for System > Certificates on {{ array_fqdn }}
+    local_action:
+      module: slack
+      token: "{{ slack_token }}"
+      msg: "{{ msg.split('\n') }}"
+    vars:
+      msg: "Array {{ array_fqdn }} has changed configuration\n{{ certificates_change.results[0].invocation.module_args | to_nice_yaml }}"
+    when: certificates_change.changed
+
+  - name: Slack Notifications | Change for System > Certificate Groups on {{ array_fqdn }}
+    local_action:
+      module: slack
+      token: "{{ slack_token }}"
+      msg: "{{ msg.split('\n') }}"
+    vars:
+      msg: "Array {{ array_fqdn }} has changed configuration\n{{ certificate_groups_change.results[0].invocation.module_args | to_nice_yaml }}"
+    when: certificate_groups_change.changed
+
+  ############################
+  # Directory Service
+  ############################
+
+  - name: Slack Notifications | Change for System > Directory Service on {{ array_fqdn }}
+    local_action:
+      module: slack
+      token: "{{ slack_token }}"
+      msg: "{{ msg.split('\n') }}"
+    vars:
+      msg: "Array {{ array_fqdn }} has changed configuration\n{{ directory_service_change.results[0].invocation.module_args | to_nice_yaml }}"
+    when: directory_service_change.changed
+
+  - name: Slack Notifications | Change for System > Directory Service Role Mappings on {{ array_fqdn }}
+    local_action:
+      module: slack
+      token: "{{ slack_token }}"
+      msg: "{{ msg.split('\n') }}"
+    vars:
+      msg: "Array {{ array_fqdn }} has changed configuration\n{{ directory_service_role_mappings_change.results[0].invocation.module_args | to_nice_yaml }}"
+    when: directory_service_role_mappings_change.changed
+

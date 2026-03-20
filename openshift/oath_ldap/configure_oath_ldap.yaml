@@ -1,0 +1,101 @@
+---
+- name: Configure OATH LDAP Authentication for OpenShift
+  connection: local
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Load variables from script folder
+      ansible.builtin.include_vars:
+        dir: "{{ playbook_dir }}/script_vars"
+
+    - name: Log in to OpenShift (requires oc binary on host)
+      ansible.builtin.command:
+        cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
+      register: login_result
+      no_log: true # Prevent sensitive info in logs
+    
+    - name: Create LDAP BindPassword Secret
+      ansible.builtin.shell:
+        cmd: "oc create secret generic ldap-bind-password --from-literal=bindPassword='{{ lookup('ansible.builtin.env', 'ldap_bind_password') }}' -n openshift-config"
+      no_log: true
+      register: ldap_bind_pass_result
+
+    - name: Create LDAP Certificates ConfigMap
+      ansible.builtin.shell:
+        cmd: "oc create configmap ldap-ca-cert --from-file=ca.crt={{ playbook_dir }}/{{ ldap.certificate_file_name }} -n openshift-config"
+      no_log: true
+      register: ldap_cert_result
+      when: ldap.secure_ldap | bool
+
+    - name: Configure ActiveDirectory OAuth
+      kubernetes.core.k8s:
+        state: present
+        # Use lookup to parse the j2 file before sending to K8s
+        definition: "{{ lookup('template', 'active-directory.yaml.j2') | from_yaml }}"
+
+    - name: Set Bind Password Variable
+      ansible.builtin.set_fact:
+        ldap_bind_password: "{{ lookup('ansible.builtin.env', 'ldap_bind_password') }}"
+      no_log: true
+
+    - name: Create LDAP Synchronization Project
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'project.yaml.j2') | from_yaml }}"
+
+    - name: Create ldap-sync.yaml
+      ansible.builtin.template:
+        src: templates/ldap-sync.yaml.j2
+        dest: "{{ playbook_dir }}/ldap-sync.yaml"
+
+    - name: Create whitelist.txt
+      ansible.builtin.template:
+        src: templates/whitelist.txt.j2
+        dest: "{{ playbook_dir }}/whitelist.txt"
+
+    - name: Create LDAP Sync Secret with CA
+      ansible.builtin.shell: |
+        oc create secret generic ldap-sync \
+          --from-file=ldap-sync.yaml={{ playbook_dir }}/ldap-sync.yaml \
+          --from-file=whitelist.txt={{ playbook_dir }}/whitelist.txt \
+          --from-file=ca.crt={{ playbook_dir }}/{{ ldap.certificate_file_name }} \
+          -n ldap-sync
+      delegate_to: localhost
+      when: ldap.secure_ldap | bool
+
+    - name: Create LDAP Sync Secret without CA
+      ansible.builtin.shell: |
+        oc create secret generic ldap-sync \
+          --from-file=ldap-sync.yaml={{ playbook_dir }}/ldap-sync.yaml \
+          --from-file=whitelist.txt={{ playbook_dir }}/whitelist.txt \
+          -n ldap-sync
+      delegate_to: localhost
+      when: not ldap.secure_ldap | bool
+
+    - name: Create LDAP Synchronization RBAC
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'rbac-ldap-group-sync.yaml.j2') | from_yaml }}"
+
+    - name: Create ldap-sync Service Account
+      ansible.builtin.shell: |
+        oc create sa ldap-sync -n ldap-sync
+      delegate_to: localhost
+    
+    - name: Add ldap-sync Service Account RBAC
+      ansible.builtin.shell: |
+        oc adm policy add-cluster-role-to-user ldap-group-sync \
+          -z ldap-sync \
+          -n ldap-sync
+      delegate_to: localhost
+    
+    - name: Create LDAP Synchronization CRON Job
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'ldap-cron.yaml.j2') | from_yaml }}"
+
+    - name: Delete Generated Files
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/{{ item }}"
+        state: absent
+      loop: ["ldap-sync.yaml", "whitelist.txt"]

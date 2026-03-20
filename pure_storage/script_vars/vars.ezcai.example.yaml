@@ -1,0 +1,171 @@
+---
+pure_storage:
+  flash_arrays:
+    - api_token_id: 1
+      array_fqdn: array01.example.com
+      array_url: array01.example.com
+  flash_blades:
+    - api_token_id: 2
+      array_fqdn: array02.example.com
+      array_url: array02.example.com
+      nfs_endpoint: array02-vl103.example.com
+  portworx:
+    array_user: portworx
+    cluster_name: "px-cluster"
+    namespace: portworx
+    operator_source: "certified-operators"
+    version: "3.5.2"
+  settings:
+    network:
+      connectors:
+        ethernet:
+          - address: 198.18.0.30
+            array_fqdn: array01.example.com
+            enabled: true
+            gateway: 198.18.0.254
+            mtu: 9000
+            name: ct0.eth10
+            prefix: 24
+            services:
+              - nvme-tcp
+            state: present
+          - address: 198.18.0.31
+            array_fqdn: array01.example.com
+            enabled: true
+            gateway: 198.18.0.254
+            mtu: 9000
+            name: ct0.eth11
+            prefix: 24
+            services:
+              - nvme-tcp
+            state: present
+          - address: 198.18.0.32
+            array_fqdn: array01.example.com
+            enabled: true
+            gateway: 198.18.0.254
+            mtu: 9000
+            name: ct0.eth14
+            prefix: 24
+            services:
+              - nvme-tcp
+            state: present
+          - address: 198.18.0.33
+            array_fqdn: array01.example.com
+            enabled: true
+            gateway: 198.18.0.254
+            mtu: 9000
+            name: ct0.eth15
+            prefix: 24
+            services:
+              - nvme-tcp
+            state: present
+          - address: 198.18.0.34
+            array_fqdn: array01.example.com
+            enabled: true
+            gateway: 198.18.0.254
+            mtu: 9000
+            name: ct1.eth10
+            prefix: 24
+            services:
+              - nvme-tcp
+            state: present
+          - address: 198.18.0.35
+            array_fqdn: array01.example.com
+            enabled: true
+            gateway: 198.18.0.254
+            mtu: 9000
+            name: ct1.eth11
+            prefix: 24
+            services:
+              - nvme-tcp
+            state: present
+          - address: 198.18.0.36
+            array_fqdn: array01.example.com
+            enabled: true
+            gateway: 198.18.0.254
+            mtu: 9000
+            name: ct1.eth14
+            prefix: 24
+            services:
+              - nvme-tcp
+            state: present
+          - address: 198.18.0.37
+            array_fqdn: array01.example.com
+            enabled: true
+            gateway: 198.18.0.254
+            mtu: 9000
+            name: ct1.eth15
+            prefix: 24
+            services:
+              - nvme-tcp
+            state: present
+      dns:
+        dns_configurations:
+          - domain: example.com
+            name: management
+            name_servers:
+              - 8.8.4.4
+              - 8.8.8.8
+    security:
+      directory_service:
+        configuration:
+          - base_dn: DC=example,DC=com
+            bind_user: CN=nam,DC=example,DC=com
+            bind_password: 1
+            enabled: true
+            uri_list:
+              - ldaps://ad.example.com:636
+            user_login_attribute: sAMAccountName
+            user_object_class: User
+        role_mappings:
+          - name: array_admin
+            role: array_admin
+            group: pureadmins
+            group_base: OU=PureStorage,OU=Hosting,OU=Process,OU=GM,OU=Service Provider,OU=Domain
+          - name: ops_admin
+            role: ops_admin
+            group: pureusers
+            group_base: OU=PureStorage,OU=Hosting,OU=Process,OU=GM,OU=Service Provider,OU=Domain
+          - name: readonly
+            role: readonly
+            group: purereadonly
+            group_base: OU=PureStorage,OU=Hosting,OU=Process,OU=GM,OU=Service Provider,OU=Domain
+          - name: storage_admin
+            role: storage_admin
+            group: pure_storage_admins
+            group_base: OU=PureStorage,OU=Hosting,OU=Process,OU=GM,OU=Service Provider,OU=Domain
+    system:
+      alerts_and_notifications:
+        alert_routing:
+          sender_domain: example.com
+          relay_host: relay.example.com
+        alert_watchers:
+          - email: pure-admins@example.com
+            notification_severity: info
+          - email: ai-admins@example.com
+            notification_severity: info
+      array_details:
+        idle_timeout: 30
+        login_banner: Unauthorized access is prohibited.
+        timezone: America/New_York
+      ntp_servers:
+        - 0.pool.ntp.org
+        - 1.pool.ntp.org
+      support:
+        phone_home_enabled: true
+        proxy_server: https://proxy.example.com:8080
+        remote_assist_connected: 24
+      monitoring:
+        # syslog_server_connections:
+        #   - name: 198_18_5_12
+        #     services:
+        #       - data-audit
+        #       - management
+        #     uri: udp://198.18.5.12:5200
+        snmp:
+          add_snmp_manager:
+            v2c:
+              - host: saf.example.com
+                name: Public
+                snmp_notification: trap
+                community: 1
