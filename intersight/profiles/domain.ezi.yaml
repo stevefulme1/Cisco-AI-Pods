@@ -13,8 +13,8 @@ EXAMPLE:
           - Common/XDirectA
           - Common/XDirectB
         serial_numbers:
-          - FCH29177601
-          - FCH2917762Y
+          - FCH29170000
+          - FCH29170001
         snmp_policy: Common/SNMP
         switch_control_policy: Common/SwCtrl
         system_qos_policy: Common/QoS
@@ -28,8 +28,8 @@ EXAMPLE:
           - Common/XDirectA
           - Common/XDirectB
         serial_numbers:
-          - FCH2913702G
-          - FCH2913702V
+          - FCH29130000
+          - FCH29130001
         snmp_policy: Common/SNMP
         switch_control_policy: Common/SwCtrl
         system_qos_policy: Common/QoS

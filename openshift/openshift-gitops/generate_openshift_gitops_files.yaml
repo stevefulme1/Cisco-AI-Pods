@@ -17,23 +17,23 @@
       ansible.builtin.copy:
         content: "{{ lookup('template', 'ansible_automation_platform.yaml.j2') | from_yaml }}"
         dest: "{{ playbook_dir }}/olm-catalog/ansible-automation-platform/04-ansible-automation-platform.yaml"
-      when: "'ansible-automation-platform' in openshift.operators_to_install"
+      when: "'ansible-automation-platform' in openshift.operators.operators_to_install"
 
     - name: create the Ansible Automation Platform - ConsoleLink from template
       ansible.builtin.copy:
         content: "{{ lookup('template', 'console-link-aap.yaml.j2') | from_yaml }}"
         dest: "{{ playbook_dir }}/olm-catalog/ansible-automation-platform/04-console-link-aap.yaml"
-      when: "'ansible-automation-platform' in openshift.operators_to_install"
+      when: "'ansible-automation-platform' in openshift.operators.operators_to_install"
 
     - name: create the OpenShift GitOps (ArgoCD) Application YAML files from the templates
       ansible.builtin.copy:
         content: "{{ lookup('template', item + '.yaml.j2') | from_yaml }}"
         dest: "{{ playbook_dir }}/olm-catalog/operators/{{ item }}.yaml"
-      loop: "{{ openshift.operators_to_install }}"
+      loop: "{{ openshift.operators.operators_to_install }}"
 
     - name: create the NVIDIA Network Operator - MAC VLAN YAML files from template
       ansible.builtin.copy:
         content: "{{ lookup('template', 'mac_vlan.yaml.j2') | from_yaml }}"
         dest: "{{ playbook_dir }}/olm-catalog/nvidia-network-operator/05-mac-vlan-policy-{{ item.master_interface }}.yaml"
-      loop: "{{ openshift.nvidia_network_operator.mac_vlan }}"
-      when: "'nvidia-network-operator' in openshift.operators_to_install"
+      loop: "{{ openshift.operators.nvidia_network_operator.mac_vlan }}"
+      when: "'nvidia-network-operator' in openshift.operators.operators_to_install"

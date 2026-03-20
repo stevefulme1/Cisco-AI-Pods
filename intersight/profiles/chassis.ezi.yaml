@@ -11,7 +11,7 @@ EXAMPLE:
         snmp_policy: Common/SNMP
         targets:
           - name: ucsai5100-1
-            serial_number: FOX2911P064
+            serial_number: FOX2910000
           - name: ucsai5200-2
-            serial_number: FOX2911P01L
+            serial_number: FOX2910001
         thermal_policy: Common/X9508
