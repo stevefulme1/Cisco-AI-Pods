@@ -1,0 +1,142 @@
+---
+#================================================
+#   Policies -> LAN Connectivity - Variables
+#================================================
+EXAMPLE:
+  policies:
+    lan_connectivity:
+      - name: ControllerLCP
+        target_platform: FIAttached
+        vnics:
+          - enable_failover: true
+            ethernet_adapter_policy: Common/Linux-v2
+            ethernet_network_control_policy: Common/CdpLldp
+            ethernet_network_group_policies:
+              - EXAMPLE:VLAN1502:AI:PRD:MGMT:IB
+            ethernet_qos_policy: Common/BestEffort
+            mac_address_pools:
+              - Common/FabricA
+            names:
+              - eno5
+            placement:
+              pci_order:
+                - 0
+      - name: ControllerLCPv2
+        target_platform: FIAttached
+        vnics:
+          - enable_failover: true
+            ethernet_adapter_policy: Common/16RxQs5G
+            ethernet_network_control_policy: Common/CdpLldp
+            ethernet_network_group_policies:
+              - EXAMPLE:VLAN1502:AI:PRD:MGMT:IB
+            ethernet_qos_policy: Common/BestEffort
+            mac_address_pools:
+              - Common/K8S-Mgmt
+            names:
+              - eno5
+            placement:
+              pci_order:
+                - 0
+      - name: WorkerLCP
+        target_platform: FIAttached
+        vnics:
+          - enable_failover: true
+            ethernet_adapter_policy: Common/Linux-v2
+            ethernet_network_control_policy: Common/CdpLldp
+            ethernet_network_group_policies:
+              - EXAMPLE:VLAN1502:AI:PRD:MGMT:IB
+              - EXAMPLE:VLAN1503:AI:PRD:VM:MGMT
+            ethernet_qos_policy: Common/BestEffort
+            mac_address_pools:
+              - Common/FabricA
+              - Common/FabricB
+            names:
+              - eno5
+              - eno6
+            placement:
+              pci_order:
+                - 0
+                - 1
+          - ethernet_adapter_policy: Common/16RxQs5G
+            ethernet_network_control_policy: Common/CdpLldp
+            ethernet_network_group_policies:
+              - EXAMPLE:VLAN1505:AI:PRD:NVMe-oF:A
+              - EXAMPLE:VLAN1506:AI:PRD:NVMe-oF:B
+            ethernet_qos_policy: Common/Platinum
+            mac_address_pools:
+              - Common/FabricA
+              - Common/FabricB
+            names:
+              - eno7
+              - eno8
+            placement:
+              pci_order:
+                - 2
+                - 3
+          - ethernet_adapter_policy: Common/16RxQs5G
+            ethernet_network_control_policy: Common/CdpLldp
+            ethernet_network_group_policies:
+              - EXAMPLE:VLAN1505:AI:PRD:NVMe-oF:A
+              - EXAMPLE:VLAN1506:AI:PRD:NVMe-oF:B
+            ethernet_qos_policy: Common/Platinum
+            mac_address_pools:
+              - Common/FabricA
+              - Common/FabricB
+            names:
+              - eno9
+              - eno10
+            placement:
+              pci_order:
+                - 4
+                - 5
+          - enable_failover: true
+            ethernet_adapter_policy: Common/16RxQs5G
+            ethernet_network_control_policy: Common/CdpLldp
+            ethernet_network_group_policies:
+              - EXAMPLE:VLAN1504:AI:PRD:NFS
+            ethernet_qos_policy: Common/Platinum
+            mac_address_pools:
+              - Common/FabricA
+            names:
+              - eno11
+            placement:
+              pci_order:
+                - 6
+      - name: WorkerLCPv2
+        target_platform: FIAttached
+        vnics:
+          - enable_failover: true
+            ethernet_adapter_policy: Common/16RxQs5G
+            ethernet_network_control_policy: Common/CdpLldp
+            ethernet_network_group_policies:
+              - EXAMPLE:VLAN1502:AI:PRD:MGMT:IB
+              - EXAMPLE:VLAN1503:AI:PRD:VM:MGMT
+            ethernet_qos_policy: Common/BestEffort
+            mac_address_pools:
+              - Common/K8S-Mgmt
+              - Common/K8S-Workload
+            names:
+              - eno5
+              - eno6
+            placement:
+              pci_order:
+                - 0
+                - 1
+              switch_ids:
+                - A
+                - A
+          - enable_failover: true
+            ethernet_adapter_policy: Common/Linux-v2
+            ethernet_network_control_policy: Common/CdpLldp
+            ethernet_network_group_policies:
+              - EXAMPLE:VLAN1504:AI:PRD:Storage
+            ethernet_qos_policy: Common/Platinum
+            mac_address_pools:
+              - Common/K8S-Storage
+            names:
+              - eno7
+            placement:
+              pci_order:
+                - 2
+              switch_ids:
+                - B

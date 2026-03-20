@@ -1,0 +1,17 @@
+---
+#=======================================
+#   Profiles -> Chassis - Variables
+#=======================================
+EXAMPLE:
+  profiles:
+    chassis:
+      - action: No-op
+        imc_access_policy: KVMAccess
+        power_policy: Common/X9508
+        snmp_policy: Common/SNMP
+        targets:
+          - name: ucsai5100-1
+            serial_number: FOX2911P064
+          - name: ucsai5200-2
+            serial_number: FOX2911P01L
+        thermal_policy: Common/X9508

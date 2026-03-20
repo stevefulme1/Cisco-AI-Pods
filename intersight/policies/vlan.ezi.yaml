@@ -1,0 +1,37 @@
+---
+#====================================
+#   Policies -> VLAN - Variables
+#====================================
+Common:
+  policies:
+    multicast:
+      - name: Multicast
+EXAMPLE:
+  policies:
+    vlan:
+      - name: EXAMPLE:VLANs
+        vlans:
+          - auto_allow_on_uplinks: true
+            multicast_policy: Common/Multicast
+            name: EXAMPLE:VLAN1501:AI:PRD:MGMT:OOB
+            vlan_list: '1501'
+          - auto_allow_on_uplinks: true
+            multicast_policy: Common/Multicast
+            name: EXAMPLE:VLAN1502:AI:PRD:MGMT:IB
+            vlan_list: '1502'
+          - auto_allow_on_uplinks: true
+            multicast_policy: Common/Multicast
+            name: EXAMPLE:VLAN1503:AI:PRD:VM:MGMT
+            vlan_list: '1503'
+          - auto_allow_on_uplinks: true
+            multicast_policy: Common/Multicast
+            name: EXAMPLE:VLAN1504:AI:PRD:Storage
+            vlan_list: '1504'
+          - auto_allow_on_uplinks: true
+            multicast_policy: Common/Multicast
+            name: EXAMPLE:VLAN1505:AI:PRD:NVMe-oF:A
+            vlan_list: '1505'
+          - auto_allow_on_uplinks: true
+            multicast_policy: Common/Multicast
+            name: EXAMPLE:VLAN1506:AI:PRD:NVMe-oF:B
+            vlan_list: '1506'

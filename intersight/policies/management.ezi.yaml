@@ -1,0 +1,55 @@
+---
+#==========================================
+#   Policies -> Management - Variables
+#==========================================
+Common:
+  policies:
+    ipmi_over_lan:
+      - name: IPMI
+        privilege: admin
+    local_user:
+      - name: LocalUsers
+        password_properties:
+          always_send_user_password: false
+          enable_password_expiry: true
+          enforce_strong_password: true
+          grace_period: 0
+          notification_period: 15
+          password_expiry_duration: 90
+          password_history: 0
+        users:
+          - enabled: true
+            password: 1
+            role: admin
+            username: admin
+    network_connectivity:
+      - dns_servers_v4:
+          - 198.18.51.49
+          - 198.18.5.103
+        name: DNS
+    ntp:
+      - name: NTP
+        ntp_servers:
+          - 198.18.50.7
+          - 198.18.33.162
+          - 198.18.65.96
+        timezone: America/Detroit
+    serial_over_lan:
+      - name: SoL
+    snmp:
+      - name: SNMP
+        snmp_port: 161
+    syslog:
+      - local_logging:
+          minimum_severity: warning
+        name: Syslog
+    virtual_kvm:
+      - allow_tunneled_vkvm: true
+        name: vKVM
+EXAMPLE:
+  policies:
+    imc_access:
+      - inband_ip_pool: InbandMgmt
+        inband_vlan_id: 1502
+        name: KVMAccess
+        out_of_band_ip_pool: OobandMgmt

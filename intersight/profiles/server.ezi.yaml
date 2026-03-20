@@ -1,0 +1,66 @@
+# ---
+# #======================================
+# #   Profiles -> Server - Variables
+# #======================================
+# EXAMPLE:
+#   profiles:
+#     server:
+#       - action: No-op
+#         attach_template: true
+#         domain_name: ucsai5100
+#         target_platform: FIAttached
+#         targets:
+#           - name: ucsai5100-1
+#             pre_assign:
+#               chassis_id: 1
+#               slot_id: 1
+#           - name: ucsai5100-3
+#             pre_assign:
+#               chassis_id: 1
+#               slot_id: 3
+#           - name: ucsai5100-5
+#             pre_assign:
+#               chassis_id: 1
+#               slot_id: 5
+#           - name: ucsai5100-7
+#             pre_assign:
+#               chassis_id: 1
+#               slot_id: 7
+#         ucs_server_profile_template: WorkerVirtualizationM8AmdTPM
+#       - action: No-op
+#         attach_template: true
+#         domain_name: ucsai5200
+#         target_platform: FIAttached
+#         targets:
+#           - name: ucsai5200-1
+#             pre_assign:
+#               chassis_id: 1
+#               slot_id: 1
+#           - name: ucsai5200-2
+#             pre_assign:
+#               chassis_id: 1
+#               slot_id: 2
+#           - name: ucsai5200-3
+#             pre_assign:
+#               chassis_id: 1
+#               slot_id: 3
+#         ucs_server_profile_template: ControllerVirtualizationM8AmdTPM
+#       - action: No-op
+#         attach_template: true
+#         domain_name: ucsai5200
+#         target_platform: FIAttached
+#         targets:
+#           - name: ucsai5200-4
+#             pre_assign:
+#               chassis_id: 1
+#               slot_id: 4
+#           - name: ucsai5200-5
+#             pre_assign:
+#               chassis_id: 1
+#               slot_id: 5
+#           - name: ucsai5200-6
+#             pre_assign:
+#               chassis_id: 1
+#               slot_id: 6
+#         ucs_server_profile_template: WorkerVirtualizationM8AmdTPM
+# 

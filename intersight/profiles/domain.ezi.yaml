@@ -1,0 +1,37 @@
+---
+#======================================
+#   Profiles -> Domain - Variables
+#======================================
+EXAMPLE:
+  profiles:
+    domain:
+      - action: No-op
+        name: ucsai5100
+        network_connectivity_policy: Common/DNS
+        ntp_policy: Common/NTP
+        port_policies:
+          - Common/XDirectA
+          - Common/XDirectB
+        serial_numbers:
+          - FCH29177601
+          - FCH2917762Y
+        snmp_policy: Common/SNMP
+        switch_control_policy: Common/SwCtrl
+        system_qos_policy: Common/QoS
+        vlan_policies:
+          - EXAMPLE:VLANs
+      - action: No-op
+        name: ucsai5200
+        network_connectivity_policy: Common/DNS
+        ntp_policy: Common/NTP
+        port_policies:
+          - Common/XDirectA
+          - Common/XDirectB
+        serial_numbers:
+          - FCH2913702G
+          - FCH2913702V
+        snmp_policy: Common/SNMP
+        switch_control_policy: Common/SwCtrl
+        system_qos_policy: Common/QoS
+        vlan_policies:
+          - EXAMPLE:VLANs
