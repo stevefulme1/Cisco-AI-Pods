@@ -1,0 +1,7 @@
+openshift:
+  install:
+    bare_metal:
+      cluster_name: "aipod-cluster"
+      cluster_domain: "aipod-cluster.local"
+      cluster_networking:
+        cluster_network_cidr: "10.128.0.0/14"

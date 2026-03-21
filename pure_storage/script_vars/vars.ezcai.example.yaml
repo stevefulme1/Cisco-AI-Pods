@@ -19,86 +19,80 @@ pure_storage:
     network:
       connectors:
         ethernet:
-          - address: 198.18.0.30
-            array_fqdn: array01.example.com
-            enabled: true
-            gateway: 198.18.0.254
-            mtu: 9000
-            name: ct0.eth10
-            prefix: 24
-            services:
-              - nvme-tcp
-            state: present
-          - address: 198.18.0.31
-            array_fqdn: array01.example.com
-            enabled: true
-            gateway: 198.18.0.254
-            mtu: 9000
-            name: ct0.eth11
-            prefix: 24
-            services:
-              - nvme-tcp
-            state: present
-          - address: 198.18.0.32
-            array_fqdn: array01.example.com
-            enabled: true
-            gateway: 198.18.0.254
-            mtu: 9000
-            name: ct0.eth14
-            prefix: 24
-            services:
-              - nvme-tcp
-            state: present
-          - address: 198.18.0.33
-            array_fqdn: array01.example.com
-            enabled: true
-            gateway: 198.18.0.254
-            mtu: 9000
-            name: ct0.eth15
-            prefix: 24
-            services:
-              - nvme-tcp
-            state: present
-          - address: 198.18.0.34
-            array_fqdn: array01.example.com
-            enabled: true
-            gateway: 198.18.0.254
-            mtu: 9000
-            name: ct1.eth10
-            prefix: 24
-            services:
-              - nvme-tcp
-            state: present
-          - address: 198.18.0.35
-            array_fqdn: array01.example.com
-            enabled: true
-            gateway: 198.18.0.254
-            mtu: 9000
-            name: ct1.eth11
-            prefix: 24
-            services:
-              - nvme-tcp
-            state: present
-          - address: 198.18.0.36
-            array_fqdn: array01.example.com
-            enabled: true
-            gateway: 198.18.0.254
-            mtu: 9000
-            name: ct1.eth14
-            prefix: 24
-            services:
-              - nvme-tcp
-            state: present
-          - address: 198.18.0.37
-            array_fqdn: array01.example.com
-            enabled: true
-            gateway: 198.18.0.254
-            mtu: 9000
-            name: ct1.eth15
-            prefix: 24
-            services:
-              - nvme-tcp
-            state: present
+          - array_fqdn: array01.example.com
+            interface_list:
+              - address: 198.18.0.30
+                enabled: true
+                gateway: 198.18.0.254
+                mtu: 9000
+                name: ct0.eth10
+                prefix: 24
+                services:
+                  - nvme-tcp
+                state: present
+              - address: 198.18.0.31
+                enabled: true
+                gateway: 198.18.0.254
+                mtu: 9000
+                name: ct0.eth11
+                prefix: 24
+                services:
+                  - nvme-tcp
+                state: present
+              - address: 198.18.0.32
+                enabled: true
+                gateway: 198.18.0.254
+                mtu: 9000
+                name: ct0.eth14
+                prefix: 24
+                services:
+                  - nvme-tcp
+                state: present
+              - address: 198.18.0.33
+                enabled: true
+                gateway: 198.18.0.254
+                mtu: 9000
+                name: ct0.eth15
+                prefix: 24
+                services:
+                  - nvme-tcp
+                state: present
+              - address: 198.18.0.34
+                enabled: true
+                gateway: 198.18.0.254
+                mtu: 9000
+                name: ct1.eth10
+                prefix: 24
+                services:
+                  - nvme-tcp
+                state: present
+              - address: 198.18.0.35
+                enabled: true
+                gateway: 198.18.0.254
+                mtu: 9000
+                name: ct1.eth11
+                prefix: 24
+                services:
+                  - nvme-tcp
+                state: present
+              - address: 198.18.0.36
+                enabled: true
+                gateway: 198.18.0.254
+                mtu: 9000
+                name: ct1.eth14
+                prefix: 24
+                services:
+                  - nvme-tcp
+                state: present
+              - address: 198.18.0.37
+                enabled: true
+                gateway: 198.18.0.254
+                mtu: 9000
+                name: ct1.eth15
+                prefix: 24
+                services:
+                  - nvme-tcp
+                state: present
       dns:
         dns_configurations:
           - domain: example.com
