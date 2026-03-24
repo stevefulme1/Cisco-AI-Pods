@@ -14,7 +14,7 @@ metadata:
   name: sriov-network-operator
   namespace: openshift-sriov-network-operator
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "12"
 spec:
   targetNamespaces:
     - openshift-sriov-network-operator
@@ -25,7 +25,7 @@ metadata:
   name: sriov-network-operator
   namespace: openshift-sriov-network-operator
   annotations:
-    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-wave: "12"
 spec:
   channel: stable
   name: sriov-network-operator
