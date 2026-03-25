@@ -1,3 +1,5 @@
+installPlanApproval: Manual
+
 rhoaiChannel: "stable-3.3"
 rhoaiVersion: "rhods-operator.3.3.0"
 kueue: &kueue "Unmanaged"
@@ -56,9 +58,6 @@ dashboardConfig:
 
 defaultWorkbenchPvcSize: 20Gi
 showJupyterInEnabledApplications: true
-notebookIdleCulling:
-  enabled: true
-  timeoutInMinutes: 240
 
 modelServerSizes:
   - name: Small
