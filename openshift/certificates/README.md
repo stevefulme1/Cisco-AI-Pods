@@ -29,10 +29,10 @@ export user_ca_bundle_file="full_path_to_bundle_file"
 
 ### How to Run
 
-1. Run the User CA Bundle playbook:
+1. Run the Load Certificates playbook:
 
 ```bash
-ansible-playbook load_user_bundle_ca.yaml
+ansible-playbook load_certificates.yaml
 ```
 
 2. Verify the ConfigMap was created:
