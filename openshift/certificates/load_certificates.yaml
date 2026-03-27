@@ -39,7 +39,7 @@
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'user-ca-bundle.yaml.j2') | from_yaml }}"
-        validate_certs: {{ validate_certificates }}
+        validate_certs: "{{ validate_certificates }}"
 
     - name: Patch Cluster Proxy
       ansible.builtin.shell: |
@@ -64,7 +64,7 @@
         api_version: machineconfiguration.openshift.io/v1
         kind: MachineConfigPool
         name: master
-        validate_certs: {{ validate_certificates }}
+        validate_certs: "{{ validate_certificates }}"
       register: mcp_master
       until:
         - mcp_master.resources is defined
@@ -119,7 +119,7 @@
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'ingress-tls-secret.yaml.j2') | from_yaml }}"
-        validate_certs: {{ validate_certificates }}
+        validate_certs: "{{ validate_certificates }}"
 
     - name: Patch Ingress Controller to use new TLS Secrets
       ansible.builtin.shell: |
@@ -197,7 +197,7 @@
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'api-tls-secret.yaml.j2') | from_yaml }}"
-        validate_certs: {{ validate_certificates }}
+        validate_certs: "{{ validate_certificates }}"
 
     - name: Patch API to use new TLS Secrets
       ansible.builtin.shell: |
@@ -212,7 +212,7 @@
         api_version: operator.openshift.io/v1
         kind: KubeAPIServer
         name: cluster
-        validate_certs: {{ validate_certificates }}
+        validate_certs: "{{ validate_certificates }}"
       register: kube_apiserver
       until:
         - kube_apiserver.resources is defined

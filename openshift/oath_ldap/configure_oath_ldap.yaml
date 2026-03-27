@@ -35,7 +35,7 @@
         state: present
         # Use lookup to parse the j2 file before sending to K8s
         definition: "{{ lookup('template', 'active-directory.yaml.j2') | from_yaml }}"
-        validate_certs: {{ validate_certificates }}
+        validate_certs: "{{ validate_certificates }}"
 
     - name: Set Bind Password Variable
       ansible.builtin.set_fact:
@@ -46,7 +46,7 @@
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'project.yaml.j2') | from_yaml }}"
-        validate_certs: {{ validate_certificates }}
+        validate_certs: "{{ validate_certificates }}"
 
     - name: Create ldap-sync.yaml
       ansible.builtin.template:
@@ -81,7 +81,7 @@
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'rbac-ldap-group-sync.yaml.j2') | from_yaml }}"
-        validate_certs: {{ validate_certificates }}
+        validate_certs: "{{ validate_certificates }}"
 
     - name: Create ldap-sync Service Account
       ansible.builtin.shell: |
@@ -99,7 +99,7 @@
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'ldap-cron.yaml.j2') | from_yaml }}"
-        validate_certs: {{ validate_certificates }}
+        validate_certs: "{{ validate_certificates }}"
 
     - name: Delete Generated Files
       ansible.builtin.file:
