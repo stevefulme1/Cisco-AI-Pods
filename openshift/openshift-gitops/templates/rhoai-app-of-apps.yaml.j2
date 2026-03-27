@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-of-apps
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: '{{ openshift.operators.openshift_gitops.gitops_repo_url }}'
+    path: openshift/openshift-gitops/templates/rhoai_app_of_apps/
+    targetRevision: main
+    helm:
+      valuesObject:
+        installPlanApproval: Manual
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openshift-gitops
+  syncPolicy:
+    automated:
+      prune: {{ openshift.operators.openshift_gitops.prune | default('false') }}
+      selfHeal: {{ openshift.operators.openshift_gitops.self_heal | default('false') }}
+    syncOptions:
+      - SkipDryRunOnMissingResource=true
+      - RespectIgnoreDifferences=true
+      - ApplyOutOfSyncOnly=true
+      - ServerSideApply=true
