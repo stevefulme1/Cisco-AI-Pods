@@ -11,7 +11,7 @@ pure_storage:
       nfs_endpoint: array02-vl103.example.com
   portworx:
     array_user: portworx
-    cluster_name: "px-cluster"
+    cluster_name: <openshift-cluster-name>
     namespace: portworx
     operator_source: "certified-operators"
     version: "3.5.2.1"

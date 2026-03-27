@@ -1,0 +1,10 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 99-kernel-arguments-control-plane
+spec:
+  kernelArguments:
+    - "module_blacklist=irdma,rpcrdma"
+    - nvme_core.multipath=N
