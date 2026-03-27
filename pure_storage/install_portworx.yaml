@@ -9,7 +9,7 @@
   tasks:
     - name: Load variables from script folder
       ansible.builtin.include_vars:
-        dir: "{{ playbook_dir }}/script_vars"
+        file: "{{ playbook_dir }}/script_vars/vars.ezcai.yaml"
 
     - name: Log in to OpenShift (requires oc binary on host)
       ansible.builtin.command:

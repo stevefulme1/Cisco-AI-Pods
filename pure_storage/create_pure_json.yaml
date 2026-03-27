@@ -5,9 +5,9 @@
   hosts: localhost
 
   tasks:
-    - name: Pure Storage | Load global vars
+    - name: Load variables from script folder
       ansible.builtin.include_vars:
-        dir: "{{ playbook_dir }}/script_vars"
+        file: "{{ playbook_dir }}/script_vars/vars.ezcai.yaml"
 
     - name: Pure Storage | Flash Array | Portworx
       include_tasks:
