@@ -1,8 +1,8 @@
-{{- if .Values.enableWorkloadScalingApp }}
+{{- if .Values.enableInfrastructureApp }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: workload-scaling-operators
+  name: infrastructure-utility-operators
   namespace: openshift-gitops
   annotations:
     argocd.argoproj.io/sync-wave: "0"
@@ -11,17 +11,17 @@ spec:
     name: in-cluster
     namespace: openshift-gitops
   source:
-    path: openshift/openshift-gitops/helm/workload-scaling/
-    repoURL: https://github.com/scotttyso/Cisco-AI-Pods/tree/main.git
+    path: openshift/openshift-gitops/helm/infrastructure-utilities/
+    repoURL: '{{ openshift.operators.openshift_gitops.gitops_repo_url }}'
     targetRevision: main
     helm:
       valuesObject:
-        {{- .Values.configuration.WorkloadScalingApp | toYaml | nindent 8 }}
+        {{- .Values.configuration.infrastructureApp | toYaml | nindent 8 }}
   project: default
   syncPolicy:
     automated:
-      prune: false
-      selfHeal: false 
+      prune: {{ openshift.operators.openshift_gitops.prune | default('false') }}
+      selfHeal: {{ openshift.operators.openshift_gitops.self_heal | default('false') }}
     retry:
       limit: 10
       backoff:
