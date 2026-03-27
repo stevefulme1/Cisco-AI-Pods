@@ -5,6 +5,7 @@
   gather_facts: no
   vars:
     namespace: gitea-operator
+    validate_certificates: false
 
   tasks:
     - name: Log in to OpenShift (requires oc binary on host)
@@ -19,32 +20,32 @@
         kind: Namespace
         name: "{{ namespace }}"
         state: present
-        validate_certs: false
+        validate_certs: {{ validate_certificates }}
 
     - name: Create Gitea Operator Group
       kubernetes.core.k8s:
         definition: "{{ lookup('template', 'operator-group.yaml.j2') | from_yaml }}"
         state: present
-        validate_certs: false
+        validate_certs: {{ validate_certificates }}
 
     - name: Create Gitea Operator Catalog Source
       kubernetes.core.k8s:
         definition: "{{ lookup('template', 'catalog-source.yaml.j2') | from_yaml }}"
         state: present
-        validate_certs: false
+        validate_certs: {{ validate_certificates }}
 
     - name: Create Gitea Operator subscription
       kubernetes.core.k8s:
         definition: "{{ lookup('template', 'subscription.yaml.j2') | from_yaml }}"
         state: present
-        validate_certs: false
+        validate_certs: {{ validate_certificates }}
 
     - name: Wait for Gitea Operator deployment to be ready
       kubernetes.core.k8s_info:
         kind: Deployment
         namespace: "{{ namespace }}"
         name: gitea-operator-controller-manager
-        validate_certs: false
+        validate_certs: {{ validate_certificates }}
       register: deployment_info
       until: deployment_info.resources[0].status.availableReplicas | default(0) > 0
       retries: 10
@@ -54,4 +55,4 @@
       kubernetes.core.k8s:
         definition: "{{ lookup('template', 'instance.yaml.j2') | from_yaml }}"
         state: present
-        validate_certs: false
+        validate_certs: {{ validate_certificates }}

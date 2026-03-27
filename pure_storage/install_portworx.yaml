@@ -1,7 +1,10 @@
 ---
 - name: Deploy Portworx 3.5.2 on OpenShift 4.21
-  hosts: localhost
   connection: local
+  hosts: localhost
+  gather_facts: no
+  vars:
+    validate_certificates: false
 
   tasks:
     - name: Load variables from script folder
@@ -19,6 +22,7 @@
         name: "{{ pure_storage.portworx.namespace }}"
         kind: Namespace
         state: present
+        validate_certs: {{ validate_certificates }}
 
     - name: Get secret information
       kubernetes.core.k8s_info:
@@ -26,6 +30,7 @@
         kind: Secret
         name: px-pure-secret
         namespace: "{{ pure_storage.portworx.namespace }}"
+        validate_certs: {{ validate_certificates }}
       register: secret_check
 
     - name: Create Portworx Secret
@@ -47,6 +52,7 @@
           spec:
             targetNamespaces:
               - "{{ pure_storage.portworx.namespace }}"
+        validate_certs: {{ validate_certificates }}
 
     - name: Create Subscription for Portworx Operator
       kubernetes.core.k8s:
@@ -63,12 +69,14 @@
             name: portworx-operator
             source: "{{ pure_storage.portworx.operator_source }}"
             sourceNamespace: openshift-marketplace
+        validate_certs: {{ validate_certificates }}
 
     - name: Wait for Portworx Operator to be ready
       kubernetes.core.k8s_info:
         kind: Deployment
         name: portworx-operator
         namespace: "{{ pure_storage.portworx.namespace }}"
+        validate_certs: {{ validate_certificates }}
       register: operator_deploy
       until: 
         - operator_deploy.resources | length > 0
@@ -80,13 +88,16 @@
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'storage-cluster.yaml.j2') | from_yaml }}"
+        validate_certs: {{ validate_certificates }}
 
     - name: Deploy Portworx Flash Array Storage Class
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'storage-class-fada.yaml.j2') | from_yaml }}"
+        validate_certs: {{ validate_certificates }}
 
     - name: Deploy Portworx Flash Blade Storage Class
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'storage-fbda.yaml.j2') | from_yaml }}"
+        validate_certs: {{ validate_certificates }}

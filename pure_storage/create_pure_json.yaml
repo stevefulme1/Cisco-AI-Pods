@@ -1,8 +1,9 @@
 ---
 - name: Create Portworx Secret pure.json file
-  hosts: localhost
   connection: local
-  gather_facts: false
+  gather_facts: no
+  hosts: localhost
+
   tasks:
     - name: Pure Storage | Load global vars
       ansible.builtin.include_vars:
