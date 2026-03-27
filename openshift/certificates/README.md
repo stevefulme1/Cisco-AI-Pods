@@ -12,9 +12,9 @@
 
 Obtain the API token and url by logging into OpenShift > User > Copy Login
 
-![Copy Login Command](../images/copy_login_command.png)
+![Copy Login Command](../../images/copy_login_command.png)
 
-![Display Token](../images/display_token.png)
+![Display Token](../../images/display_token.png)
 
 ```bash
 export openshift_api_url="api_url"
