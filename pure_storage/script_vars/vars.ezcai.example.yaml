@@ -14,7 +14,7 @@ pure_storage:
     cluster_name: "px-cluster"
     namespace: portworx
     operator_source: "certified-operators"
-    version: "3.5.2"
+    version: "3.5.2.1"
   settings:
     network:
       connectors:
