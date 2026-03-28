@@ -9,6 +9,15 @@
   * [Manually Add API Certificate](#manually-add-api-certificate)`: Replace API self-signed certificate with signed certificate.
   * [Manually Add Ingress Gateway Certificate](#manually-add-ingress-gateway-certificate)`: Replace Ingress Gateway self-signed certificate with signed certificate.
 
+## Prerequisites
+
+* You must have a wildcard certificate for the fully qualified .apps subdomain and its corresponding private key. Each should be in a separate PEM format file.
+* The private key must be unencrypted. If your key is encrypted, decrypt it before importing it into OpenShift Container Platform.
+* The certificate must include the subjectAltName extension showing *.apps.<clustername>.<domain>.
+* The certificate file can contain one or more certificates in a chain. The file must list the wildcard certificate as the first certificate, followed by other intermediate certificates, and then ending with the root CA certificate.
+* Copy the root CA certificate into an additional PEM format file.
+* Verify that all certificates which include -----END CERTIFICATE----- also end with one carriage return after that line.
+
 ## Create the API Certificate Request
 
 ### Components of a Distinguished Name
@@ -107,15 +116,6 @@ openssl req -newkey rsa:2048 -keyout apps-<cluster-name>.key -out apps-<cluster-
 ### [Back to Table of Content](#table-of-content)
 
 ## Run the Certificate Modules
-
-### Prerequisites
-
-* You must have a wildcard certificate for the fully qualified .apps subdomain and its corresponding private key. Each should be in a separate PEM format file.
-* The private key must be unencrypted. If your key is encrypted, decrypt it before importing it into OpenShift Container Platform.
-* The certificate must include the subjectAltName extension showing *.apps.<clustername>.<domain>.
-* The certificate file can contain one or more certificates in a chain. The file must list the wildcard certificate as the first certificate, followed by other intermediate certificates, and then ending with the root CA certificate.
-* Copy the root CA certificate into an additional PEM format file.
-* Verify that all certificates which include -----END CERTIFICATE----- also end with one carriage return after that line.
 
 ### Load the Variables to Environment
 
