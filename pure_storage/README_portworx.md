@@ -3,7 +3,8 @@
 ## Table of Content
 
   * [Run the Create pure.json module](#run-the-create-purejson-module): Create pure.json module for Portworx Secret / Authentication in OpenShift.
-  * [Run the Portworx install module](#run-the-portworx-install-module)`: Install Portworx Operator on Openshift and create storage classes.
+  * [Run the Portworx install module](#run-the-portworx-install-module): Install Portworx Operator create Storage Classes.
+  * [Test the Storage Classes](#test-the-storage-classes): Create Example Persistent Volume Claims.
 
 ## Run the Create pure.json module
 
@@ -74,6 +75,17 @@ ansible-playbook install_portworx.yml
 ```bash
 oc get pods -n portworx
 oc get storagecluster -n portworx
+```
+
+### [Back to Table of Content](#table-of-content)
+
+## Test the Storage Classes
+
+In the folder `examples/pvc` are two example files to deploy Persistent Volume Claims `PVC` to the storage arrays.
+
+```bash
+cd examples/pvc
+oc apply -f *
 ```
 
 ### [Back to Table of Content](#table-of-content)
