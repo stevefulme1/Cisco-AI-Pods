@@ -80,14 +80,9 @@
         definition: "{{ lookup('template', 'storage-cluster.yaml.j2') | from_yaml }}"
         validate_certs: "{{ validate_certificates }}"
 
-    - name: Deploy Portworx Flash Array Storage Class
+    - name: Deploy Portworx Storage Classes
       kubernetes.core.k8s:
         state: present
-        definition: "{{ lookup('template', 'storage-class-fada.yaml.j2') | from_yaml }}"
+        definition: "{{ lookup('template', 'storage-classes.yaml.j2') | from_yaml }}"
         validate_certs: "{{ validate_certificates }}"
-
-    - name: Deploy Portworx Flash Blade Storage Class
-      kubernetes.core.k8s:
-        state: present
-        definition: "{{ lookup('template', 'storage-class-fbda.yaml.j2') | from_yaml }}"
-        validate_certs: "{{ validate_certificates }}"
+      loop: "{{ pure_storage.portworx.storage_classes }}"

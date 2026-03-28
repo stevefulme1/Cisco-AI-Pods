@@ -32,11 +32,11 @@ ansible-playbook create_pure_json.yaml
 
 ## Run the Portworx install module
 
-To install Portworx 3.5.2 on OpenShift 4.21 using Ansible, the most efficient method is to leverage the Operator Lifecycle Manager (OLM). This involves creating the necessary Namespace, OperatorGroup, and Subscription, followed by the StorageCluster Custom Resource (CR).
+To install Portworx `3.5.2` on OpenShift `4.20+` using Ansible, the most efficient method is to leverage the Operator Lifecycle Manager (OLM). This involves creating the necessary Namespace, OperatorGroup, and Subscription, followed by the StorageCluster Custom Resource (CR).
 
 ### Portworx OpenShift Prerequisites
 
-**OCP Access**: A kubeconfig file with cluster-admin permissions.
+**OCP Access**: A `kubeconfig` file with cluster-admin permissions.
 **Portworx Spec**: It is highly recommended to generate your specific StorageCluster YAML from [Portworx Central](https://central.portworx.com/) to match your infrastructure (e.g., vSphere, AWS, or Bare Metal).
 
 ## Key Components Explained
@@ -45,10 +45,10 @@ To install Portworx 3.5.2 on OpenShift 4.21 using Ansible, the most efficient me
 **Subscription**: This pulls the Portworx Operator from the Red Hat Certified Operators catalog.
 **StorageCluster CR**: This is the core configuration.
 * **kvdb**: Set to internal: true to use Portworx's built-in KVDB. For large production clusters, an external etcd is often preferred.
-* **devices**: You must specify the raw block devices available on your OpenShift worker nodes.
+* **devices**: You must specify the raw block devices available on your OpenShift nodes.
 * **stork**: Enabled for advanced scheduling and migration capabilities.
 
-### Load the Variables to Environment
+1. Load the Sensitive Variables into the system Environment
 
 Obtain the API token and url by logging into OpenShift > User > Copy Login
 
@@ -61,9 +61,9 @@ export openshift_api_url="api_url"
 export openshift_token_id="token_value"
 ```
 
-### How to Run
+1. Validate that the Variables in the `script_vars/vars.ezcai.yaml` match your expected deployment
 
-1. Run the playbook:
+3. Run the playbook:
 
 ```bash
 ansible-playbook install_portworx.yml

@@ -1,0 +1,16 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: "{{ item.name }}"
+{% if item.default_class is defined and item.default_class == true %}
+  annotations:
+    storageclass.kubernetes.io/is-default-class: 'true'
+{% endif %}
+allowVolumeExpansion: true
+parameters:
+{% for key, value in item.parameters.items() %}
+  {{ key }}: "{{ value }}"
+{% endfor %}
+provisioner: pxd.portworx.com
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
