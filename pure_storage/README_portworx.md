@@ -85,7 +85,7 @@ In the folder `examples/pvc` are two example files to deploy Persistent Volume C
 
 ```bash
 cd examples/pvc
-oc apply -f *
+oc apply -f pvc/
 ```
 
 ### [Back to Table of Content](#table-of-content)
