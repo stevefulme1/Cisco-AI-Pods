@@ -19,14 +19,13 @@ pure_storage:
         parameters:
           backend: pure_block
           io_priority: high
-          repl: "3"
+          repl: "2"
       - name: px-csi-gold-file
         default_class: true
         parameters:
           backend: pure_file
           io_priority: high
           pure_export_rules: "*(rw,no_root_squash)"
-          repl: "2"
     version: "3.5.2.1"
   settings:
     network:
