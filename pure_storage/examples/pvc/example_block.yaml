@@ -8,4 +8,4 @@ spec:
   resources:
     requests:
       storage: 30Gi 
-  storageClassName: px-gold-block
+  storageClassName: px-csi-gold-block
