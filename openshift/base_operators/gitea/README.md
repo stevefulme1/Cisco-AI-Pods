@@ -4,8 +4,7 @@
 
 * Ansible 6.7 or later installed on the installer host.
 * Python 3 and required Python modules (openshift Ansible module).
-* Access to the OpenShift 4.21 cluster with `oc` CLI configured.
-* OpenShift GitOps Operator manifests or Operator Lifecycle Manager (OLM) subscription details.
+* Access to the OpenShift 4.2X cluster with `oc` CLI configured.
 
 ### Load the Variables to Environment
 
@@ -36,7 +35,7 @@ oc get pods -n gitea-operator
 
 ## Notes:
 
-* This playbook creates the namespace, subscribes to the GitOps Operator from the Red Hat Operator Catalog, waits for the operator to be ready, and deploys an Argo CD instance.
-* Adjust the subscription channel and source as per your OpenShift 4.21 environment.
+* This playbook creates the namespace, subscribes to the Gitea Operator from the Red Hat Operator Catalog, and waits for the operator to be ready.
+* Adjust the subscription channel and source as per your OpenShift environment.
 * Ensure the k8s Ansible module is installed (`pip install openshift`).
 * For full automation, integrate this playbook into your existing OpenShift installation automation.
