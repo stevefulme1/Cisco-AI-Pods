@@ -19,7 +19,6 @@ pure_storage:
         parameters:
           backend: pure_block
           io_priority: high
-          repl: "2"
       - name: px-csi-gold-file
         default_class: true
         parameters:
