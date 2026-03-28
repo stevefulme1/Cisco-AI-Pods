@@ -39,7 +39,7 @@ ST = California
 L = San Jose
 O = Example Company
 OU = AI Admins
-CN = apps.<cluster-name>.example.com
+CN = api.<cluster-name>.example.com
 emailAddress = admins@example.com
 
 [v3_req]
@@ -48,12 +48,11 @@ extendedKeyUsage = serverAuth
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = apps.<cluster-name>.example.com
-DNS.2 = *.apps.<cluster-name>.example.com
-IP.1 = 198.18.0.11
+DNS.1 = api.<cluster-name>.example.com
+IP.1 = 198.18.0.10
 ```
 
-2. Run OpenSSL to make the request
+2. Run OpenSSL to create the signing request.
 
 ```bash
 openssl req -newkey rsa:2048 -keyout api-<cluster-name>.key -out api-<cluster-name>.csr -config api.conf -nodes
@@ -83,7 +82,7 @@ ST = California
 L = San Jose
 O = Example Company
 OU = AI Admins
-CN = api.<cluster-name>.example.com
+CN = apps.<cluster-name>.example.com
 emailAddress = admins@example.com
 
 [v3_req]
@@ -92,11 +91,12 @@ extendedKeyUsage = serverAuth
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = api.<cluster-name>.example.com
-IP.1 = 198.18.0.10
+DNS.1 = apps.<cluster-name>.example.com
+DNS.2 = *.apps.<cluster-name>.example.com
+IP.1 = 198.18.0.11
 ```
 
-2. Run OpenSSL to make the request
+2. Run OpenSSL to create the signing request.
 
 ```bash
 openssl req -newkey rsa:2048 -keyout apps-<cluster-name>.key -out apps-<cluster-name>.csr -config ingress.conf -nodes
@@ -286,9 +286,9 @@ oc patch ingresscontroller.operator/default --type=merge -p '{"spec":{"defaultCe
 oc get events -w -n openshift-ingress
 ```
 
-### [Back to Table of Content](#table-of-content)
-
 ## Sources
 
 [Custom Root CA in OpenShift](https://kenmoini.com/post/2022/02/custom-root-ca-in-openshift/)
 [Red Hat Support - Custom PKI](https://access.redhat.com/documentation/en-us/openshift_container_platform/4.9/html/networking/configuring-a-custom-pki)
+
+### [Back to Table of Content](#table-of-content)
