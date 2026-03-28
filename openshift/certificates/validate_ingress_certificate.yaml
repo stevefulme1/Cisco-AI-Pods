@@ -1,0 +1,49 @@
+---
+- name: Add Ingress Certificate to OpenShift cluster
+  connection: local
+  hosts: localhost
+  gather_facts: no
+  vars:
+    validate_certificates: false
+
+  tasks:
+    #####################
+    # INGRESS CERTIFICATE
+    #####################
+    - name: Log in to OpenShift (requires oc binary on host)
+      ansible.builtin.command:
+        cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
+      register: login_result
+      no_log: true # Prevent sensitive info in logs
+    
+    - name: Verify Ingress Controller Patch
+      ansible.builtin.shell: |
+        oc get ingresscontroller.operator/default -n openshift-ingress-operator -o yaml
+      register: ingress_controller_patch_result
+
+    - name: Report Ingress Controller Patch Result
+      ansible.builtin.debug:
+        msg: "Ingress Controller Patch Result: {{ ingress_controller_patch_result.stdout }}"
+      failed_when: "'ingress-tls-secret' not in ingress_controller_patch_result.stdout"
+    
+    - name: Restart Ingress Router Pods to pick up new certificates
+      ansible.builtin.shell: |
+        oc delete pod -n openshift-ingress --selector=app.kubernetes.io/name=router
+    
+    - name: Restart Oauth Server Pods to pick up new certificates
+      ansible.builtin.shell: |
+        oc delete pod -n openshift-authentication --selector=app=oauth-openshift
+
+    - name: Wait for OpenShift OAuth Pods to be Running
+      ansible.builtin.shell: |
+        oc wait --for=condition=Ready pod --all -n openshift-authentication --timeout=300s
+
+    - name: Wait for Ingress Router Pods to be Running
+      ansible.builtin.shell: |
+        oc wait --for=condition=Ready pod --all -n openshift-ingress --timeout=300s
+
+    # - name: Log out of OpenShift
+    #   ansible.builtin.command:
+    #     cmd: oc logout
+    #   register: logout_result
+    #   no_log: true # Prevent sensitive info in logs

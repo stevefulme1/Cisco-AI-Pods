@@ -3,9 +3,108 @@
 ## Table of Content
 
   * [Prerequisites](#prerequisites): Preparing the certificate files
+  * [Create the API Certificate Request](#create-the-api-certificate-request): Generate CSR for API.
+  * [Create the Ingress Gateway Certificate Request](#create-the-ingress-gateway-certificate-request): Generate CSR for Ingress Gateway.
   * [Run the Certificate Modules](#run-the-certificate-modules): Import User Certificate trusted sources.
   * [Manually Add API Certificate](#manually-add-api-certificate)`: Replace API self-signed certificate with signed certificate.
   * [Manually Add Ingress Gateway Certificate](#manually-add-ingress-gateway-certificate)`: Replace Ingress Gateway self-signed certificate with signed certificate.
+
+## Create the API Certificate Request
+
+### Components of a Distinguished Name
+
+The key-value pairs in a distinguished name use standard abbreviations: 
+
+  * `C`: Country Name (2-letter ISO code, e.g., `US`)
+  * `ST`: State or Province Name (full name, e.g., `California`)
+  * `L`: Locality Name (e.g., `San Francisco` or `SomeCity`)
+  * `O`: Organization Name (e.g., `My Company`)
+  * `OU`: Organizational Unit Name (e.g., `IT Department` or `MyDivision`)
+  * `CN`: Common Name (typically the Fully Qualified Domain Name (FQDN) of the server, e.g.,` www.example.com`)
+  * `emailAddress`: Contact email address (e.g., `webmaster@example.com`)
+
+1. Create the OpenSSL Configuration file `api.conf`.  Example Below:
+
+```bash
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha512
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+
+[req_distinguished_name]
+C = UCS
+ST = California
+L = San Jose
+O = Example Company
+OU = AI Admins
+CN = apps.<cluster-name>.example.com
+emailAddress = admins@example.com
+
+[v3_req]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = apps.<cluster-name>.example.com
+DNS.2 = *.apps.<cluster-name>.example.com
+IP.1 = 198.18.0.11
+```
+
+2. Run OpenSSL to make the request
+
+```bash
+openssl req -newkey rsa:2048 -keyout api-<cluster-name>.key -out api-<cluster-name>.csr -config api.conf -nodes
+```
+
+3. Submit the request to your certificate authority
+
+### [Back to Table of Content](#table-of-content)
+
+## Create the Ingress Gateway Certificate Request
+
+### Components of a Distinguished Name
+
+1. Create the OpenSSL Configuration file `ingress.conf`.  Example Below:
+
+```bash
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha512
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+
+[req_distinguished_name]
+C = UCS
+ST = California
+L = San Jose
+O = Example Company
+OU = AI Admins
+CN = api.<cluster-name>.example.com
+emailAddress = admins@example.com
+
+[v3_req]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = api.<cluster-name>.example.com
+IP.1 = 198.18.0.10
+```
+
+2. Run OpenSSL to make the request
+
+```bash
+openssl req -newkey rsa:2048 -keyout apps-<cluster-name>.key -out apps-<cluster-name>.csr -config ingress.conf -nodes
+```
+
+3. Submit the request to your certificate authority
+
+### [Back to Table of Content](#table-of-content)
 
 ## Run the Certificate Modules
 

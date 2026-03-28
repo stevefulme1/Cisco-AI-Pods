@@ -1,0 +1,36 @@
+---
+- name: Add API Certificate to OpenShift cluster
+  connection: local
+  hosts: localhost
+  gather_facts: no
+  vars:
+    validate_certificates: false
+
+  tasks:
+    #####################
+    # API CERTIFICATE
+    #####################
+    - name: Log in to OpenShift (requires oc binary on host)
+      ansible.builtin.command:
+        cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
+      register: login_result
+      no_log: true # Prevent sensitive info in logs
+    
+    - name: Wait for Kube API Server to be Ready after Certificate Update
+      kubernetes.core.k8s_info:
+        api_version: operator.openshift.io/v1
+        kind: KubeAPIServer
+        name: cluster
+        validate_certs: "{{ validate_certificates }}"
+      register: kube_apiserver
+      until:
+        - kube_apiserver.resources is defined
+        - kube_apiserver.resources[0].status.conditions | selectattr('type', 'equalto', 'NodeInstallerProgressing') | map(attribute='status') | first == 'False'
+      retries: 30
+      delay: 60
+
+    # - name: Log out of OpenShift
+    #   ansible.builtin.command:
+    #     cmd: oc logout
+    #   register: logout_result
+    #   no_log: true # Prevent sensitive info in logs

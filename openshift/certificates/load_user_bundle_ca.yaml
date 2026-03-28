@@ -55,9 +55,9 @@
         msg: "Cluster Proxy Patch Result: {{ proxy_patch_result.stdout }}"
       failed_when: "'user-ca-bundle' not in proxy_patch_result.stdout"
     
-    - name: Pause for 3 minutes
+    - name: Pause for 1 minutes
       ansible.builtin.pause:
-        minutes: 3
+        minutes: 1
 
     - name: Wait for Master MCP to update
       kubernetes.core.k8s_info:

@@ -49,6 +49,12 @@
         ingress_cert_chain_file_b64: "{{ lookup('file', lookup('ansible.builtin.env', 'ingress_cert_chain_file')) | b64encode }}"
         ingress_key_file_b64: "{{ lookup('file', lookup('ansible.builtin.env', 'ingress_key_file')) | b64encode }}"
 
+    - name: Log in to OpenShift (requires oc binary on host)
+      ansible.builtin.command:
+        cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
+      register: login_result
+      no_log: true # Prevent sensitive info in logs
+    
     - name: Create Ingress Controller TLS Secret
       kubernetes.core.k8s:
         state: present
