@@ -1,4 +1,4 @@
-# Add user certificate trust sources to OpenShift cluster
+# Manage Certificates for the OpenShift cluster
 
 ## Table of Content
 
