@@ -1,0 +1,249 @@
+---
+- name: Load Cluster Certificates - User, Ingress, and API
+  connection: local
+  hosts: localhost
+  gather_facts: no
+  vars:
+    validate_certificates: false
+
+  tasks:
+    # Check if user CA Bundle Certificate File exists and is PEM format
+    - name: Read User CA Bundle Certificate File Content
+      ansible.builtin.slurp:
+        src: "{{ lookup('ansible.builtin.env', 'user_ca_bundle_file') }}"
+      register: user_ca_bundle_cert_file
+
+    - name: Parse the User CA Bundle Certificate File as PEM
+      ansible.builtin.set_fact:
+        is_pem_cert: "{{ user_ca_bundle_cert_file['content'] | b64decode | community.crypto.x509_certificate_info is success }}"
+      register: user_ca_bundle_cert_info
+      ignore_errors: true # Ignore errors if parsing fails
+
+    - name: Report User CA Bundle Certificate File Type
+      ansible.builtin.debug:
+        msg: "User CA Bundle Certificate File is a valid PEM certificate."
+      when: not user_ca_bundle_cert_info.failed
+      failed_when: user_ca_bundle_cert_info.failed
+
+    - name: Log in to OpenShift (requires oc binary on host)
+      ansible.builtin.command:
+        cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
+      register: login_result
+      no_log: true # Prevent sensitive info in logs
+    
+    - name: Read lines of User CA Bundle Certificate File into List
+      ansible.builtin.set_fact:
+        cert_file_lines_list: "{{ lookup('file', lookup('ansible.builtin.env', 'user_ca_bundle_file')).splitlines() }}"
+
+    - name: Create user-ca-bundle ConfigMap
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'user-ca-bundle.yaml.j2') | from_yaml }}"
+        validate_certs: "{{ validate_certificates }}"
+
+    - name: Patch Cluster Proxy
+      ansible.builtin.shell: |
+        oc patch proxy/cluster --type=merge --patch='{"spec":{"trustedCA":{"name":"user-ca-bundle"}}}'
+
+    - name: Verify Cluster Proxy Patch
+      ansible.builtin.shell: |
+        oc get proxy cluster -o yaml
+      register: proxy_patch_result
+
+    - name: Report Cluster Proxy Patch Result
+      ansible.builtin.debug:
+        msg: "Cluster Proxy Patch Result: {{ proxy_patch_result.stdout }}"
+      failed_when: "'user-ca-bundle' not in proxy_patch_result.stdout"
+    
+    - name: Pause for 1 minutes
+      ansible.builtin.pause:
+        minutes: 1
+
+    - name: Wait for Master MCP to update
+      kubernetes.core.k8s_info:
+        api_version: machineconfiguration.openshift.io/v1
+        kind: MachineConfigPool
+        name: master
+        validate_certs: "{{ validate_certificates }}"
+      register: mcp_master
+      until:
+        - mcp_master.resources is defined
+        - mcp_master.resources[0].status.conditions | selectattr('type', 'equalto', 'Updating') | map(attribute='status') | first == 'False'
+        - mcp_master.resources[0].status.updatedMachineCount == mcp_master.resources[0].status.machineCount
+      retries: 30
+      delay: 60
+
+    #####################
+    # INGRESS CERTIFICATE
+    #####################
+    - name: Prompt User to continue to Ingress Certificate Update
+      ansible.builtin.pause:
+        prompt: "Confirm the Operator is ready to 'continue'. Press 'c' to continue or 'a' to abort."
+
+    - name: Read Ingress Certificate Chain File Content
+      ansible.builtin.slurp:
+        src: "{{ lookup('ansible.builtin.env', 'ingress_cert_chain_file') }}"
+      register: ingress_cert_chain_file
+
+    - name: Parse the Ingress Certificate Chain File as PEM
+      ansible.builtin.set_fact:
+        is_pem_cert: "{{ ingress_cert_chain_file['content'] | b64decode | community.crypto.x509_certificate_info is success }}"
+      register: ingress_cert_chain_cert_info
+      ignore_errors: true # Ignore errors if parsing fails
+
+    - name: Report Ingress Certificate Chain File Type
+      ansible.builtin.debug:
+        msg: "Ingress Certificate Chain File is a valid PEM certificate."
+      when: not ingress_cert_chain_cert_info.failed
+      failed_when: ingress_cert_chain_cert_info.failed
+
+    - name: Read Ingress Key File Content
+      ansible.builtin.slurp:
+        src: "{{ lookup('ansible.builtin.env', 'ingress_key_file') }}"
+      register: ingress_key_file
+
+    - name: Parse the Ingress Key File as PEM
+      ansible.builtin.set_fact:
+        is_pem_cert: "{{ ingress_key_file['content'] | b64decode | community.crypto.openssl_privatekey_info is success }}"
+      register: ingress_key_info
+      ignore_errors: true # Ignore errors if parsing fails
+
+    - name: Report Ingress Key File Type
+      ansible.builtin.debug:
+        msg: "Ingress Key File is a valid PEM Key File."
+      when: not ingress_key_info.failed
+      failed_when: ingress_key_info.failed
+
+    - name: Debug Ingress Certificate Chain File Content
+      ansible.builtin.debug:
+        msg: "Ingress Certificate Chain File Content (base64): {{ ingress_cert_chain_file['content'] }}"
+    
+    - name: Debug Ingress Key File Content
+      ansible.builtin.debug:
+        msg: "Ingress Key File Content (base64): {{ ingress_key_file['content'] }}"
+    
+    # - name: Log in to OpenShift (requires oc binary on host)
+    #   ansible.builtin.command:
+    #     cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
+    #   register: login_result
+    #   no_log: true # Prevent sensitive info in logs
+    
+    - name: Create Ingress Controller TLS Secret
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'ingress-tls-secret.yaml.j2') | from_yaml }}"
+        validate_certs: "{{ validate_certificates }}"
+
+    - name: Patch Ingress Controller to use new TLS Secrets
+      ansible.builtin.shell: |
+        oc patch ingresscontroller.operator/default --type=merge -p '{"spec":{"defaultCertificate": {"name": "ingress-tls-secret"}}}' -n openshift-ingress-operator
+
+    - name: Verify Ingress Controller Patch
+      ansible.builtin.shell: |
+        oc get ingresscontroller.operator/default -n openshift-ingress-operator -o yaml
+      register: ingress_controller_patch_result
+
+    - name: Report Ingress Controller Patch Result
+      ansible.builtin.debug:
+        msg: "Ingress Controller Patch Result: {{ ingress_controller_patch_result.stdout }}"
+      failed_when: "'ingress-tls-secret' not in ingress_controller_patch_result.stdout"
+    
+    # - name: Restart Ingress Router Pods to pick up new certificates
+    #   ansible.builtin.shell: |
+    #     oc delete pod -n openshift-ingress --selector=app.kubernetes.io/name=router
+    
+    # - name: Restart Oauth Server Pods to pick up new certificates
+    #   ansible.builtin.shell: |
+    #     oc delete pod -n openshift-authentication --selector=app=oauth-openshift
+
+    - name: Pause for 1 minutes
+      ansible.builtin.pause:
+        minutes: 1
+
+    - name: Wait for OpenShift OAuth Pods to be Running
+      ansible.builtin.shell: |
+        oc wait --for=condition=Ready pod --all -n openshift-authentication --timeout=300s
+
+    - name: Wait for Ingress Router Pods to be Running
+      ansible.builtin.shell: |
+        oc wait --for=condition=Ready pod --all -n openshift-ingress --timeout=300s
+
+    - name: Prompt User to continue to API Certificate Update
+      ansible.builtin.pause:
+        prompt: "Confirm the Operator is ready to 'continue'. Press 'c' to continue or 'a' to abort."
+
+    #####################
+    # API CERTIFICATE
+    #####################
+    - name: Read API Certificate Chain File Content
+      ansible.builtin.slurp:
+        src: "{{ lookup('ansible.builtin.env', 'api_cert_chain_file') }}"
+      register: api_cert_chain_file
+
+    - name: Parse the API Certificate Chain File as PEM
+      ansible.builtin.set_fact:
+        is_pem_cert: "{{ api_cert_chain_file['content'] | b64decode | community.crypto.x509_certificate_info is success }}"
+      register: api_cert_chain_cert_info
+      ignore_errors: true # Ignore errors if parsing fails
+
+    - name: Report API Certificate Chain File Type
+      ansible.builtin.debug:
+        msg: "API Certificate Chain File is a valid PEM certificate."
+      when: not api_cert_chain_cert_info.failed
+      failed_when: api_cert_chain_cert_info.failed
+
+    - name: Read API Key File Content
+      ansible.builtin.slurp:
+        src: "{{ lookup('ansible.builtin.env', 'api_key_file') }}"
+      register: api_key_file
+
+    - name: Parse the API Key File as PEM
+      ansible.builtin.set_fact:
+        is_pem_cert: "{{ api_key_file['content'] | b64decode | community.crypto.openssl_privatekey_info is success }}"
+      register: api_key_info
+      ignore_errors: true # Ignore errors if parsing fails
+
+    - name: Report API Key File Type
+      ansible.builtin.debug:
+        msg: "API Key File is a valid PEM Key File."
+      when: not api_key_info.failed
+      failed_when: api_key_info.failed
+
+    # - name: Log in to OpenShift (requires oc binary on host)
+    #   ansible.builtin.command:
+    #     cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
+    #   register: login_result
+    #   no_log: true # Prevent sensitive info in logs
+    
+    - name: Create API TLS Secret
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'api-tls-secret.yaml.j2') | from_yaml }}"
+        validate_certs: "{{ validate_certificates }}"
+
+    - name: Patch API to use new TLS Secrets
+      ansible.builtin.shell: |
+        oc patch apiserver cluster --type=merge -p '{"spec":{"servingCerts": {"namedCertificates": [{"names": ["{{ lookup('ansible.builtin.env', 'api_server_hostname') }}"], "servingCertificate": {"name": "api-tls-secret"}}]}}}'
+
+    - name: Pause for 2 minutes to allow API to restart with new certificate
+      ansible.builtin.pause:
+        minutes: 2
+
+    - name: Wait for Kube API Server to be Ready after Certificate Update
+      kubernetes.core.k8s_info:
+        api_version: operator.openshift.io/v1
+        kind: KubeAPIServer
+        name: cluster
+        validate_certs: "{{ validate_certificates }}"
+      register: kube_apiserver
+      until:
+        - kube_apiserver.resources is defined
+        - kube_apiserver.resources[0].status.conditions | selectattr('type', 'equalto', 'NodeInstallerProgressing') | map(attribute='status') | first == 'False'
+      retries: 30
+      delay: 60
+
+    # - name: Log out of OpenShift
+    #   ansible.builtin.command:
+    #     cmd: oc logout
+    #   register: logout_result
+    #   no_log: true # Prevent sensitive info in logs

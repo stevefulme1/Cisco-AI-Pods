@@ -65,9 +65,9 @@
       ansible.builtin.shell: |
         oc patch apiserver cluster --type=merge -p '{"spec":{"servingCerts": {"namedCertificates": [{"names": ["{{ lookup('ansible.builtin.env', 'api_server_hostname') }}"], "servingCertificate": {"name": "api-tls-secret"}}]}}}'
 
-    - name: Pause for 3 minutes to allow API to restart with new certificate
+    - name: Pause for 2 minutes to allow API to restart with new certificate
       ansible.builtin.pause:
-        minutes: 3
+        minutes: 2
 
     - name: Wait for Kube API Server to be Ready after Certificate Update
       kubernetes.core.k8s_info:
