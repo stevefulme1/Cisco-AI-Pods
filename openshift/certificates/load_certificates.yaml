@@ -78,7 +78,7 @@
     #####################
     - name: Prompt User to continue to Ingress Certificate Update
       ansible.builtin.pause:
-        prompt: "Confirm the Operator is ready to 'continue'. Press 'c' to continue or 'a' to abort."
+        prompt: "Confirm the User CA Bundle is ready to 'continue'. Press 'c' to continue or 'a' to abort."
 
     - name: Read Ingress Certificate Chain File Content
       ansible.builtin.slurp:
@@ -114,20 +114,6 @@
       when: not ingress_key_info.failed
       failed_when: ingress_key_info.failed
 
-    - name: Debug Ingress Certificate Chain File Content
-      ansible.builtin.debug:
-        msg: "Ingress Certificate Chain File Content (base64): {{ ingress_cert_chain_file['content'] }}"
-    
-    - name: Debug Ingress Key File Content
-      ansible.builtin.debug:
-        msg: "Ingress Key File Content (base64): {{ ingress_key_file['content'] }}"
-    
-    # - name: Log in to OpenShift (requires oc binary on host)
-    #   ansible.builtin.command:
-    #     cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
-    #   register: login_result
-    #   no_log: true # Prevent sensitive info in logs
-    
     - name: Create Ingress Controller TLS Secret
       kubernetes.core.k8s:
         state: present
@@ -148,14 +134,6 @@
         msg: "Ingress Controller Patch Result: {{ ingress_controller_patch_result.stdout }}"
       failed_when: "'ingress-tls-secret' not in ingress_controller_patch_result.stdout"
     
-    # - name: Restart Ingress Router Pods to pick up new certificates
-    #   ansible.builtin.shell: |
-    #     oc delete pod -n openshift-ingress --selector=app.kubernetes.io/name=router
-    
-    # - name: Restart Oauth Server Pods to pick up new certificates
-    #   ansible.builtin.shell: |
-    #     oc delete pod -n openshift-authentication --selector=app=oauth-openshift
-
     - name: Pause for 1 minutes
       ansible.builtin.pause:
         minutes: 1
@@ -170,7 +148,7 @@
 
     - name: Prompt User to continue to API Certificate Update
       ansible.builtin.pause:
-        prompt: "Confirm the Operator is ready to 'continue'. Press 'c' to continue or 'a' to abort."
+        prompt: "Confirm the Ingress Certificate is ready to 'continue'. Press 'c' to continue or 'a' to abort."
 
     #####################
     # API CERTIFICATE
@@ -209,12 +187,6 @@
       when: not api_key_info.failed
       failed_when: api_key_info.failed
 
-    # - name: Log in to OpenShift (requires oc binary on host)
-    #   ansible.builtin.command:
-    #     cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
-    #   register: login_result
-    #   no_log: true # Prevent sensitive info in logs
-    
     - name: Create API TLS Secret
       kubernetes.core.k8s:
         state: present
