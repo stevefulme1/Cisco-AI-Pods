@@ -29,25 +29,33 @@ export user_ca_bundle_file="full_path_to_bundle_file"
 
 ### How to Run
 
-1. Run the Load Certificates playbook:
+1. Run the User CA Bundle playbook:
 
 ```bash
-ansible-playbook load_certificates.yaml
+ansible-playbook load_user_bundle_ca.yaml
 ```
 
-2. Verify the ConfigMap was created:
+2. Verify the ConfigMap was created as expected:
 
 ```bash
-oc get configmap user-ca-bundle -n openshift-config
+oc get configmap user-ca-bundle -n openshift-config -o yaml
 ```
 
-3. Run the User API Certificate playbook:
+3. Run the Ingress Certificate playbook:
+
+```bash
+ansible-playbook load_ingress_certificate.yaml
+```
+
+If success the web interface should reload with the new certificate.
+
+4. Run the User API Certificate playbook:
 
 ```bash
 ansible-playbook load_api_certificate.yaml
 ```
 
-4. Verify the Kube API Server is ready:
+5. Verify the Kube API Server is ready:
 
 ```bash
 oc get clusteroperators kube-apiserver
@@ -64,14 +72,6 @@ NAME             VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE   MESSAGE
 kube-apiserver   4.20.15   True        False         False      8d      
 $
 ```
-
-1. Run the Ingress Certificate playbook:
-
-```bash
-ansible-playbook load_ingress_certificate.yaml
-```
-
-Validation will be completed by the script itself for this module.
 
 ### [Back to Table of Content](#table-of-content)
 

@@ -1,0 +1,80 @@
+---
+- name: Add user certificate trust sources to OpenShift cluster
+  connection: local
+  hosts: localhost
+  gather_facts: no
+  vars:
+    validate_certificates: false
+
+  tasks:
+    # Check if user CA Bundle Certificate File exists and is PEM format
+    - name: Read User CA Bundle Certificate File Content
+      ansible.builtin.slurp:
+        src: "{{ lookup('ansible.builtin.env', 'user_ca_bundle_file') }}"
+      register: user_ca_bundle_cert_file
+
+    - name: Parse the User CA Bundle Certificate File as PEM
+      ansible.builtin.set_fact:
+        is_pem_cert: "{{ user_ca_bundle_cert_file['content'] | b64decode | community.crypto.x509_certificate_info is success }}"
+      register: user_ca_bundle_cert_info
+      ignore_errors: true # Ignore errors if parsing fails
+
+    - name: Report User CA Bundle Certificate File Type
+      ansible.builtin.debug:
+        msg: "User CA Bundle Certificate File is a valid PEM certificate."
+      when: not user_ca_bundle_cert_info.failed
+      failed_when: user_ca_bundle_cert_info.failed
+
+    - name: Log in to OpenShift (requires oc binary on host)
+      ansible.builtin.command:
+        cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
+      register: login_result
+      no_log: true # Prevent sensitive info in logs
+    
+    - name: Read lines of User CA Bundle Certificate File into List
+      ansible.builtin.set_fact:
+        cert_file_lines_list: "{{ lookup('file', lookup('ansible.builtin.env', 'user_ca_bundle_file')).splitlines() }}"
+
+    - name: Create user-ca-bundle ConfigMap
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'user-ca-bundle.yaml.j2') | from_yaml }}"
+        validate_certs: "{{ validate_certificates }}"
+
+    - name: Patch Cluster Proxy
+      ansible.builtin.shell: |
+        oc patch proxy/cluster --type=merge --patch='{"spec":{"trustedCA":{"name":"user-ca-bundle"}}}'
+
+    - name: Verify Cluster Proxy Patch
+      ansible.builtin.shell: |
+        oc get proxy cluster -o yaml
+      register: proxy_patch_result
+
+    - name: Report Cluster Proxy Patch Result
+      ansible.builtin.debug:
+        msg: "Cluster Proxy Patch Result: {{ proxy_patch_result.stdout }}"
+      failed_when: "'user-ca-bundle' not in proxy_patch_result.stdout"
+    
+    - name: Pause for 3 minutes
+      ansible.builtin.pause:
+        minutes: 3
+
+    - name: Wait for Master MCP to update
+      kubernetes.core.k8s_info:
+        api_version: machineconfiguration.openshift.io/v1
+        kind: MachineConfigPool
+        name: master
+        validate_certs: "{{ validate_certificates }}"
+      register: mcp_master
+      until:
+        - mcp_master.resources is defined
+        - mcp_master.resources[0].status.conditions | selectattr('type', 'equalto', 'Updating') | map(attribute='status') | first == 'False'
+        - mcp_master.resources[0].status.updatedMachineCount == mcp_master.resources[0].status.machineCount
+      retries: 30
+      delay: 60
+
+    # - name: Log out of OpenShift
+    #   ansible.builtin.command:
+    #     cmd: oc logout
+    #   register: logout_result
+    #   no_log: true # Prevent sensitive info in logs

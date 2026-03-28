@@ -1,0 +1,92 @@
+---
+- name: Add Ingress Certificate to OpenShift cluster
+  connection: local
+  hosts: localhost
+  gather_facts: no
+  vars:
+    validate_certificates: false
+
+  tasks:
+    #####################
+    # INGRESS CERTIFICATE
+    #####################
+    - name: Read Ingress Certificate Chain File Content
+      ansible.builtin.slurp:
+        src: "{{ lookup('ansible.builtin.env', 'ingress_cert_chain_file') }}"
+      register: ingress_cert_chain_file
+
+    - name: Parse the Ingress Certificate Chain File as PEM
+      ansible.builtin.set_fact:
+        is_pem_cert: "{{ ingress_cert_chain_file['content'] | b64decode | community.crypto.x509_certificate_info is success }}"
+      register: ingress_cert_chain_cert_info
+      ignore_errors: true # Ignore errors if parsing fails
+
+    - name: Report Ingress Certificate Chain File Type
+      ansible.builtin.debug:
+        msg: "Ingress Certificate Chain File is a valid PEM certificate."
+      when: not ingress_cert_chain_cert_info.failed
+      failed_when: ingress_cert_chain_cert_info.failed
+
+    - name: Read Ingress Key File Content
+      ansible.builtin.slurp:
+        src: "{{ lookup('ansible.builtin.env', 'ingress_key_file') }}"
+      register: ingress_key_file
+
+    - name: Parse the Ingress Key File as PEM
+      ansible.builtin.set_fact:
+        is_pem_cert: "{{ ingress_key_file['content'] | b64decode | community.crypto.openssl_privatekey_info is success }}"
+      register: ingress_key_info
+      ignore_errors: true # Ignore errors if parsing fails
+
+    - name: Report Ingress Key File Type
+      ansible.builtin.debug:
+        msg: "Ingress Key File is a valid PEM Key File."
+      when: not ingress_key_info.failed
+      failed_when: ingress_key_info.failed
+
+    - name: Encode PEM Files
+      ansible.builtin.set_fact:
+        ingress_cert_chain_file_b64: "{{ lookup('file', lookup('ansible.builtin.env', 'ingress_cert_chain_file')) | b64encode }}"
+        ingress_key_file_b64: "{{ lookup('file', lookup('ansible.builtin.env', 'ingress_key_file')) | b64encode }}"
+
+    - name: Create Ingress Controller TLS Secret
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'ingress-tls-secret.yaml.j2') | from_yaml }}"
+        validate_certs: "{{ validate_certificates }}"
+
+    - name: Patch Ingress Controller to use new TLS Secrets
+      ansible.builtin.shell: |
+        oc patch ingresscontroller.operator/default --type=merge -p '{"spec":{"defaultCertificate": {"name": "ingress-tls-secret"}}}' -n openshift-ingress-operator
+
+    - name: Verify Ingress Controller Patch
+      ansible.builtin.shell: |
+        oc get ingresscontroller.operator/default -n openshift-ingress-operator -o yaml
+      register: ingress_controller_patch_result
+
+    - name: Report Ingress Controller Patch Result
+      ansible.builtin.debug:
+        msg: "Ingress Controller Patch Result: {{ ingress_controller_patch_result.stdout }}"
+      failed_when: "'ingress-tls-secret' not in ingress_controller_patch_result.stdout"
+    
+    - name: Restart Ingress Router Pods to pick up new certificates
+      ansible.builtin.shell: |
+        oc delete pod -n openshift-ingress --selector=app.kubernetes.io/name=router
+    
+    - name: Restart Oauth Server Pods to pick up new certificates
+      ansible.builtin.shell: |
+        oc delete pod -n openshift-authentication --selector=app=oauth-openshift
+
+    - name: Wait for OpenShift OAuth Pods to be Running
+      ansible.builtin.shell: |
+        oc wait --for=condition=Ready pod --all -n openshift-authentication --timeout=300s
+
+    - name: Wait for Ingress Router Pods to be Running
+      ansible.builtin.shell: |
+        oc wait --for=condition=Ready pod --all -n openshift-ingress --timeout=300s
+
+    # - name: Log out of OpenShift
+    #   ansible.builtin.command:
+    #     cmd: oc logout
+    #   register: logout_result
+    #   no_log: true # Prevent sensitive info in logs
