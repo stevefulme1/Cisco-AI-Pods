@@ -43,7 +43,7 @@ req_extensions = v3_req
 distinguished_name = req_distinguished_name
 
 [req_distinguished_name]
-C = UCS
+C = US
 ST = California
 L = San Jose
 O = Example Company
@@ -86,7 +86,7 @@ req_extensions = v3_req
 distinguished_name = req_distinguished_name
 
 [req_distinguished_name]
-C = UCS
+C = US
 ST = California
 L = San Jose
 O = Example Company
