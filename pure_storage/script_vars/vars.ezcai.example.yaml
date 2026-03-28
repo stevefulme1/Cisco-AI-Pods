@@ -15,16 +15,16 @@ pure_storage:
     namespace: portworx
     operator_source: "certified-operators"
     storage_classes:
-      - name: px-gold-block
+      - name: px-csi-gold-block
         parameters:
           backend: pure_block
-          # io_priority: high
+          io_priority: high
           repl: "3"
-      - name: px-gold-file
+      - name: px-csi-gold-file
         default_class: true
         parameters:
           backend: pure_file
-          # io_priority: high
+          io_priority: high
           pure_export_rules: "*(rw,no_root_squash)"
           repl: "2"
     version: "3.5.2.1"
