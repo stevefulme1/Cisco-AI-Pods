@@ -146,13 +146,13 @@
       ansible.builtin.shell: |
         oc wait --for=condition=Ready pod --all -n openshift-ingress --timeout=300s
 
+    #####################
+    # API CERTIFICATE
+    #####################
     - name: Prompt User to continue to API Certificate Update
       ansible.builtin.pause:
         prompt: "Confirm the Ingress Certificate is ready to 'continue'. Press 'c' to continue or 'a' to abort."
 
-    #####################
-    # API CERTIFICATE
-    #####################
     - name: Read API Certificate Chain File Content
       ansible.builtin.slurp:
         src: "{{ lookup('ansible.builtin.env', 'api_cert_chain_file') }}"
