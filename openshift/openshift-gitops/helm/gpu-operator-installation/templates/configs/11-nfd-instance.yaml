@@ -8,7 +8,22 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "11"
 spec:
+  instance: ''
+  operand:
+    servicePort: 12000
+  prunerOnDelete: false
+  topologyUpdater: false
   workerConfig:
     configData: |
       core:
         sleepInterval: 60s
+      sources:
+        pci:
+          deviceClassWhitelist:
+            - "02"
+            - "03"
+            - "0200"
+            - "0207"
+            - "12"
+          deviceLabelFields:
+            - "vendor"

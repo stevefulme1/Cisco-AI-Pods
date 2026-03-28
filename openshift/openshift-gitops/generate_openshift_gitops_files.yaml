@@ -6,34 +6,48 @@
   tasks:
     - name: Load variables from script folder
       ansible.builtin.include_vars:
-        dir: "{{ playbook_dir }}/script_vars"
+        file: "{{ playbook_dir }}/script_vars/vars.ezcai.yaml"
 
-    - name: Ensure the configuration directory exists
+    - name: Ensure the Destination Directory exists
       ansible.builtin.file:
-        path: "{{ playbook_dir }}/olm-catalog/operators"
+        path: "{{ openshift.destination_directory }}"
+        state: directory
+
+    - name: Copy helm and olm-catalyog directories to destination directory
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/{{ item }}"
+        dest: "{{ openshift.destination_directory }}"
+        remote_src: yes
+      loop:
+        - helm
+        - olm-catalog
+
+    - name: Ensure the operators directory exists
+      ansible.builtin.file:
+        path: "{{ openshift.destination_directory }}/olm-catalog/operators"
         state: directory
 
     - name: create the Ansible Automation Platform - AnsibleAutomationPlatform from template
       ansible.builtin.copy:
-        content: "{{ lookup('template', 'ansible_automation_platform.yaml.j2') | from_yaml }}"
-        dest: "{{ playbook_dir }}/olm-catalog/ansible-automation-platform/04-ansible-automation-platform.yaml"
+        content: "{{ lookup('template', 'ansible-automation-platform.yaml.j2') }}"
+        dest: "{{ openshift.destination_directory }}/olm-catalog/ansible-automation-platform/04-ansible-automation-platform.yaml"
       when: "'ansible-automation-platform' in openshift.operators.operators_to_install"
 
     - name: create the Ansible Automation Platform - ConsoleLink from template
       ansible.builtin.copy:
-        content: "{{ lookup('template', 'console-link-aap.yaml.j2') | from_yaml }}"
-        dest: "{{ playbook_dir }}/olm-catalog/ansible-automation-platform/04-console-link-aap.yaml"
+        content: "{{ lookup('template', 'console-link-aap.yaml.j2') }}"
+        dest: "{{ openshift.destination_directory }}/olm-catalog/ansible-automation-platform/04-console-link-aap.yaml"
       when: "'ansible-automation-platform' in openshift.operators.operators_to_install"
 
     - name: create the OpenShift GitOps (ArgoCD) Application YAML files from the templates
       ansible.builtin.copy:
-        content: "{{ lookup('template', item + '.yaml.j2') | from_yaml }}"
-        dest: "{{ playbook_dir }}/olm-catalog/operators/{{ item }}.yaml"
+        content: "{{ lookup('template', item + '.yaml.j2') }}"
+        dest: "{{ openshift.destination_directory }}/olm-catalog/operators/{{ item }}.yaml"
       loop: "{{ openshift.operators.operators_to_install }}"
 
     - name: create the NVIDIA Network Operator - MAC VLAN YAML files from template
       ansible.builtin.copy:
-        content: "{{ lookup('template', 'mac_vlan.yaml.j2') | from_yaml }}"
-        dest: "{{ playbook_dir }}/olm-catalog/nvidia-network-operator/05-mac-vlan-policy-{{ item.master_interface }}.yaml"
+        content: "{{ lookup('template', 'mac-vlan.yaml.j2') }}"
+        dest: "{{ openshift.destination_directory }}/olm-catalog/nvidia-network-operator/05-mac-vlan-policy-{{ item.master_interface }}.yaml"
       loop: "{{ openshift.operators.nvidia_network_operator.mac_vlan }}"
       when: "'nvidia-network-operator' in openshift.operators.operators_to_install"
