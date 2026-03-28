@@ -2,11 +2,21 @@
 
 ## Table of Content
 
+  * [Prerequisites](#prerequisites): Preparing the certificate files
   * [Run the Certificate Modules](#run-the-certificate-modules): Import User Certificate trusted sources.
   * [Manually Add API Certificate](#manually-add-api-certificate)`: Replace API self-signed certificate with signed certificate.
   * [Manually Add Ingress Gateway Certificate](#manually-add-ingress-gateway-certificate)`: Replace Ingress Gateway self-signed certificate with signed certificate.
 
 ## Run the Certificate Modules
+
+### Prerequisites
+
+* You must have a wildcard certificate for the fully qualified .apps subdomain and its corresponding private key. Each should be in a separate PEM format file.
+* The private key must be unencrypted. If your key is encrypted, decrypt it before importing it into OpenShift Container Platform.
+* The certificate must include the subjectAltName extension showing *.apps.<clustername>.<domain>.
+* The certificate file can contain one or more certificates in a chain. The file must list the wildcard certificate as the first certificate, followed by other intermediate certificates, and then ending with the root CA certificate.
+* Copy the root CA certificate into an additional PEM format file.
+* Verify that all certificates which include -----END CERTIFICATE----- also end with one carriage return after that line.
 
 ### Load the Variables to Environment
 
@@ -15,6 +25,12 @@ Obtain the API token and url by logging into OpenShift > User > Copy Login
 ![Copy Login Command](../../images/copy_login_command.png)
 
 ![Display Token](../../images/display_token.png)
+
+* The `user_ca_bundle_file` should only include the Root CA for the API and Ingress Certificates.  If they include a intermediatory certificate, do not include.
+* The `api_cert_chain_file` should include the certificate, intermediatory if used, and root certificate in PEM format.
+* The `api_key_file` should include the api key file in unencrypted PEM format.
+* The `ingress_cert_chain_file` should include the certificate, intermediatory if used, and root certificate in PEM format.
+* The `ingress_key_file` should include the api key file in unencrypted PEM format.
 
 ```bash
 export openshift_api_url="api_url"
@@ -26,6 +42,8 @@ export ingress_cert_chain_file="full_path_to_ingress_cert_chain_file"
 export ingress_key_file="full_path_to_ingress_key_file"
 export user_ca_bundle_file="full_path_to_bundle_file"
 ```
+
+[Red Hat Documentation - Configuring Certificates](https://docs.redhat.com/en/documentation/openshift_container_platform/4.8/html/security_and_compliance/configuring-certificates)
 
 ### How to Run
 
@@ -47,9 +65,9 @@ oc get configmap user-ca-bundle -n openshift-config -o yaml
 ansible-playbook load_ingress_certificate.yaml
 ```
 
-If success the web interface should reload with the new certificate.
+4. If success the consle WebUI should load with the new certificate.
 
-4. Run the User API Certificate playbook:
+5. Run the User API Certificate playbook:
 
 ```bash
 ansible-playbook load_api_certificate.yaml
@@ -72,6 +90,12 @@ NAME             VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE   MESSAGE
 kube-apiserver   4.20.15   True        False         False      8d      
 $
 ```
+
+6. If success the API should load with the new certificate:
+
+* https://api.<cluster-name>.<base-domain>:6443
+
+### Complete
 
 ### [Back to Table of Content](#table-of-content)
 
