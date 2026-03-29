@@ -56,3 +56,9 @@
         definition: "{{ lookup('template', 'instance.yaml.j2') | from_yaml }}"
         state: present
         validate_certs: "{{ validate_certificates }}"
+
+    # - name: Deploy Argo CD instance (GitOps)
+    #   kubernetes.core.k8s:
+    #     definition: "{{ lookup('template', 'instance.yaml.j2') | from_yaml }}"
+    #     state: present
+    #     validate_certs: "{{ validate_certificates }}"

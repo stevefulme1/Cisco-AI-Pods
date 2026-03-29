@@ -13,6 +13,8 @@ dataScienceCluster:
 
   components:
     kserve:
+      modelsAsService:
+        managementState: Managed
       managementState: Managed
       nim:
         managementState: Managed

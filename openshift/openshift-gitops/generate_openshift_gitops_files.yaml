@@ -29,7 +29,7 @@
 
     - name: create the Ansible Automation Platform - AnsibleAutomationPlatform from template
       ansible.builtin.copy:
-        content: "{{ lookup('template', 'ansible-automation-platform.yaml.j2') }}"
+        content: "{{ lookup('template', 'ansible_automation_platform.yaml.j2') }}"
         dest: "{{ openshift.destination_directory }}/olm-catalog/ansible-automation-platform/04-ansible-automation-platform.yaml"
       when: "'ansible-automation-platform' in openshift.operators.operators_to_install"
 
@@ -48,6 +48,9 @@
     - name: create the NVIDIA Network Operator - MAC VLAN YAML files from template
       ansible.builtin.copy:
         content: "{{ lookup('template', 'mac-vlan.yaml.j2') }}"
-        dest: "{{ openshift.destination_directory }}/olm-catalog/nvidia-network-operator/05-mac-vlan-policy-{{ item.master_interface }}.yaml"
+        dest: "{{ openshift.destination_directory }}/helm/gpu-operator-installation/templates/configs/05-mac-vlan-policy-{{ item.master_interface }}.yaml"
+        # dest: "{{ openshift.destination_directory }}/olm-catalog/nvidia-network-operator/05-mac-vlan-policy-{{ item.master_interface }}.yaml"
       loop: "{{ openshift.operators.nvidia_network_operator.mac_vlan }}"
+      loop_control:
+        index_var: item_index
       when: "'nvidia-network-operator' in openshift.operators.operators_to_install"

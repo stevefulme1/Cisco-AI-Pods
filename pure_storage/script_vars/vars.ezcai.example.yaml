@@ -16,6 +16,7 @@ pure_storage:
     operator_source: "certified-operators"
     storage_classes:
       - name: px-csi-gold-block
+        default_virtual_class: true
         parameters:
           backend: pure_block
           io_priority: high

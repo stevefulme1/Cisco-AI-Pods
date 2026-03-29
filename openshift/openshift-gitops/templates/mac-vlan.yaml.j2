@@ -2,8 +2,9 @@ kind: MacvlanNetwork
 apiVersion: mellanox.com/v1alpha1
 metadata:
   annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "15" # Ensures this is applied AFTER the operator is ready
-  name: rdma-shared-net1
+  name: "rdma-shared-net-{{ item_index + 1 }}"
 spec:
   ipam: |
     {
