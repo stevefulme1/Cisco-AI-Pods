@@ -24,7 +24,7 @@ export openshift_token_id="token_value"
 1. Run the playbook:
 
 ```bash
-ansible-playbook install_gitea.yml
+ansible-playbook install_gitea.yaml
 ```
 
 2. Verify the installation:

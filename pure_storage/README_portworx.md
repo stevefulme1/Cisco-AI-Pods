@@ -67,7 +67,7 @@ export openshift_token_id="token_value"
 3. Run the playbook:
 
 ```bash
-ansible-playbook install_portworx.yml
+ansible-playbook install_portworx.yaml
 ```
 
 2. Verify the installation:
