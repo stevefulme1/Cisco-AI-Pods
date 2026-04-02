@@ -2,8 +2,8 @@ apiVersion: machineconfiguration.openshift.io/v1
 kind: MachineConfig
 metadata:
   labels:
-    machineconfiguration.openshift.io/role: worker
-  name: 99-multipathd-portworx-worker
+    machineconfiguration.openshift.io/role: {{ item.name }}
+  name: 99-portworx-multipathd-config-{{ item.name }}
 spec:
   config:
     ignition: 

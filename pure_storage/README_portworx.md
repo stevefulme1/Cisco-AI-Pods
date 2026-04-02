@@ -1,91 +1,152 @@
-# Portworx Operator Deployment
+# Portworx Deployment with Pure Storage
 
-## Table of Content
+This guide covers the Portworx-specific flow in this folder:
 
-  * [Run the Create pure.json module](#run-the-create-purejson-module): Create pure.json module for Portworx Secret / Authentication in OpenShift.
-  * [Run the Portworx install module](#run-the-portworx-install-module): Install Portworx Operator create Storage Classes.
-  * [Test the Storage Classes](#test-the-storage-classes): Create Example Persistent Volume Claims.
+1. Generate `pure.json` credentials using Pure APIs.
+2. Install Portworx Operator and StorageCluster on OpenShift.
+3. Create Portworx storage classes from template values.
 
-## Run the Create pure.json module
+## Table of Contents
 
-### Load the Variables to Environment
+- [Prerequisites](#prerequisites)
+- [Configuration Inputs](#configuration-inputs)
+- [Step 1: Create pure.json](#step-1-create-purejson)
+- [Step 2: Install Portworx](#step-2-install-portworx)
+- [Step 3: Validate Portworx and Storage Classes](#step-3-validate-portworx-and-storage-classes)
+- [Step 4: Test PVC Provisioning](#step-4-test-pvc-provisioning)
+- [Troubleshooting](#troubleshooting)
+
+## Prerequisites
+
+- Ansible collections installed from `requirements.yaml`
+- Python dependencies installed from `requirements.txt`
+- OpenShift cluster access (`oc`) with sufficient privileges
+- Pure API tokens for every array/blade listed in variables
+
+Install dependencies:
 
 ```bash
-export pure_api_token_1="pure_api_token_flash_array"
-export pure_api_token_2="pure_api_token_flash_blade"
+ansible-galaxy collection install -r requirements.yaml
+pip install -r requirements.txt
 ```
 
-* Enter one API token for each array.
+[Back to Table of Contents](#table-of-contents)
 
-**Note**: Match the `api_token_id` number to what you have entered in the variable files in the `script_vars` folder for each array.
+## Configuration Inputs
 
-### How to Run
+Primary variable file:
 
-1. Run the playbook:
+- `script_vars/vars.ezcai.yaml`
+
+Important keys:
+
+- `pure_storage.flash_arrays[]` and `pure_storage.flash_blades[]`
+- `pure_storage.portworx.namespace`
+- `pure_storage.portworx.cluster_name`
+- `pure_storage.portworx.operator_source`
+- `pure_storage.portworx.storage_classes[]`
+- `pure_storage.portworx.version`
+
+Environment variables used by playbooks:
+
+```bash
+# One token per api_token_id used in vars file
+export pure_api_token_1="<flasharray_token>"
+export pure_api_token_2="<flashblade_token>"
+
+# OpenShift access (for install_portworx.yaml)
+export openshift_api_url="https://api.<cluster>.<domain>:6443"
+export openshift_token_id="<token>"
+```
+
+[Back to Table of Contents](#table-of-contents)
+
+## Step 1: Create pure.json
+
+Generate the Portworx credential payload:
 
 ```bash
 ansible-playbook create_pure_json.yaml
 ```
 
-2. If Successful it should create a pure.json file with the API token for each Pure Storage array.
+What this does:
 
-### [Back to Table of Content](#table-of-content)
+- Creates/rotates a Portworx API user (`pure_storage.portworx.array_user`) on each FlashArray and FlashBlade.
+- Collects generated API tokens.
+- Renders `pure.json` from `templates/pure.json.j2`.
 
-## Run the Portworx install module
+Expected output:
 
-To install Portworx `3.5.2` on OpenShift `4.20+` using Ansible, the most efficient method is to leverage the Operator Lifecycle Manager (OLM). This involves creating the necessary Namespace, OperatorGroup, and Subscription, followed by the StorageCluster Custom Resource (CR).
+- `pure.json` file in this folder
 
-### Portworx OpenShift Prerequisites
+[Back to Table of Contents](#table-of-contents)
 
-**OCP Access**: A `kubeconfig` file with cluster-admin permissions.
-**Portworx Spec**: It is highly recommended to generate your specific StorageCluster YAML from [Portworx Central](https://central.portworx.com/) to match your infrastructure (e.g., vSphere, AWS, or Bare Metal).
+## Step 2: Install Portworx
 
-## Key Components Explained
-
-**Namespace & OperatorGroup**: Portworx is typically installed in its own namespace (portworx). The OperatorGroup tells OLM which namespaces the operator should watch.
-**Subscription**: This pulls the Portworx Operator from the Red Hat Certified Operators catalog.
-**StorageCluster CR**: This is the core configuration.
-* **kvdb**: Set to internal: true to use Portworx's built-in KVDB. For large production clusters, an external etcd is often preferred.
-* **devices**: You must specify the raw block devices available on your OpenShift nodes.
-* **stork**: Enabled for advanced scheduling and migration capabilities.
-
-1. Load the Sensitive Variables into the system Environment
-
-Obtain the API token and url by logging into OpenShift > User > Copy Login
-
-![Copy Login Command](../images/copy_login_command.png)
-
-![Display Token](../images/display_token.png)
-
-```bash
-export openshift_api_url="api_url"
-export openshift_token_id="token_value"
-```
-
-1. Validate that the Variables in the `script_vars/vars.ezcai.yaml` match your expected deployment
-
-3. Run the playbook:
+Deploy the operator and storage components:
 
 ```bash
 ansible-playbook install_portworx.yaml
 ```
 
-2. Verify the installation:
+What this does:
+
+1. Logs in to OpenShift.
+2. Creates namespace from `pure_storage.portworx.namespace`.
+3. Creates secret `px-pure-secret` from local `pure.json` (if it does not already exist).
+4. Creates Portworx subscription `portworx-certified` in `openshift-operators`.
+5. Waits for deployment `portworx-operator` to become ready.
+6. Prompts for confirmation before deploying StorageCluster.
+7. Applies `templates/storage-cluster.yaml.j2`.
+8. Applies one StorageClass per entry in `pure_storage.portworx.storage_classes` using `templates/storage-classes.yaml.j2`.
+
+[Back to Table of Contents](#table-of-contents)
+
+## Step 3: Validate Portworx and Storage Classes
 
 ```bash
-oc get pods -n portworx
-oc get storagecluster -n portworx
+oc get pods -n openshift-operators | grep portworx
+oc get pods -n <portworx-namespace>
+oc get storagecluster -n <portworx-namespace>
+oc get storageclass
 ```
 
-### [Back to Table of Content](#table-of-content)
+Replace `<portworx-namespace>` with the value in `pure_storage.portworx.namespace` (default example is `portworx`).
 
-## Test the Storage Classes
+[Back to Table of Contents](#table-of-contents)
 
-In the folder `examples/pvc` are two example files to deploy Persistent Volume Claims `PVC` to the storage arrays.
+## Step 4: Test PVC Provisioning
+
+Example manifests are in `examples/`.
 
 ```bash
-cd examples/pvc
+cd examples
 oc apply -f pvc/
+oc get pvc -A
 ```
 
-### [Back to Table of Content](#table-of-content)
+Confirm PVCs bind successfully and backing volumes are created.
+
+[Back to Table of Contents](#table-of-contents)
+
+## Troubleshooting
+
+- `pure.json` not generated:
+  - Ensure every `api_token_id` in variables has a matching `pure_api_token_<id>` environment variable.
+- Portworx operator not ready:
+  - Check subscription and CSV in `openshift-operators`.
+- Secret already exists with stale data:
+  - Delete and recreate `px-pure-secret` or update it from regenerated `pure.json`.
+- StorageCluster not progressing:
+  - Check events and describe the StorageCluster resource.
+
+Helpful commands:
+
+```bash
+oc get subscription -n openshift-operators | grep portworx
+oc get csv -n openshift-operators | grep -i portworx
+oc describe storagecluster -n <portworx-namespace>
+oc get events -n <portworx-namespace> --sort-by=.metadata.creationTimestamp
+```
+
+[Back to Table of Contents](#table-of-contents)

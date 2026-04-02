@@ -1,0 +1,113 @@
+---
+- name: Generate Manifest YAML files for iServer - Assisted Installer
+  connection: local
+  gather_facts: false
+  hosts: localhost
+
+  tasks:
+    - name: Load variables from script folder
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/script_vars/vars.ezcai.example.yaml"
+
+    - name: Set Facts for assisted installer manifests
+      ansible.builtin.set_fact:
+        assisted_installer_directory: "{{ openshift.destination_directory | default(playbook_dir) }}/assisted-installer"
+        openshift_install: "{{ openshift.install.bare_metal | default({}) }}"
+
+    # - name: Ensure the Assisted Installer Folder Exists
+    #   ansible.builtin.file:
+    #     path: "{{ assisted_installer_directory }}"
+    #     state: directory
+
+    # - name: Ensure the Assisted Installer Manifests Folder Exists
+    #   ansible.builtin.file:
+    #     path: "{{ assisted_installer_directory }}/manifests"
+    #     state: directory
+
+    # ##########################################################
+    # # Machine Configuration Tasks
+    # ##########################################################
+    # - name: Manifests for Assisted Installer - Node Disruption Budgets
+    #   ansible.builtin.copy:
+    #     content: "{{ lookup('template', '99-node-disruption-policy.j2') }}"
+    #     dest: "{{ assisted_installer_directory }}/manifests/99-node-disruption-policy.yaml"
+
+    # - name: Manifests for Assisted Installer - Kernel Arguments, Kubelet Config, and NVMe Multipath Config
+    #   ansible.builtin.copy:
+    #     content: "{{ lookup('template', item.file + '.yaml.j2') }}"
+    #     dest: "{{ assisted_installer_directory }}/manifests/{{ item.file + '-' + item.name + '.yaml' }}"
+    #   loop:
+    #     - file: 99-kernel-arguments
+    #       name: master
+    #     - file: 99-kernel-arguments
+    #       name: worker
+    #     - file: 99-kubelet-config-memory
+    #       name: master
+    #     - file: 99-kubelet-config-memory
+    #       name: worker
+    #     - file: 99-nvme-nqn-generate
+    #       name: master
+    #     - file: 99-nvme-nqn-generate
+    #       name: worker
+
+    # ##########################################################
+    # # Machine Configuration Tasks - Portworx
+    # ##########################################################
+    # - name: Manifests for Assisted Installer - Portworx Multipathd Config if Portworx is the CSI
+    #   ansible.builtin.copy:
+    #     content: "{{ lookup('template', item.file + '.yaml.j2') }}"
+    #     dest: "{{ assisted_installer_directory }}/manifests/{{ item.file + '-' + item.name + '.yaml' }}"
+    #   loop:
+    #     - file: 99-portworx-multipathd-config
+    #       name: master
+    #     - file: 99-portworx-multipathd-config
+    #       name: worker
+    #   when: openshift.operators is defined and openshift.operators.portworx is defined and openshift.operators.portworx.enabled | default(false)
+
+    # ##########################################################
+    # # Machine Configuration Tasks - NVIDIA Network Operator
+    # ##########################################################
+    # - name: Run Persistent Net Rule tasks for NVIDIA Network Operator if enabled
+    #   import_tasks: "tasks/persistent_net_rules.yaml"
+    #   when: >-
+    #     openshift.operators is defined and openshift.operators | json_query('nvidia_network_operator.persistent_net_rules') is defined
+
+    # ##########################################################
+    # # Machine Configuration Tasks - Cilium CNI
+    # ##########################################################
+    # - name: Run Cilium tasks if Cilium is enabled as the network CNI
+    #   import_tasks: "tasks/cilium.yaml"
+    #   when: >-
+    #     openshift.operators is defined and openshift.operators | json_query('cilium.download_url') is defined
+
+    ##########################################################
+    # iServer Manifests
+    ##########################################################
+    - name: Create Cluster Manifest
+      ansible.builtin.copy:
+        content: "{{ lookup('template', 'iserver-cluster.json.j2') | to_nice_json(indent=4) }}"
+        dest: "{{ assisted_installer_directory }}/cluster.json"
+
+    - name: Create SSH Public Key File for Cluster Deployment
+      ansible.builtin.copy:
+        content: "{{ lookup('file', openshift_install.ssh_public_key_file) }}"
+        dest: "{{ assisted_installer_directory }}/ssh.pub"
+
+    - name: Set Fact for ISO Web Server SSH Public Key if provided
+      ansible.builtin.set_fact:
+        iso_web_server_ssh_public_key: "{{ lookup('file', openshift_install.iso_web_server.ssh_public_key_file) }}"
+      when: openshift_install.iso_web_server.ssh_public_key_file is defined
+
+    - name: Set Fact for ISO Web Server Password if provided
+      ansible.builtin.set_fact:
+        iso_web_server_password: "{{ lookup('ansible.builtin.env', 'iso_web_server_password_' + openshift_install.iso_web_server.password) }}"
+      when: openshift_install.iso_web_server.password is defined
+
+    - name: Create Web Server Manifest
+      ansible.builtin.copy:
+        content: "{{ lookup('template', 'iserver-web.json.j2') | to_nice_json(indent=4) }}"
+        dest: "{{ assisted_installer_directory }}/web_server.json"
+
+    - name: Import Proxy Tasks if Proxy is enabled
+      import_tasks: "tasks/proxy.yaml"
+      when: openshift_install.proxy is defined

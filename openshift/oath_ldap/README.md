@@ -1,222 +1,256 @@
-# Configure OATH LDAP Authentication for OpenShift
+# Configure Active Directory LDAP Authentication for OpenShift
 
-## Source URL
+Ansible playbook that configures OpenShift OAuth to authenticate against Active Directory via LDAP/LDAPS, creates the `ldap-sync` project, deploys the LDAP group synchronization secret, RBAC, service account, and a CronJob that runs every hour to keep OpenShift groups in sync with AD.
 
-[OpenShift LDAP Configuration](https://examples.openshift.pub/cluster-configuration/authentication/activedirectory-ldap/)
+**Reference:** [OpenShift LDAP Configuration](https://examples.openshift.pub/cluster-configuration/authentication/activedirectory-ldap/)
 
-## Table of Content
+---
 
-  * [Prerequisites](#prerequisites): Prepare for deployment.
-  * [Active Directory OAuth Ansible Module](#execute-the-active-directory-oauth-ansible-module): Deploy Active Directory OAuth integration with ansible module.
-  * [Troubleshooting / Testing LDAP](#troubleshooting--updates--testing-ldap)`: Tools/Methods to troubleshooting LDAP.
-  * [Run the Portworx install module](#manual-method)`: Deploy Active Directory OAuth integration manually.
+## Table of Contents
+
+- [Directory Structure](#directory-structure)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Variables Reference](#variables-reference)
+- [What the Playbook Does](#what-the-playbook-does)
+- [Post-Deployment Steps](#post-deployment-steps)
+- [Troubleshooting / Testing LDAP](#troubleshooting--testing-ldap)
+- [Manual Method](#manual-method)
+
+---
+
+## Directory Structure
+
+```
+oath_ldap/
+├── configure_oath_ldap.yaml          # Main Ansible playbook
+├── ca.crt                            # PEM bundle of LDAP CA certificates (provide your own)
+├── script_vars/
+│   └── vars.ezcai.example.yaml       # Example variables file
+└── templates/                        # Jinja2 templates
+    ├── active-directory.yaml.j2      # OpenShift OAuth identity provider config
+    ├── ldap-sync.yaml.j2             # LDAPSyncConfig for group synchronization
+    ├── ldap-cron.yaml.j2             # CronJob manifest (runs `oc adm groups sync` hourly)
+    ├── project.yaml.j2               # ldap-sync namespace manifest
+    ├── rbac-ldap-group-sync.yaml.j2  # ClusterRole for ldap-sync service account
+    └── whitelist.txt.j2              # Group DN whitelist for ldap-sync
+```
+
+---
 
 ## Prerequisites
 
-* If using secure LDAP, build `ca.crt` with the required PEM certificates from the LDAP servers.  Can contain multiple PEM certificates.
+- Ansible with the `kubernetes.core` collection installed (`ansible-galaxy collection install kubernetes.core`)
+- The `oc` CLI binary available on the Ansible controller host
+- An OpenShift cluster token with `cluster-admin` privileges
+- An Active Directory service account with read access to the relevant OUs
+- **For LDAPS:** a `ca.crt` PEM bundle containing the certificate chain of the LDAP server(s)
 
-* Obtain LDAP Server Certificates
-
-```bash
-openssl s_client -showcerts -connect ldap-server.example.com:636
-```
-
-### [Back to Table of Content](#table-of-content)
-
-## Execute the Active Directory OAuth Ansible Module
-
-1. Fill out the variables in the `script_vars/vars.ezcai.yaml` folder/file according to your environment.
-
-2. Load Sensitive Variables into the Environment.
-
-![Copy Login Command](../../images/copy_login_command.png)
-
-![Display Token](../../images/display_token.png)
+Obtain the LDAP server certificate chain:
 
 ```bash
-export ldap_bind_password="bind_password"
-export openshift_api_url="api_url"
-export openshift_token_id="token_value"
+openssl s_client -showcerts -connect ldap-server.example.com:636 </dev/null 2>/dev/null \
+  | awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/' > ca.crt
 ```
 
-3. Execute the ansible script.
+---
 
-```bash
-ansible-playbook main.yaml
+## Quick Start
+
+1. **Copy and edit the variables file:**
+
+   ```bash
+   cp script_vars/vars.ezcai.example.yaml script_vars/vars.yaml
+   # edit script_vars/vars.yaml with your environment values
+   ```
+
+2. **Export sensitive credentials as environment variables** — the playbook reads these at runtime and never writes them to disk:
+
+   ```bash
+   export ldap_bind_password="<bind_password>"
+   export openshift_api_url="https://api.<cluster>.<domain>:6443"
+   export openshift_token_id="<token>"
+   ```
+
+   Obtain the token from the OpenShift web console:
+   - Click your username (top-right) → **Copy login command** → **Display Token**
+
+   ![Copy Login Command](../../images/copy_login_command.png)
+   ![Display Token](../../images/display_token.png)
+
+3. **Run the playbook:**
+
+   ```bash
+   ansible-playbook configure_oath_ldap.yaml
+   ```
+
+4. **Trigger the first sync manually** (LDAP groups must exist before assigning cluster roles):
+
+   In the OpenShift console go to **Workloads → CronJobs**, find `ldap-group-sync`, click the three-dot menu, and select **Create Job**. Wait for the job to complete.
+
+5. **Grant cluster-admin to your AD group(s):**
+
+   ```bash
+   oc adm policy add-cluster-role-to-group cluster-admin <ldap-group-name>
+   ```
+
+---
+
+## Variables Reference
+
+All variables live under the top-level `ldap:` key in `script_vars/vars.yaml`.
+
+| Key | Required | Description |
+|-----|----------|-------------|
+| `base_dn` | Yes | LDAP base distinguished name (e.g. `DC=example,DC=com`) |
+| `bind_dn` | Yes | DN of the service account used to bind to LDAP |
+| `certificate_file_name` | Yes | Filename of the CA cert PEM bundle relative to the playbook directory (e.g. `ca.crt`) |
+| `cluster_admins` | Yes | List of OpenShift group names to grant `cluster-admin` (added after first sync) |
+| `group_uid_mappings` | Yes | Map of AD group DNs to short OpenShift group names, used in `ldap-sync.yaml` and `whitelist.txt` |
+| `secure_ldap` | Yes | `true` to use LDAPS with CA verification; `false` for plain LDAP |
+| `sync_url` | Yes | LDAP URL used by the sync CronJob (e.g. `ldaps://ad.example.com:636`) |
+| `url` | Yes | Full LDAP search URL for the OAuth identity provider including base DN, attribute, scope, and filter |
+
+### Example `vars.yaml`
+
+```yaml
+ldap:
+  base_dn: DC=example,DC=com
+  bind_dn: CN=Service Account,OU=Service Accounts,DC=example,DC=com
+  certificate_file_name: ca.crt
+  cluster_admins:
+    - lab-admins
+  group_uid_mappings:
+    "CN=Lab Admin,OU=Cisco Employees,DC=example,DC=com": lab-admins
+  secure_ldap: true
+  sync_url: ldaps://ad.example.com:636
+  url: "ldaps://ad.example.com:636/DC=example,DC=com?sAMAccountName?sub?(&(objectclass=*)((memberOf=CN=Domain Admins,OU=Users,DC=example,DC=com)))"
 ```
 
-* The LDAP Groups need to synchronize before you can add group/groups to the cluster-admin role.
+---
 
-4. Run the CronJob.
+## What the Playbook Does
 
-* Go to `Workloads` > `CronJobs`
-* Run the `ldap-grou-sync` CronJob from the 3 dots: `Start Job`
+The playbook executes the following steps in order:
 
-5. After the 1st CronJob completes, add any groups necessary to the cluster-admin role.
+1. Loads variables from `script_vars/`
+2. Logs in to OpenShift using the token and API URL from environment variables
+3. Creates the `ldap-bind-password` Secret in `openshift-config`
+4. Creates the `ldap-ca-cert` ConfigMap in `openshift-config` (LDAPS only)
+5. Applies the `OAuth` identity provider config (`active-directory.yaml.j2`)
+6. Creates the `ldap-sync` namespace
+7. Renders `ldap-sync.yaml` and `whitelist.txt` locally from templates
+8. Creates the `ldap-sync` Secret (with or without CA cert depending on `secure_ldap`)
+9. Applies the `ldap-group-sync` ClusterRole and ClusterRoleBinding
+10. Creates the `ldap-sync` ServiceAccount and grants it the `ldap-group-sync` ClusterRole
+11. Deploys the `ldap-group-sync` CronJob (runs `oc adm groups sync` every hour)
+12. Removes the locally rendered `ldap-sync.yaml` and `whitelist.txt` files
+
+---
+
+## Post-Deployment Steps
+
+After the first CronJob sync completes, grant cluster-admin to the groups defined in `cluster_admins`:
 
 ```bash
 oc adm policy add-cluster-role-to-group cluster-admin <ldap-group-name>
 ```
 
-### [Back to Table of Content](#table-of-content)
+---
 
-## Troubleshooting / Updates / Testing LDAP
+## Troubleshooting / Testing LDAP
 
-If you need to make corrections to the ldap-sync secret.
+### Update the ldap-sync Secret
+
+If you need to correct the sync configuration after deployment:
 
 ```bash
-oc set data secret/ldap-sync -n ldap-sync --from-file=ldap-sync.yaml=<path-to-ldap-sync.yaml>
-oc set data secret/ldap-sync -n ldap-sync --from-file=whitelist.txt=<path-to-whitelist.txt>
-oc set data secret/ldap-sync -n ldap-sync --from-file=ca.crt=<path-to-ca.crt>
+oc set data secret/ldap-sync -n ldap-sync \
+  --from-file=ldap-sync.yaml=<path-to-ldap-sync.yaml>
+
+oc set data secret/ldap-sync -n ldap-sync \
+  --from-file=whitelist.txt=<path-to-whitelist.txt>
+
+oc set data secret/ldap-sync -n ldap-sync \
+  --from-file=ca.crt=<path-to-ca.crt>
 ```
 
-### Testing LDAP
-
-* Get Members of a Group
+### List members of a group (transitive)
 
 ```bash
-ldapsearch -W -H ldap://ad.example.com:389 \
+ldapsearch -W -H ldaps://ad.example.com:636 \
   -D 'CN=Administrator,OU=Users,DC=example,DC=com' \
-  -xLL -b "DC=example,DC=com" "(memberof:1.2.840.113556.1.4.1941:=CN=Domain Admins,OU=Users,DC=example,DC=com)" dn
+  -xLL -b "DC=example,DC=com" \
+  "(memberof:1.2.840.113556.1.4.1941:=CN=Domain Admins,OU=Users,DC=example,DC=com)" dn
 ```
 
-1. `-b`: base_dn
-2. `-D`: bind_dn
-3. `-W`: prompt for password.
+- `-b` — base DN
+- `-D` — bind DN
+- `-W` — prompt for bind password
 
-* Lookup user attributes/memberships
+### Look up a user's attributes and group memberships
 
 ```bash
-ldapsearch -x -H ldap://ad.example.com:389 \
+ldapsearch -x -H ldaps://ad.example.com:636 \
   -D 'CN=Administrator,OU=Users,DC=example,DC=com' \
   -b "DC=example,DC=com" \
-  -W '(sAMAccountName=Administrator)'
+  -W '(sAMAccountName=<username>)'
 ```
 
-1. `-b`: base_dn.
-2. `-D`: bind_dn.
-3. `-W`: prompt for password.
+### Run the sync manually from the CLI
 
-### [Back to Table of Content](#table-of-content)
+```bash
+oc adm groups sync \
+  --whitelist=whitelist.txt \
+  --sync-config=ldap-sync.yaml \
+  --confirm
+```
+
+---
 
 ## Manual Method
 
+If you prefer to apply resources manually without Ansible:
+
 ```bash
-oc create secret generic ldap-bind-password --from-literal=bindPassword='' -n openshift-config
-oc create configmap ldap-ca-cert --from-file=ca.crt=./ca.crt -n openshift-config
-oc apply -f <ldap-config-file>.yaml
+# Bind password secret
+oc create secret generic ldap-bind-password \
+  --from-literal=bindPassword='<bind_password>' \
+  -n openshift-config
+
+# CA cert ConfigMap (LDAPS only)
+oc create configmap ldap-ca-cert \
+  --from-file=ca.crt=./ca.crt \
+  -n openshift-config
+
+# OAuth identity provider
+oc apply -f active-directory.yaml
+
+# Grant cluster-admin after first sync
 oc adm policy add-cluster-role-to-group cluster-admin <ldap-group-name>
 ```
 
-### LDAP Config File
-
-```yaml
-apiVersion: config.openshift.io/v1
-kind: OAuth
-metadata:
-  name: cluster
-spec:
-  identityProviders:
-    - name: ActiveDirectory
-      mappingMethod: claim
-      type: LDAP
-      ldap:
-        attributes:
-          email: [mail]
-          id: [sAMAccountName]
-          name: [cn]
-          preferredUsername: [sAMAccountName]
-        bindDN: <bind_dn>
-        bindPassword:
-          name: ldap-bind-password # Name of a secret containing the bind password
-        ca:
-          name: ldap-ca-cert # Name of the ConfigMap with the CA certificate
-        insecure: false
-        url: <ldap_search_url>
-```
-
-### Example Input
-
-* ldap_search_url: ldaps://ldap1.example.com:636/DC=example,DC=com?sub?(&(objectclass=*))(|(memberOf=CN=Users,DC=example,DC=com))
-
-### LDAP Synchronization
+### LDAP Synchronization Project and Secret
 
 ```bash
 oc new-project ldap-sync
+
+# With CA (LDAPS)
 oc create secret generic ldap-sync \
-    --from-file=ldap-sync.yaml=ldap-sync.yaml \
-    --from-file=whitelist.txt=whitelist.txt \
-    --from-file=ca.crt=ldap-ca.crt
+  --from-file=ldap-sync.yaml=ldap-sync.yaml \
+  --from-file=whitelist.txt=whitelist.txt \
+  --from-file=ca.crt=ca.crt \
+  -n ldap-sync
+
+# Without CA (plain LDAP)
+oc create secret generic ldap-sync \
+  --from-file=ldap-sync.yaml=ldap-sync.yaml \
+  --from-file=whitelist.txt=whitelist.txt \
+  -n ldap-sync
 ```
 
-### Example LDAP Sync File
+### Example LDAP Search URL Format
 
-```yaml
-kind: LDAPSyncConfig
-apiVersion: v1
-url: <ldap_url>
-bindDN: <bind_dn>
-bindPassword: '<bind_password>'
-insecure: false # If URL is Secure
-ca: /ldap-sync/ca.crt # If URL is Secure
-groupUIDNameMapping:
-  <list_of_group_mappings>
-augmentedActiveDirectory:
-    groupsQuery:
-        derefAliases: never
-        pageSize: 0
-    groupUIDAttribute: dn
-    groupNameAttributes: [ cn ]
-    usersQuery:
-        baseDN: "<base_dn>"
-        derefAliases: never
-        filter: (objectclass=person)
-        pageSize: 0
-        scope: sub
-        timeout: 0
-    userNameAttributes: [ sAMAccountName ]
-    groupMembershipAttributes: [ "memberOf:1.2.840.113556.1.4.1941:" ]
 ```
-
-### Example LDAP CronJob Sync file
-
-```yaml
-apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: ldap-group-sync
-  namespace: ldap-sync
-spec:
-  # Format: https://en.wikipedia.org/wiki/Cron
-  schedule: '@hourly'
-  suspend: false
-  jobTemplate:
-    spec:
-      template:
-        spec:
-          serviceAccountName: ldap-sync
-          restartPolicy: Never
-          containers:
-            - name: oc-cli
-              command:
-                - /bin/oc
-                - adm
-                - groups
-                - sync
-                - --whitelist=/ldap-sync/whitelist.txt
-                - --sync-config=/ldap-sync/ldap-sync.yaml
-                - --confirm
-              image: registry.redhat.io/openshift4/ose-cli
-              imagePullPolicy: Always
-              volumeMounts:
-              - mountPath: /ldap-sync/
-                name: config
-                readOnly: true
-          volumes:
-          - name: config
-            secret:
-              defaultMode: 420
-              secretName: ldap-sync
+ldaps://ad.example.com:636/DC=example,DC=com?sAMAccountName?sub?(&(objectclass=*)(memberOf=CN=Domain Admins,OU=Users,DC=example,DC=com))
 ```
-
-### [Back to Table of Content](#table-of-content)

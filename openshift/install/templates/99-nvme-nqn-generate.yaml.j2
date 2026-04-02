@@ -2,8 +2,8 @@ apiVersion: machineconfiguration.openshift.io/v1
 kind: MachineConfig
 metadata:
   labels:
-    machineconfiguration.openshift.io/role: master
-  name: 99-nvme-gen-hostnqn-hostid-control-plane
+    machineconfiguration.openshift.io/role: {{ item.name }}
+  name: 99-nvme-gen-hostnqn-hostid-{{ item.name }}
 spec:
   config:
     ignition:

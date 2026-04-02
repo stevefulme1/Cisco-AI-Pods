@@ -1,0 +1,25 @@
+{
+{% if openshift_install.servers | length > 1 %}
+    "api": "{{ openshift_install.cluster_networking.api.v4 }}",
+    "ingress": "{{ openshift_install.cluster_networking.ingress.v4 }}",
+{% endif %}
+    "base_dns_domain": "{{ openshift_install.base_dns_domain }}",
+{% if openshift_install.cluster_networking is defined %}
+{% if openshift_install.cluster_networking.cluster_network is defined %}
+    "cluster_network_cidr": "{{ openshift_install.cluster_networking.cluster_network.v4_cidr }}",
+    "cluster_network_host_prefix": {{ openshift_install.cluster_networking.cluster_network.v4_host_prefix }},
+{% endif %}
+{% if openshift_install.cluster_networking.service_network is defined %}
+    "service_network_cidr": "{{ openshift_install.cluster_networking.service_network.v4_cidr }}",
+{% endif %}
+{% endif %}
+    "dns_ip": "{% for dns in openshift_install.cluster_networking.dns_servers %}{{ dns }}{% if not loop.last %},{% endif %}{% endfor %}",
+    "iso": "{{ openshift_install.iso | default ('full')}}",
+    "machine_network_gateway": "{{ openshift_install.cluster_networking.machine_network_gateway.v4_gateway }}",
+    "name": "{{ openshift_install.cluster_name }}",
+    "network_type": "{{ openshift_install.cluster_networking.cni | default('OVNKubernetes') }}",
+{% if openshift_install.ntp_servers is defined %}
+    "ntp": "{% for ntp in openshift_install.ntp_servers %}{{ ntp }}{% if not loop.last %},{% endif %}{% endfor %}",
+{% endif %}
+    "openshift_version": "{{ openshift_install.cluster_version | default('4.20.16') }}"
+}

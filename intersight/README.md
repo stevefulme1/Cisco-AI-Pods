@@ -1,370 +1,247 @@
 # Cisco AI Pods Intersight Deployment Guide
 
+This folder deploys Cisco Intersight organizations, pools, policies, and profiles/templates using Terraform and Cisco Terraform modules.
+
 ## Top Level Documents
-* [Cisco AI Pods Runbook](../guide_cisco_ai_pods_runbook.md#cisco-ai-pods-runbook)
-* [Main README](../README.md)
-* [Prepare the Environment](../guide_prepare_the_environment.md)
+
+- [Cisco AI Pods Runbook](../guide_cisco_ai_pods_runbook.md)
+- [Main README](../README.md)
+- [Prepare the Environment](../guide_prepare_the_environment.md)
 
 ## Table of Contents
-* [Overview](#overview)
-* [Prerequisites Checklist](#prerequisites-checklist)
-* [Prerequisite Steps](#prerequisite-steps)
-* [Security Best Practices](#prerequisite-steps)
-* [Deployment Steps](#deployment-steps)
-* [Post-Deployment Validation](#post-deployment-validation)
-* [Next Steps](#next-steps)
-* [Troubleshooting / Quick Fixes](#troubleshooting--quick-fixes)
 
-### [<ins>Back to Cisco AI Pods Runbook - C885A<ins>](../guide_cisco_ai_pods_runbook.md#cisco-ai-pods-c885a-m8-server-deployment-guide)
+- [Cisco AI Pods Intersight Deployment Guide](#cisco-ai-pods-intersight-deployment-guide)
+  - [Top Level Documents](#top-level-documents)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Folder Structure](#folder-structure)
+  - [Prerequisites](#prerequisites)
+  - [Configuration Model](#configuration-model)
+    - [Global Settings](#global-settings)
+    - [Data Merge Behavior](#data-merge-behavior)
+  - [Authentication and Sensitive Variables](#authentication-and-sensitive-variables)
+    - [Required Environment Variables](#required-environment-variables)
+    - [Common Sensitive Variables](#common-sensitive-variables)
+  - [Deployment Steps](#deployment-steps)
+  - [Validation](#validation)
+  - [Troubleshooting](#troubleshooting)
+    - [Authentication Failures](#authentication-failures)
+    - [Model Not Applied](#model-not-applied)
+    - [Provider or Module Issues](#provider-or-module-issues)
+    - [State Conflicts](#state-conflicts)
+  - [Next Steps](#next-steps)
 
 ## Overview
 
-This guide provides step-by-step instructions for deploying Cisco Intersight infrastructure using the `Cisco Terraform Easy-IMM` module.
+Deployment in this folder is Terraform-based and uses:
 
-## Prerequisites Checklist
+- Provider: `CiscoDevNet/intersight`
+- Data merge helper: `netascode/utils`
+- Terraform modules:
+  - `terraform-cisco-modules/organizations/intersight`
+  - `terraform-cisco-modules/pools/intersight`
+  - `terraform-cisco-modules/policies/intersight`
+  - `terraform-cisco-modules/profiles/intersight`
 
-- [ ] Terraform v1.3.0+ installed
-- [ ] VS Code with YAML schema support
-- [ ] Network connectivity to Intersight (SaaS/CVA/PVA)
+The deployment merges all `*.ezi.yaml` model files from this folder and from selected subfolders into one model, then applies modules conditionally based on content.
 
-## Prerequisite Steps
+[Back to Table of Contents](#table-of-contents)
 
-⚠️ **CRITICAL:** Before continuing make sure you have completed the steps in `network deployment` and `Prepare the Environment`.
+## Folder Structure
 
-* [Prepare the Environment](../guide_prepare_the_environment.md#prepare-the-environment)
+Key files:
 
-### [<ins>Back to Table of Contents<ins>](#table-of-contents)
+- `main.tf`: module orchestration and YAML merge
+- `provider.tf`: Terraform providers and Intersight auth config
+- `locals.tf`: model/sensitive variable mapping
+- `variables.tf`: provider and policy sensitive variable definitions
+- `outputs.tf`: module outputs
+- `global_settings.ezi.yaml`: global settings including `intersight_fqdn` and tags
 
-## Security Best Practices
+Model folders:
 
-1. **File Permissions:**
-   ```bash
-   # Ensure secret key files have restrictive permissions
-   chmod 600 ./auth/*.pem
-   
-   # Verify no other users can read the files
-   ls -la ./auth/
-   ```
+- `organizations/`
+- `pools/`
+- `policies/`
+- `profiles/`
+- `templates/`
 
-2. **Environment Variable Security:**
+[Back to Table of Contents](#table-of-contents)
 
-* **Add to your Shell profile for persistence**
-   ```bash
-   # ~/.bash_profile or ~/.zshrc
-   cat >> ~/.bash_profile << 'EOF'
-   export TF_VAR_intersight_api_key_id="your-api-key-id"
-   export TF_VAR_intersight_secret_key="./auth/SecretKey.pem"
-   EOF
-   ```
+## Prerequisites
 
-* **Reload profile**
-   ```bash
-   source ~/.bash_profile
-   ```
+- Terraform `>= 1.3.0`
+- Network connectivity to Intersight SaaS or appliance endpoint
+- Intersight API key ID and secret key
+- Environment prepared per [Prepare the Environment](../guide_prepare_the_environment.md)
 
-3. **API Key Rotation:**
-   - Plan for regular API key rotation (every 90 to 180 days recommended)
-   - Test new keys before decommissioning old ones
-   - Update environment variables and secret files accordingly
+Optional but recommended:
 
-### [<ins>Back to Table of Contents<ins>](#table-of-contents)
+- `jq` for output parsing
+- version-controlled `.ezi.yaml` model files per organization
+
+[Back to Table of Contents](#table-of-contents)
+
+## Configuration Model
+
+### Global Settings
+
+Edit `global_settings.ezi.yaml`:
+
+```yaml
+global_settings:
+  intersight_fqdn: intersight.com
+```
+
+For appliance deployments, set `intersight_fqdn` to your appliance FQDN.
+
+### Data Merge Behavior
+
+`main.tf` merges model files from:
+
+- `*.ezi.yaml` in this directory
+- `o*/*.ezi.yaml`
+- `p*/*.ezi.yaml`
+- `t*/*.ezi.yaml`
+
+Keep model data in these paths so Terraform picks it up automatically.
+
+[Back to Table of Contents](#table-of-contents)
+
+## Authentication and Sensitive Variables
+
+### Required Environment Variables
+
+```bash
+export TF_VAR_intersight_api_key_id="<apikeyid>"
+export TF_VAR_intersight_secret_key="/absolute/path/to/SecretKey.pem"
+```
+
+Important:
+
+- `TF_VAR_intersight_api_key_id` must match the format validated in `variables.tf`:
+  - `24hex/24hex/24hex`
+- `TF_VAR_intersight_secret_key` can be a file path or inline PEM text.
+
+### Common Sensitive Variables
+
+Depending on your policy model, export additional variables such as:
+
+```bash
+export TF_VAR_cco_password="<secure_password>"
+export TF_VAR_binding_parameters_password="<ldap_bind_password>"
+export TF_VAR_local_user_password_1="<secure_password>"
+export TF_VAR_snmp_auth_password_1="<secure_password>"
+export TF_VAR_snmp_privacy_password_1="<secure_password>"
+```
+
+See `variables.tf` and `locals.tf` for full supported variable names.
+
+[Back to Table of Contents](#table-of-contents)
 
 ## Deployment Steps
 
-⚠️ **IMPORTANT:** Follow the [Deployment Execution Order](../cisco-ai-pods-runbook.md#️-environment-deployment-execution-order) from the main runbook. Intersight deployment is **Phase 2** and requires **Phase 1 (Network Foundation)** to be complete first.
+1. Change into this folder.
 
-### 1. Prepare Environment
-
-**Step 1a: Navigate to Intersight Directory**
 ```bash
-cd FlashStack-AI/intersight
+cd Cisco-AI-Pods/intersight
 ```
 
-### Step 1: Prepare Global Settings
+2. Initialize Terraform.
 
-* If you are not using the SaaS version of intersight update the `global_settings.ezi.yaml` to point to your local instance.
+```bash
+terraform init
+```
 
-1. **Update `global_settings.ezi.yaml`:**
-   ```yaml
-   global_settings:
-     intersight_fqdn: <local-intersight-instance-fully-qualified-hostname>
-   ```
+3. Validate configuration.
 
-### Step 2: Configure Intersight Authentication
+```bash
+terraform validate
+```
 
-Proper authentication setup is critical for successful Terraform deployment to Intersight. Follow these detailed steps:
+4. Create plan.
 
-1. **Generate API Key in Intersight Portal:**
-   - Login to https://intersight.com or your local appliance https://[local-intersight-instance-fully-qualified-hostname]
-   - **permissions** make sure you are logged in administrative credentials
-   - Navigate to **Settings > API Keys**
-   - Click **Generate API Key**
-   - **Key Name:** Enter descriptive name (e.g., "terraform-deployment-key")
-   - **copy api key:** Save in a secure location
-   - **Download:** Save the generated **SecretKey.pem** file to a secure location
+```bash
+terraform plan -out main.plan
+```
 
-2. **Set Environment Variables:**
+5. Apply plan.
 
-* **API Key ID (from Intersight portal)**
-   ```bash
-   export TF_VAR_intersight_api_key_id="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-   ```
-   
-* **Path to secret key file (adjust path as needed)**
-   ```bash
-   export TF_VAR_intersight_secret_key="/home/tyscott/Downloads/SecretKey.pem"
-   ```
+```bash
+terraform apply main.plan
+```
 
-* **Policy Sensitive Variables**
-   ```bash
-   export TF_VAR_cco_password='secure_password'
-   export TF_VAR_local_user_password_1='secure_password'
-   export TF_VAR_snmp_auth_password_1='secure_password'
-   export TF_VAR_snmp_auth_password_2='secure_password'
-   export TF_VAR_snmp_privacy_password_1='secure_password'
-   export TF_VAR_snmp_privacy_password_2='secure_password'
-   ```
+[Back to Table of Contents](#table-of-contents)
 
+## Validation
 
-   
-3. **Verify and Protect Secret Key File:**
+Check module outputs:
 
-   ```bash
-   # Check file exists and has correct permissions
-   ls -la ~/Downloads/SecretKey.pem
-   
-   # Verify file format (should start with -----BEGIN RSA PRIVATE KEY-----)
-   head -1 ~/Downloads/SecretKey.pem
-   
-   # Should show: -rw------- (600 permissions)
-   # If not, fix permissions:
-   chmod 600 ~/Downloads/SecretKey.pem
-   ```
+```bash
+terraform output
+```
 
-4. **Test Connectivity:**
+Inspect created state objects:
 
-* **Test network connectivity**
-   
-   ```bash
-   ping <intersight-saas-or-your-private-appliance-fqdn>
-   ```
-   
-* **Test HTTPS connectivity**
-   ```bash
-   curl -k https://<intersight-saas-or-your-private-appliance-fqdn>/api/v1/organizations/Organizations
-   ```
-   
-### 2. Initialize and Deploy
+```bash
+terraform state list
+```
 
-* **Initialize Terraform**
+Optional output checks:
 
-    ```bash
-    terraform init
-    ```
-
-* **Validate configuration**
-
-    ```bash
-    terraform validate
-    ```
-
-* **Plan deployment**
-
-    ```bash
-    terraform plan -out="main.plan"
-    ```
-
-* **Apply configuration**
-
-    ```bash
-    terraform apply "main.plan"
-    ```
-
-### 3. Verify Deployment
-
-* **Check deployed resources**
-
-    ```bash
-    terraform state list
-    ```
-
-* **View outputs**
-
-    ```bash
-    terraform output
-    ```
-
-### [<ins>Back to Table of Contents<ins>](#table-of-contents)
-
-## Post-Deployment Validation
-
-### Check Organizations
 ```bash
 terraform output organizations
+terraform output pools
+terraform output policies
+terraform output profiles
 ```
 
-### Login to the intersight environment
+In Intersight UI, confirm objects under:
 
-* Check that the pools are created `Configure: Pools` in the left navigation pane
-    * example pools:
-        * IP
-        * MAC
-        * UUID
+- Organizations and Resource Groups
+- Pools
+- Policies
+- Templates and Profiles
 
-* Check that the policies are created `Configure: Policies` in the left navigation pane
-    * example policies:
-        * BIOS
-        * Boot Order
-        * Firmware
-        * LAN Connectivity
-        * NTP
-        * Network Connectivity (DNS)
-        * SNMP
-        * Storage
-        * Syslog
-        * Virtual KVM
-        * Virtual Media
+[Back to Table of Contents](#table-of-contents)
 
-* Check that the templates are created `Configure: Templates` in the left navigation pane
-    * example templates:
-        * UCS Server Profile Templates
+## Troubleshooting
 
-* Check that the templates are created `Configure: Templates` in the left navigation pane
-    * example profiles:
-        * UCS Chassis Profiles
-        * UCS Domain Profiles
-        * UCS Server Profiles
+### Authentication Failures
 
+- Verify `TF_VAR_intersight_api_key_id` format (`24hex/24hex/24hex`).
+- Verify `TF_VAR_intersight_secret_key` path exists and is readable.
+- Ensure endpoint in `global_settings.ezi.yaml` is correct.
+
+### Model Not Applied
+
+- Confirm model files are in recognized paths (`*.ezi.yaml`, `o*/`, `p*/`, `t*/`).
+- Run `terraform plan` and check for zero-change output due to missing model keys.
+
+### Provider or Module Issues
+
+```bash
+terraform init -upgrade
+terraform providers
+terraform version
+```
+
+### State Conflicts
+
+Use with care:
+
+```bash
+terraform state rm <resource>
+terraform import <resource> <id>
+```
+
+[Back to Table of Contents](#table-of-contents)
 
 ## Next Steps
 
-1. [Deploy C885A GPU Nodes](../c885/README.md#cisco-c885a-m8-server-configuration-guide)
-2. [Deploy Pure Storage configuration](../pure_storage/README.md#cisco-ai-pods-pure-storage-configuration-guide)
+After successful Intersight deployment:
 
-### [<ins>Back to Table of Contents<ins>](#table-of-contents)
+1. Continue storage workflow using [pure_storage/README.md](../pure_storage/README.md).
+2. Continue with OpenShift and platform operator deployment phases from the runbook.
 
-## Troubleshooting / Quick Fixes
-
-### Authentication Issues
-
-**Problem:** API Key Authentication Errors
-
-#### Verify API key format (should be UUID)
-
-```bash
-echo $TF_VAR_intersight_api_key_id
-```
-
-The output should be similar to:
-
-```bash
-tyscott@TYSCOTT-DESKTOP:~$ echo $TF_VAR_intersight_api_key_id
-987654321987654321987654/987654321987654321987654/987654321987654321987654
-tyscott@TYSCOTT-DESKTOP:~$
-```
-
-#### Verify secret key file format
-
-```bash
-head -1 $TF_VAR_intersight_secret_key
-```
-
-Should start with: -----BEGIN RSA PRIVATE KEY-----
-
-```bash
-tyscott@TYSCOTT-DESKTOP:~$ head -1 $intersight_secret_key
------BEGIN EC PRIVATE KEY-----
-tyscott@TYSCOTT-DESKTOP:~$
-```
-
-* Note: The above command may fail if you are using relative paths in the variable
-
-#### Check secret key file exists and has the correct permissions
-
-```bash
-echo $TF_VAR_intersight_secret_key
-ll <output>
-```
-
-```bash
-tyscott@TYSCOTT-DESKTOP:~$ echo $TF_VAR_intersight_secret_key
-~/Downloads/SecretKeyv3.txt
-tyscott@TYSCOTT-DESKTOP:~$ ll ~/Downloads/SecretKeyv3.txt
--rw------- 1 tyscott tyscott 248 Jun  4 14:21 /home/tyscott/Downloads/SecretKeyv3.txt
-tyscott@TYSCOTT-DESKTOP:~$
-```
-
-Should show: -rw------- (600 permissions)
-
-#### Fix environment variable if needed
-
-```bash
-export $TF_VAR_intersight_secret_ke="<correct-file-location>"
-```
-
-**Problem:** "Authentication failed" errors
-
-Test API key in Intersight portal
-* Login to Intersight
-* Go to Settings > API Keys  
-* Verify key exists and has correct permissions
-* Regenerate key if necessary
- 
-For CVA/PVA, test connectivity
-
-```bash
-ping <intersight-appliance>
-curl -k https://<intersight-appliance>/api/v1/organizations/Organizations
-```
-
-**Problem:** Permission denied errors
-
-* Check API key organizational access
-* Ensure the API key has required permissions:
-    * Resource Group access
-    * Domain Policy permissions
-    * Pool and Policy management rights
-
-### Execution Order Issues
-
-**Problem:** Deploying out of sequence
-
-* Always verify Phase 1 (Network) is complete first
-* Reference: Main runbook deployment execution order
-* Do not proceed with Intersight until network foundation is ready
-
-### Resource Conflicts
-
-* **Remove conflicting state**
-
-    ```bash
-    terraform state rm <resource>
-    ```
-
-* **Re-importing existing resources**
-
-    ```bash
-    terraform import <resource> <id>
-    ```
-
-### Module Version Issues
-
-* **Update modules**
-
-    ```bash
-    terraform init -upgrade
-    ```
-
-* **Check module versions**
-
-    ```bash
-    terraform version
-    ```
-
-### [<ins>Back to Table of Contents<ins>](#table-of-contents)
-
----
-
-**Note:** This guide covers X-Series specific configuration. Ensure that the networking environment is up and operational before attempting this section.
-
-### [<ins>Back to Cisco AI Pods Runbook - C885A<ins>](../guide_cisco_ai_pods_runbook.md#cisco-ai-pods-c885a-m8-server-deployment-guide)
+[Back to Table of Contents](#table-of-contents)

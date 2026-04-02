@@ -1,0 +1,154 @@
+openshift:
+  operators:
+    cilium:
+      cluster_network:
+        v4_cidr: 10.128.0.0/14
+        v4_host_prefix: 23
+      enable_kube_proxy_replacement: true
+      enable_hubble_metrics: true
+      # Obtain Latest Download Link from https://docs.isovalent.com/ink/install/openshift.html
+      download_url: https://docs.isovalent.com/v25.11/public/clife/clife-v1.18.8.tar.gz
+    nvidia_network_operator:
+      persistent_net_rules:
+        - hostname: hgx-worker-01
+          interfaces:
+            - name: ens201f0np0
+              mac: 00:1e:67:8c:9b:11
+            - name: ens202f0np0
+              mac: 00:1e:67:8c:9b:12
+            - name: ens203f0np0
+              mac: 00:1e:67:8c:9b:13
+            - name: ens204f0np0
+              mac: 00:1e:67:8c:9b:14
+            - name: ens205f0np0
+              mac: 00:1e:67:8c:9b:15
+            - name: ens206f0np0
+              mac: 00:1e:67:8c:9b:16
+            - name: ens207f0np0
+              mac: 00:1e:67:8c:9b:17
+            - name: ens208f0np0
+              mac: 00:1e:67:8c:9b:18
+            - name: ens211f0np0
+              mac: 00:1e:67:8c:9b:19
+            - name: ens211f1np1
+              mac: 00:1e:67:8c:9b:1a
+            - name: ens214f0np0
+              mac: 00:1e:67:8c:9b:1b
+            - name: ens214f1np1
+              mac: 00:1e:67:8c:9b:1c
+        - hostname: hgx-worker-02
+          interfaces:
+            - name: ens201f0np0
+              mac: 00:1e:67:8c:9b:21
+            - name: ens202f0np0
+              mac: 00:1e:67:8c:9b:22
+            - name: ens203f0np0
+              mac: 00:1e:67:8c:9b:23
+            - name: ens204f0np0
+              mac: 00:1e:67:8c:9b:24
+            - name: ens205f0np0
+              mac: 00:1e:67:8c:9b:25
+            - name: ens206f0np0
+              mac: 00:1e:67:8c:9b:26
+            - name: ens207f0np0
+              mac: 00:1e:67:8c:9b:27
+            - name: ens208f0np0
+              mac: 00:1e:67:8c:9b:28
+            - name: ens211f0np0
+              mac: 00:1e:67:8c:9b:29
+            - name: ens211f1np1
+              mac: 00:1e:67:8c:9b:2a
+            - name: ens214f0np0
+              mac: 00:1e:67:8c:9b:2b
+            - name: ens214f1np1
+              mac: 00:1e:67:8c:9b:2c
+    portworx:
+      enabled: true
+  install:
+    bare_metal:
+      base_dns_domain: example.com
+      cluster_name: ai-pods
+      cluster_networking:
+        api:
+          v4: 198.18.0.9
+        cluster_network:
+          v4_cidr: 10.128.0.0/14
+          v4_host_prefix: 23
+        cni: Cilium
+        dns_servers:
+          - 208.67.220.220
+          - 208.67.222.222
+        ingress:
+          v4: 198.18.0.10
+        machine_network_gateway:
+          v4_gateway: 198.18.0.1/24
+        routes:
+          - destination: 0.0.0.0/0
+            gateway: 198.18.0.254
+        service_network:
+          v4_cidr: 172.30.0.0/16
+      cluster_version: 4.20.16
+      fabric_interconnects:
+        - ip: 198.18.0.51
+          inventory_id: r143e-1-1-1
+          password: 1
+          username: admin
+        - ip: 198.18.0.53
+          inventory_id: r143e-2-1-1
+          password: 1
+          username: admin
+      iso_web_server:
+        ip: localhost
+        image_base_url: https://10.101.128.25/repo
+        image_upload_directory: /var/www/html/repo
+        # ssh_public_key_file: ~/.ssh/id_ecdsa.pub
+        # username: admin
+      ntp_servers:
+        - 0.pool.ntp.org
+        - 1.pool.ntp.org
+      ssh_public_key_file: ~/.ssh/id_ecdsa.pub
+      servers:
+        - hostname: master-1
+          fabric_interconnect:
+            id: 0
+            inventory_id: r143e-2-1-1
+          role: master
+          interfaces:
+            ethernet:
+              - name: eno5
+                ipv4: 198.18.0.11/24
+                lldp_enabled: true
+                mac: 00:1e:67:8c:9b:01
+                mtu: 9000
+              - name: eno7
+                ipv4: 198.18.4.11/24
+                lldp_enabled: true
+                mac: 00:1e:67:8c:9b:02
+                mtu: 9000
+        - hostname: master-2
+          redfish:
+            ip: 198.18.0.72
+            password: 2
+            type: bmc
+            username: root
+          role: master
+          interfaces:
+            bond:
+              - name: bond0
+                intfaces:
+                  - name: eno1
+                    mac: 00:1e:67:8c:9b:10
+                  - name: eno2
+                    mac: 00:1e:67:8c:9b:11
+                ipv4: 198.18.0.12/24
+                lldp_enabled: true
+                mtu: 9000
+              - name: bond1
+                intfaces:
+                  - name: eno3
+                    mac: 00:1e:67:8c:9b:12
+                  - name: eno4
+                    mac: 00:1e:67:8c:9b:13
+                ipv4: 198.18.4.12/24
+                lldp_enabled: true
+                mtu: 9000

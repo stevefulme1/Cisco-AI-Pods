@@ -1,4 +1,0 @@
-PERSIST=`cat 70-persistent-net.rules| base64 -w 0`
-STORAGE=`cat storage.conf| base64 -w 0`
-
-echo `cat 70-persistent-net.rules| base64 -w 0`

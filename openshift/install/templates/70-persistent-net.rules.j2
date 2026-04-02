@@ -1,0 +1,6 @@
+{% for item in openshift.operators.nvidia_network_operator.persistent_net_rules %}
+# {{ item.hostname }}
+{% for i in item.interfaces %}
+SUBSYSTEM=="net",ACTION=="add",ATTR{{ '{' }}address{{ '}' }}=="{{ i.mac }}",ATTR{{ '{' }}type{{ '}' }}=="1",NAME="{{ i.name}}"
+{% endfor %}
+{% endfor %}
