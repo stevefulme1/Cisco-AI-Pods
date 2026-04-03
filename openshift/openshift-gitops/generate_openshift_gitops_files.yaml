@@ -39,7 +39,12 @@
         dest: "{{ openshift.destination_directory }}/olm-catalog/ansible-automation-platform/04-console-link-aap.yaml"
       when: "'ansible-automation-platform' in openshift.operators.operators_to_install"
 
-    - name: create the OpenShift GitOps (ArgoCD) Application YAML files from the templates
+    - name: create the OpenShift GitOps (ArgoCD) Application YAML files for LLDP DaemonSet from template
+      ansible.builtin.copy:
+        content: "{{ lookup('template', 'lldp-daemonset.yaml.j2') }}"
+        dest: "{{ openshift.destination_directory }}/olm-catalog/operators/lldp-daemonset.yaml"
+
+    - name: create the OpenShift GitOps (ArgoCD) Application YAML files from templates
       ansible.builtin.copy:
         content: "{{ lookup('template', item + '.yaml.j2') }}"
         dest: "{{ openshift.destination_directory }}/olm-catalog/operators/{{ item }}.yaml"

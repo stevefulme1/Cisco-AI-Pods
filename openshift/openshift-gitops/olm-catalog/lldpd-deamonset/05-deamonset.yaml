@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  name: lldpd
+  namespace: infra-lldpd
+spec:
+  selector:
+    matchLabels:
+      name: lldpd
+  template:
+    metadata:
+      annotations:
+        openshift.io/required-scc: "privileged"
+      labels:
+        name: lldpd
+    spec:
+      imagePullSecrets:
+        - name: rbohne-rhel-lldp-pull-secret
+      serviceAccountName: lldpd
+      tolerations:
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: lldpd
+          image: image-registry.openshift-image-registry.svc:5000/infra-lldpd/lldpd:latest
+          env:
+            - name: DAEMON_ARGS
+              value: "-l -c"
+          securityContext:
+            capabilities:
+              add: ["NET_RAW", "NET_ADMIN", "SYS_CHROOT"]
+      hostPID: true
+      hostNetwork: true
