@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: lldp-daemonset
+  name: lldpd-daemonset
   namespace: openshift-gitops
 spec:
   project: default
   source:
     repoURL: '{{ openshift.operators.openshift_gitops.gitops_repo_url }}'
     targetRevision: HEAD
-    path: olm-catalog/lldp-deamonset
+    path: olm-catalog/lldpd-daemonset
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: infra-lldpd
+    namespace: lldpd
   syncPolicy:
     automated:
       prune: {{ openshift.operators.openshift_gitops.prune | default('false') }}

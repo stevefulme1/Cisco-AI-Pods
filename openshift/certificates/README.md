@@ -8,6 +8,8 @@ This folder contains Ansible playbooks to apply custom certificates to an OpenSh
 
 It also includes validation playbooks for ingress and API certificate state.
 
+**Back to OpenShift README:** [OpenShift Deployment Order](../README.md)
+
 ## Table of Contents
 
 - [Directory Structure](#directory-structure)
@@ -272,8 +274,8 @@ oc get clusteroperators kube-apiserver
 
 ## References
 
-- https://docs.redhat.com/en/documentation/openshift_container_platform
-- https://access.redhat.com/documentation/en-us/openshift_container_platform
-- https://kenmoini.com/post/2022/02/custom-root-ca-in-openshift/
+- [OpenShift Container Platform Documentation (docs.redhat.com)](https://docs.redhat.com/en/documentation/openshift_container_platform)
+- [OpenShift Container Platform Documentation (access.redhat.com)](https://access.redhat.com/documentation/en-us/openshift_container_platform)
+- [Custom Root CA in OpenShift (kenmoini.com)](https://kenmoini.com/post/2022/02/custom-root-ca-in-openshift/)
 
 [Back to Table of Contents](#table-of-contents)

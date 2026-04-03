@@ -1,0 +1,28 @@
+interfaces:
+{% for i in interface %}
+  - mtu: 9000
+    name: ${{ '{' }}GROUP_{{ i.group }}_IFNAME{{ '}' }}
+    lldp:
+      enabled: true
+    state: up
+    type: ethernet
+    ipv4:
+      address:
+      - ip: ${{ '{' }}GROUP_{{ i.group }}_IP{{ '}' }}
+        prefix-length: ${{ '{' }}GROUP_{{ i.group }}_PREFIX{{ '}' }}
+      dhcp: false
+      enabled: true
+{% endfor %}
+routes:
+  config:
+{% for route in route_entries %}
+    - destination: ${{ '{' }}GROUP_{{ route.group }}_CIDR_{{ route.route_index }}{{ '}' }}
+      next-hop-address: ${{ '{' }}GROUP_{{ route.group }}_NH_{{ route.route_index }}{{ '}' }}
+      next-hop-interface: ${{ '{' }}GROUP_{{ route.group }}_IFNAME{{ '}' }}
+{% endfor %}
+dns-resolver:
+  config:
+    server:
+{% for i in range(dns_servers | length) %}
+    - ${{ '{' }}DNS_IP_{{ i + 1 }}{{ '}' }}
+{% endfor %}

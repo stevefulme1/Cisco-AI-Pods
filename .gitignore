@@ -1,12 +1,12 @@
 # Ignore Sensitive Data and Configuration Files
-backup/
 *.cer
 *.crt
 *.key
 *.pem
 pure.json
 
-# Customer Variable Files
+# Generated customer-specific artifacts
+backup/
 openshift/install/assisted-installer/
 *.ezcai.yaml
 

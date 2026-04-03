@@ -2,6 +2,8 @@
 
 This directory contains the Ansible workflow that prepares GitOps content for OpenShift cluster add-on operators used by Cisco AI Pods. The playbook copies the local Helm and OLM catalog trees into a destination Git repository structure, then renders Argo CD Application manifests and supporting YAML from Jinja2 templates.
 
+**Back to OpenShift README:** [OpenShift Deployment Order](../README.md)
+
 ## Table of Contents
 
 - [OpenShift GitOps File Generator](#openshift-gitops-file-generator)

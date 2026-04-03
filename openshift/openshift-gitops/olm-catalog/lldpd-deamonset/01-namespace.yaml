@@ -3,5 +3,5 @@ kind: Namespace
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
-  name: infra-lldpd
+  name: lldpd
 spec: {}

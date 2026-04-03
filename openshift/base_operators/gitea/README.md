@@ -2,6 +2,14 @@
 
 This folder contains an Ansible playbook that installs the Red Hat Gitea Operator and deploys a Gitea instance into a dedicated namespace.
 
+## Gitea Note
+
+Use Gitea to create an internal Git source for onboarding repositories only when an existing Git service is not available.
+
+It is not recommended to use public Git repositories for this workflow, because much of the repository content is specific to each customer environment and can include sensitive infrastructure configuration details.
+
+**Back to Base Operators README:** [Base Operators Overview](../README.md)
+
 ## Table of Contents
 
 - [Directory Structure](#directory-structure)

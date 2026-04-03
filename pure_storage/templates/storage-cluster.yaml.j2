@@ -2,6 +2,7 @@ apiVersion: core.libopenstorage.org/v1
 kind: StorageCluster
 metadata:
   annotations:
+    portworx.io/disable-storage-class: "true"
     portworx.io/is-openshift: "true"
     portworx.io/misc-args: ' -T px-storev2 '
     portworx.io/preflight-check: "true"

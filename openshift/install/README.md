@@ -1,16 +1,29 @@
 # OpenShift Install — Manifest Generation
 
-This directory contains an Ansible playbook and supporting files to generate the manifests needed to deploy a bare-metal OpenShift cluster via **Cisco iServer** and the **OpenShift Assisted Installer**.
+This directory contains an Ansible playbook and supporting files to generate the manifests needed to deploy a bare-metal OpenShift cluster via **Cisco iServer** and the **OpenShift Assisted Installer**. It also includes a Python module for generating more complex output artifacts.
+
+**Back to OpenShift README:** [OpenShift Deployment Order](../README.md)
 
 ## Table of Contents
 
-- [Directory Structure](#directory-structure)
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
-- [Variables Reference](#variables-reference)
-- [Feature Flags](#feature-flags)
-- [Generated Output](#generated-output)
-- [Security Notes](#security-notes)
+- [OpenShift Install — Manifest Generation](#openshift-install--manifest-generation)
+  - [Table of Contents](#table-of-contents)
+  - [Directory Structure](#directory-structure)
+  - [Prerequisites](#prerequisites)
+  - [Quick Start](#quick-start)
+  - [Python Module Usage](#python-module-usage)
+    - [Example: export sensitive variables and validate only](#example-export-sensitive-variables-and-validate-only)
+    - [Example: export sensitive variables and generate output](#example-export-sensitive-variables-and-generate-output)
+  - [Variables Reference](#variables-reference)
+    - [`openshift.install.bare_metal`](#openshiftinstallbare_metal)
+    - [`fabric_interconnects[]`](#fabric_interconnects)
+    - [`iso_web_server`](#iso_web_server)
+    - [`servers[]`](#servers)
+    - [`openshift.operators`](#openshiftoperators)
+    - [`proxy` (optional)](#proxy-optional)
+  - [Feature Flags](#feature-flags)
+  - [Generated Output](#generated-output)
+  - [Security Notes](#security-notes)
 
 ---
 
@@ -19,6 +32,7 @@ This directory contains an Ansible playbook and supporting files to generate the
 ```
 install/
 ├── create_install_manifest_files.yaml   # Main Ansible playbook
+├── generate_server_and_nmstate_templates.py  # Python module for complex assisted-installer output generation
 ├── script_vars/
 │   └── vars.ezcai.example.yaml          # Example variables file
 ├── tasks/
@@ -55,7 +69,7 @@ install/
 - Ansible installed with the following collections:
   - `ansible.builtin`
   - `community.general` (for `json_query` filter)
-- Access to a Cisco iServer instance managing the target UCS Fabric Interconnects
+- Use the iServer executable downloaded from the datacenter/iserver GitHub releases to manage the target UCS Server inventory
 - An ISO web server reachable from the target nodes
 - An SSH key pair for cluster node access
 
@@ -76,17 +90,85 @@ install/
    - `openshift.install.bare_metal.base_dns_domain`
    - `openshift.install.bare_metal.cluster_version`
    - `openshift.install.bare_metal.cluster_networking` (API VIP, Ingress VIP, machine network, DNS)
-   - `openshift.install.bare_metal.fabric_interconnects` (iServer inventory)
+   - `openshift.install.bare_metal.fabric_interconnects` (iServer inventory, if using servers with `fabric_interconnect`)
    - `openshift.install.bare_metal.iso_web_server` (IP, image URL, upload directory)
    - `openshift.install.bare_metal.servers` (hostnames, roles, interfaces, MACs)
 
-3. **Update the playbook** to point at your variables file (or pass it via `-e`):
+3. **Run the playbook**:
 
    ```bash
    ansible-playbook create_install_manifest_files.yaml
    ```
 
-4. **Load the generated manifests** from `assisted-installer/` into iServer / the Assisted Installer UI.
+4. **Run the Python module** to generate `server.json` and `nmstate_*.yaml` in `assisted-installer/`:
+
+  ```bash
+  cd openshift/install
+  export redfish_password_1='replace-with-secret-1'
+  export redfish_password_2='replace-with-secret-2'
+  export fi_password_1='replace-with-fi-secret-1'
+  export fi_password_2='replace-with-fi-secret-2'
+
+  # Validate credentials only
+  python generate_server_and_nmstate_templates.py --check-env
+
+  # Generate outputs
+  python generate_server_and_nmstate_templates.py
+  ```
+
+5. **Prepare the iServer environment**, following:  **🔗 [iServer Console Setup](https://github.com/datacenter/iserver/blob/main/doc/ocp/Console.md)**
+
+6. **Run iServer from the `assisted-installer/` directory**.
+
+  First, check the data:
+
+  ```bash
+  iserver create ocp cluster bm --dir ./ --mode check
+  ```
+
+  Then run:
+
+  ```bash
+  iserver create ocp cluster bm --dir ./ --mode install
+  ```
+
+[Back to Table of Contents](#table-of-contents)
+
+---
+
+## Python Module Usage
+
+Run the Python module as a required step to generate `server.json`, `nmstate_*.yaml`, and extract the iServer Linux release asset into `assisted-installer/`.
+
+### Example: export sensitive variables and validate only
+
+```bash
+cd openshift/install
+
+export redfish_password_1='replace-with-secret-1'
+export redfish_password_2='replace-with-secret-2'
+export fi_password_1='replace-with-fi-secret-1'
+export fi_password_2='replace-with-fi-secret-2'
+
+# Optional: helps avoid GitHub API rate-limit issues when downloading release metadata/assets
+export GITHUB_TOKEN='replace-with-github-token'
+
+python generate_server_and_nmstate_templates.py --check-env
+```
+
+### Example: export sensitive variables and generate output
+
+```bash
+cd openshift/install
+
+export redfish_password_1='replace-with-secret-1'
+export redfish_password_2='replace-with-secret-2'
+export fi_password_1='replace-with-fi-secret-1'
+export fi_password_2='replace-with-fi-secret-2'
+export GITHUB_TOKEN='replace-with-github-token'  # optional
+
+python generate_server_and_nmstate_templates.py
+```
 
 [Back to Table of Contents](#table-of-contents)
 
@@ -113,7 +195,7 @@ All variables live under the top-level `openshift:` key in your variables file. 
 | `cluster_networking.cni` | No | CNI plugin (`OVNKubernetes` or `Cilium`); defaults to `OVNKubernetes` |
 | `ntp_servers` | No | List of NTP server addresses |
 | `ssh_public_key_file` | Yes | Path to SSH public key file for node access |
-| `fabric_interconnects` | Yes | List of iServer Fabric Interconnect entries (see below) |
+| `fabric_interconnects` | Conditional | List of iServer Fabric Interconnect entries (required when any `servers[]` entry uses `fabric_interconnect`) |
 | `iso_web_server` | Yes | ISO web server configuration (see below) |
 | `servers` | Yes | List of cluster node definitions (see below) |
 | `proxy` | No | HTTP/HTTPS proxy settings (see below) |
@@ -147,7 +229,7 @@ Each entry describes one cluster node:
 | `role` | `master` or `worker` |
 | `fabric_interconnect.id` | Index into the `fabric_interconnects` list |
 | `fabric_interconnect.inventory_id` | iServer inventory ID for this node |
-| `redfish.ip` / `.username` / `.password` / `.type` | Redfish BMC settings (alternative to FI-based boot) |
+| `redfish.ip` / `.username` / `.password` / `.type` | Redfish BMC settings (alternative to FI-based boot). `password` is an environment variable suffix, not a plain-text secret. |
 | `interfaces.ethernet[]` | Ethernet interface definitions (name, MAC, IPv4, MTU, LLDP) |
 | `interfaces.bond[]` | Bond interface definitions |
 
@@ -201,10 +283,24 @@ After the playbook runs, the `assisted-installer/` directory will contain:
 | File | Description |
 |------|-------------|
 | `cluster.json` | iServer cluster creation payload |
+| `server.json` | Assisted Installer server inventory generated from `openshift.install.bare_metal.servers` |
+| `nmstate_*.yaml` | Generated unique nmstate network profiles referenced by `server.json` |
 | `ssh.pub` | SSH public key for node access |
 | `web_server.json` | iServer ISO web server payload |
 | `proxy.json` | iServer proxy payload (if proxy is configured) |
 | `manifests/` | MachineConfig and operator manifests injected at install time |
+
+When running `generate_server_and_nmstate_templates.py` (without `--check-env`), the script also downloads the latest Linux `.tar.gz` asset from [datacenter/iserver releases](https://github.com/datacenter/iserver/releases) and extracts it into `assisted-installer/`. If an iServer Linux `.tar.gz` archive already exists in `assisted-installer/`, the script reuses that local archive and skips downloading from GitHub.
+
+[Back to Table of Contents](#table-of-contents)
+
+---
+
+## Acknowledgments
+
+Special credit to GitHub user **akaliwod** for extensive work on the iServer project:
+
+- [datacenter/iserver](https://github.com/datacenter/iserver)
 
 [Back to Table of Contents](#table-of-contents)
 
@@ -214,6 +310,14 @@ After the playbook runs, the `assisted-installer/` directory will contain:
 
 - **Never commit plain-text passwords.** Use [Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html) to encrypt sensitive values in your variables file.
 - Proxy passwords and ISO web server passwords are resolved at runtime from environment variables (e.g., `export iso_web_server_password_<suffix>=...`), keeping credentials out of the YAML.
+- Redfish/BMC passwords are required at runtime via environment variables using this format: `redfish_password_<suffix>`.
+- Fabric interconnect passwords are required at runtime via environment variables using this format: `fi_password_<suffix>`.
+- The `<suffix>` comes from `servers[].redfish.password` for redfish hosts, or the resolved `fabric_interconnects[].password` value for FI-backed hosts.
+- You can define as many suffixes as needed (for example: `redfish_password_1`, `redfish_password_2`, `fi_password_1`, `fi_password_17`, ...).
+- Example: if `password: 1` in YAML, set `export redfish_password_1='your-redfish-secret'` or `export fi_password_1='your-fi-secret'` (depending on host type) before running the generator.
+- The nmstate/server generator exits with an error if a required `redfish_password_*` or `fi_password_*` environment variable is missing.
+- To validate only required credential env vars without generating files, run: `python generate_server_and_nmstate_templates.py --check-env`
+- If GitHub API rate limits are encountered during release download, set `GITHUB_TOKEN` to increase API limits.
 - The ISO web server template disables TLS verification when `https://` is detected in `image_base_url`. Use a trusted certificate in production environments.
 
 [Back to Table of Contents](#table-of-contents)

@@ -108,47 +108,172 @@ openshift:
         - 1.pool.ntp.org
       ssh_public_key_file: ~/.ssh/id_ecdsa.pub
       servers:
-        - hostname: master-1
+        - hostname: control-plane-1
           fabric_interconnect:
             id: 0
-            inventory_id: r143e-2-1-1
+            inventory_id: r143e-1-1-1
+          kube: true
           role: master
           interfaces:
             ethernet:
               - name: eno5
                 ipv4: 198.18.0.11/24
                 lldp_enabled: true
-                mac: 00:1e:67:8c:9b:01
+                mac: 00:1e:67:8c:9a:01
                 mtu: 9000
-              - name: eno7
-                ipv4: 198.18.4.11/24
+        - hostname: control-plane-1
+          fabric_interconnect:
+            id: 0
+            inventory_id: r143e-1-1-2
+          role: master
+          interfaces:
+            ethernet:
+              - name: eno5
+                ipv4: 198.18.0.12/24
                 lldp_enabled: true
-                mac: 00:1e:67:8c:9b:02
+                mac: 00:1e:67:8c:9a:02
                 mtu: 9000
-        - hostname: master-2
+        - hostname: control-plane-1
+          fabric_interconnect:
+            id: 0
+            inventory_id: r143e-1-1-3
+          role: master
+          interfaces:
+            ethernet:
+              - name: eno5
+                ipv4: 198.18.0.13/24
+                lldp_enabled: true
+                mac: 00:1e:67:8c:9a:03
+                mtu: 9000
+        - hostname: hgx-1
           redfish:
             ip: 198.18.0.72
             password: 2
             type: bmc
             username: root
-          role: master
+          role: worker
           interfaces:
             bond:
               - name: bond0
                 intfaces:
                   - name: eno1
-                    mac: 00:1e:67:8c:9b:10
+                    mac: 00:1e:67:8c:9c:11
                   - name: eno2
-                    mac: 00:1e:67:8c:9b:11
-                ipv4: 198.18.0.12/24
+                    mac: 00:1e:67:8c:9c:12
+                ipv4: 198.18.0.14/24
                 lldp_enabled: true
                 mtu: 9000
               - name: bond1
                 intfaces:
                   - name: eno3
-                    mac: 00:1e:67:8c:9b:12
+                    mac: 00:1e:67:8c:9c:13
                   - name: eno4
-                    mac: 00:1e:67:8c:9b:13
+                    mac: 00:1e:67:8c:9c:14
+                ipv4: 198.18.4.14/24
+                lldp_enabled: true
+                mtu: 9000
+        - hostname: hgx-2
+          redfish:
+            ip: 198.18.0.73
+            password: 2
+            type: bmc
+            username: root
+          role: worker
+          interfaces:
+            bond:
+              - name: bond0
+                intfaces:
+                  - name: eno1
+                    mac: 00:1e:67:8c:9c:21
+                  - name: eno2
+                    mac: 00:1e:67:8c:9c:22
+                ipv4: 198.18.0.15/24
+                lldp_enabled: true
+                mtu: 9000
+              - name: bond1
+                intfaces:
+                  - name: eno3
+                    mac: 00:1e:67:8c:9c:23
+                  - name: eno4
+                    mac: 00:1e:67:8c:9c:24
+                ipv4: 198.18.4.15/24
+                lldp_enabled: true
+                mtu: 9000
+        - hostname: hgx-3
+          redfish:
+            ip: 198.18.0.74
+            password: 2
+            type: bmc
+            username: root
+          role: worker
+          interfaces:
+            bond:
+              - name: bond0
+                intfaces:
+                  - name: eno1
+                    mac: 00:1e:67:8c:9c:31
+                  - name: eno2
+                    mac: 00:1e:67:8c:9c:32
+                ipv4: 198.18.0.16/24
+                lldp_enabled: true
+                mtu: 9000
+              - name: bond1
+                intfaces:
+                  - name: eno3
+                    mac: 00:1e:67:8c:9c:33
+                  - name: eno4
+                    mac: 00:1e:67:8c:9c:34
+                ipv4: 198.18.4.16/24
+                lldp_enabled: true
+                mtu: 9000
+        - hostname: worker-4
+          fabric_interconnect:
+            id: 1
+            inventory_id: r143e-2-2-1
+          role: worker
+          interfaces:
+            ethernet:
+              - name: eno5
+                ipv4: 198.18.0.17/24
+                lldp_enabled: true
+                mac: 00:1e:67:8c:9a:11
+                mtu: 9000
+              - name: eno7
+                ipv4: 198.18.4.17/24
+                lldp_enabled: true
+                mac: 00:1e:67:8c:9b:11
+                mtu: 9000
+        - hostname: control-plane-1
+          fabric_interconnect:
+            id: 1
+            inventory_id: r143e-2-2-3
+          role: worker
+          interfaces:
+            ethernet:
+              - name: eno5
+                ipv4: 198.18.0.12/24
+                lldp_enabled: true
+                mac: 00:1e:67:8c:9a:12
+                mtu: 9000
+              - name: eno7
                 ipv4: 198.18.4.12/24
                 lldp_enabled: true
+                mac: 00:1e:67:8c:9b:12
+                mtu: 9000
+        - hostname: control-plane-1
+          fabric_interconnect:
+            id: 1
+            inventory_id: r143e-2-1-1
+          role: worker
+          interfaces:
+            ethernet:
+              - name: eno5
+                ipv4: 198.18.0.13/24
+                lldp_enabled: true
+                mac: 00:1e:67:8c:9a:13
+                mtu: 9000
+              - name: eno7
+                ipv4: 198.18.4.13/24
+                lldp_enabled: true
+                mac: 00:1e:67:8c:9b:13
                 mtu: 9000

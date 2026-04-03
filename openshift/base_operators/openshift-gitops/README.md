@@ -2,6 +2,8 @@
 
 This folder contains an Ansible playbook that installs the OpenShift GitOps Operator and related RBAC/operator resources.
 
+**Back to Base Operators README:** [Base Operators Overview](../README.md)
+
 ## Table of Contents
 
 - [Install OpenShift GitOps Operator](#install-openshift-gitops-operator)

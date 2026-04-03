@@ -1,0 +1,41 @@
+interfaces:
+{% for i in physical_interfaces %}
+  - name: ${{ '{' }}GROUP_{{ i.group }}_BOND_MEMBER_{{ i.member }}{{ '}' }}
+    lldp:
+      enabled: true
+    mtu: 9000
+    type: ethernet
+    state: up
+{% endfor %}
+{% for i in interfaces %}
+  - name: ${{ '{' }}GROUP_{{ i.group }}_BOND{{ '}' }}
+    state: up
+    type: bond
+    link-aggregation:
+      mode: ${{ '{' }}GROUP_{{ i.group }}_BOND_MODE{{ '}' }}
+      options:
+        lacp_rate: ${{ '{' }}GROUP_{{ i.group }}_LACP_RATE{{ '}' }}
+      port:
+{% for member in i.member_indices %}
+      - ${{ '{' }}GROUP_{{ i.group }}_BOND_MEMBER_{{ member }}{{ '}' }}
+{% endfor %}
+    ipv4:
+      address:
+      - ip: ${{ '{' }}GROUP_{{ i.group }}_IP{{ '}' }}
+        prefix-length: ${{ '{' }}GROUP_{{ i.group }}_PREFIX{{ '}' }}
+      dhcp: false
+      enabled: true
+{% endfor %}
+routes:
+  config:
+{% for route in route_entries %}
+    - destination: ${{ '{' }}GROUP_{{ route.group }}_CIDR_{{ route.route_index }}{{ '}' }}
+      next-hop-address: ${{ '{' }}GROUP_{{ route.group }}_NH_{{ route.route_index }}{{ '}' }}
+      next-hop-interface: ${{ '{' }}GROUP_{{ route.group }}_BOND{{ '}' }}
+{% endfor %}
+dns-resolver:
+  config:
+    server:
+{% for i in range(dns_servers | length) %}
+    - ${{ '{' }}DNS_IP_{{ i + 1 }}{{ '}' }}
+{% endfor %}

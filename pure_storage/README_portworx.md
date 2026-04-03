@@ -6,6 +6,8 @@ This guide covers the Portworx-specific flow in this folder:
 2. Install Portworx Operator and StorageCluster on OpenShift.
 3. Create Portworx storage classes from template values.
 
+**Back to OpenShift README:** [OpenShift Deployment Order](../openshift/README.md)
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)

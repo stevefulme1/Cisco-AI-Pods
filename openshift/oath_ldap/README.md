@@ -4,6 +4,8 @@ Ansible playbook that configures OpenShift OAuth to authenticate against Active 
 
 **Reference:** [OpenShift LDAP Configuration](https://examples.openshift.pub/cluster-configuration/authentication/activedirectory-ldap/)
 
+**Back to OpenShift README:** [OpenShift Deployment Order](../README.md)
+
 ---
 
 ## Table of Contents
