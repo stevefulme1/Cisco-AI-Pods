@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cisco-exporter-service
+  namespace: cisco-exporter
+spec:
+  selector:
+    app: cisco-exporter
+  ports:
+    - protocol: TCP
+      port: 9362
+      targetPort: 9362

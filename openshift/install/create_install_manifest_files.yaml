@@ -14,71 +14,71 @@
         assisted_installer_directory: "{{ openshift.destination_directory | default(playbook_dir) }}/assisted-installer"
         openshift_install: "{{ openshift.install.bare_metal | default({}) }}"
 
-    # - name: Ensure the Assisted Installer Folder Exists
-    #   ansible.builtin.file:
-    #     path: "{{ assisted_installer_directory }}"
-    #     state: directory
+    - name: Ensure the Assisted Installer Folder Exists
+      ansible.builtin.file:
+        path: "{{ assisted_installer_directory }}"
+        state: directory
 
-    # - name: Ensure the Assisted Installer Manifests Folder Exists
-    #   ansible.builtin.file:
-    #     path: "{{ assisted_installer_directory }}/manifests"
-    #     state: directory
+    - name: Ensure the Assisted Installer Manifests Folder Exists
+      ansible.builtin.file:
+        path: "{{ assisted_installer_directory }}/manifests"
+        state: directory
 
-    # ##########################################################
-    # # Machine Configuration Tasks
-    # ##########################################################
-    # - name: Manifests for Assisted Installer - Node Disruption Budgets
-    #   ansible.builtin.copy:
-    #     content: "{{ lookup('template', '99-node-disruption-policy.j2') }}"
-    #     dest: "{{ assisted_installer_directory }}/manifests/99-node-disruption-policy.yaml"
+    ##########################################################
+    # Machine Configuration Tasks
+    ##########################################################
+    - name: Manifests for Assisted Installer - Node Disruption Budgets
+      ansible.builtin.copy:
+        content: "{{ lookup('template', '99-node-disruption-policy.j2') }}"
+        dest: "{{ assisted_installer_directory }}/manifests/99-node-disruption-policy.yaml"
 
-    # - name: Manifests for Assisted Installer - Kernel Arguments, Kubelet Config, and NVMe Multipath Config
-    #   ansible.builtin.copy:
-    #     content: "{{ lookup('template', item.file + '.yaml.j2') }}"
-    #     dest: "{{ assisted_installer_directory }}/manifests/{{ item.file + '-' + item.name + '.yaml' }}"
-    #   loop:
-    #     - file: 99-kernel-arguments
-    #       name: master
-    #     - file: 99-kernel-arguments
-    #       name: worker
-    #     - file: 99-kubelet-config-memory
-    #       name: master
-    #     - file: 99-kubelet-config-memory
-    #       name: worker
-    #     - file: 99-nvme-nqn-generate
-    #       name: master
-    #     - file: 99-nvme-nqn-generate
-    #       name: worker
+    - name: Manifests for Assisted Installer - Kernel Arguments, Kubelet Config, and NVMe Multipath Config
+      ansible.builtin.copy:
+        content: "{{ lookup('template', item.file + '.yaml.j2') }}"
+        dest: "{{ assisted_installer_directory }}/manifests/{{ item.file + '-' + item.name + '.yaml' }}"
+      loop:
+        - file: 99-kernel-arguments
+          name: master
+        - file: 99-kernel-arguments
+          name: worker
+        - file: 99-kubelet-config-memory
+          name: master
+        - file: 99-kubelet-config-memory
+          name: worker
+        - file: 99-nvme-nqn-generate
+          name: master
+        - file: 99-nvme-nqn-generate
+          name: worker
 
-    # ##########################################################
-    # # Machine Configuration Tasks - Portworx
-    # ##########################################################
-    # - name: Manifests for Assisted Installer - Portworx Multipathd Config if Portworx is the CSI
-    #   ansible.builtin.copy:
-    #     content: "{{ lookup('template', item.file + '.yaml.j2') }}"
-    #     dest: "{{ assisted_installer_directory }}/manifests/{{ item.file + '-' + item.name + '.yaml' }}"
-    #   loop:
-    #     - file: 99-portworx-multipathd-config
-    #       name: master
-    #     - file: 99-portworx-multipathd-config
-    #       name: worker
-    #   when: openshift.operators is defined and openshift.operators.portworx is defined and openshift.operators.portworx.enabled | default(false)
+    ##########################################################
+    # Machine Configuration Tasks - Portworx
+    ##########################################################
+    - name: Manifests for Assisted Installer - Portworx Multipathd Config if Portworx is the CSI
+      ansible.builtin.copy:
+        content: "{{ lookup('template', item.file + '.yaml.j2') }}"
+        dest: "{{ assisted_installer_directory }}/manifests/{{ item.file + '-' + item.name + '.yaml' }}"
+      loop:
+        - file: 99-portworx-multipathd-config
+          name: master
+        - file: 99-portworx-multipathd-config
+          name: worker
+      when: openshift.operators is defined and openshift.operators.portworx is defined and openshift.operators.portworx.enabled | default(false)
 
-    # ##########################################################
-    # # Machine Configuration Tasks - NVIDIA Network Operator
-    # ##########################################################
-    # - name: Run Persistent Net Rule tasks for NVIDIA Network Operator if enabled
-    #   import_tasks: "tasks/persistent_net_rules.yaml"
-    #   when: >-
-    #     openshift.operators is defined and openshift.operators | json_query('nvidia_network_operator.persistent_net_rules') is defined
+    ##########################################################
+    # Machine Configuration Tasks - NVIDIA Network Operator
+    ##########################################################
+    - name: Run Persistent Net Rule tasks for NVIDIA Network Operator if enabled
+      import_tasks: "tasks/persistent_net_rules.yaml"
+      when: >-
+        openshift.operators is defined and openshift.operators | json_query('nvidia_network_operator.persistent_net_rules') is defined
 
-    # ##########################################################
-    # # Machine Configuration Tasks - Cilium CNI
-    # ##########################################################
-    # - name: Run Cilium tasks if Cilium is enabled as the network CNI
-    #   import_tasks: "tasks/cilium.yaml"
-    #   when: >-
-    #     openshift.operators is defined and openshift.operators | json_query('cilium.download_url') is defined
+    ##########################################################
+    # Machine Configuration Tasks - Cilium CNI
+    ##########################################################
+    - name: Run Cilium tasks if Cilium is enabled as the network CNI
+      import_tasks: "tasks/cilium.yaml"
+      when: >-
+        openshift.operators is defined and openshift.operators | json_query('cilium.download_url') is defined
 
     ##########################################################
     # iServer Manifests

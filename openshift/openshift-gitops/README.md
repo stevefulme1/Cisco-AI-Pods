@@ -22,12 +22,18 @@ This directory contains the Ansible workflow that prepares GitOps content for Op
   - [Generated Output](#generated-output)
   - [Validation Tips](#validation-tips)
   - [Troubleshooting](#troubleshooting)
+  - [NVIDIA DCGM Metrics Collection Troubleshooting](#nvidia-dcgm-metrics-collection-troubleshooting)
+    - [DCGM Exporter Pod Not Starting](#dcgm-exporter-pod-not-starting)
+    - [ConfigMap Not Found](#configmap-not-found)
+    - [Metrics Not Appearing](#metrics-not-appearing)
 
 ## Overview
 
 The main entry point is `generate_openshift_gitops_files.yaml`. It reads variables from `script_vars/vars.ezcai.yaml`, copies the bundled `helm/` and `olm-catalog/` directories into `openshift.destination_directory`, and renders additional files from `templates/`.
 
 This workflow is used to build the GitOps repository content that OpenShift GitOps consumes later.
+
+> ⚠️ **Important:** If you are deploying the OpenTelemetry collector for observability, you must also deploy the [Splunk AI Pods](../../splunk-ai-pods/README.md) after the cluster operators are installed. The OpenTelemetry collector configuration depends on components and metrics configurations provided by the Splunk AI Pods deployment.
 
 [Back to Table of Contents](#table-of-contents)
 
@@ -225,5 +231,53 @@ grep -R "MacvlanNetwork" <destination>/helm/gpu-operator-installation/templates/
   - Ensure `openshift.operators.nvidia_network_operator.mac_vlan` contains one or more entries.
 - AAP operator application exists but the extra AAP resources do not:
   - Ensure `ansible-automation-platform` is included in `operators_to_install`.
+
+[Back to Table of Contents](#table-of-contents)
+
+## NVIDIA DCGM Metrics Collection Troubleshooting
+
+For detailed information on deploying and troubleshooting NVIDIA DCGM metrics collection, see the [NVIDIA DCGM Metrics README](../../splunk-ai-pods/nvidia-metrics-dcgm/README.md).
+
+### DCGM Exporter Pod Not Starting
+
+1. Check pod status and events:
+```bash
+oc describe pod -n nvidia-gpu-operator -l app=nvidia-dcgm-exporter
+```
+
+2. Check for GPU driver issues:
+```bash
+oc logs -n nvidia-gpu-operator -l app=nvidia-driver-daemon -f
+```
+
+### ConfigMap Not Found
+
+Ensure the ConfigMap exists:
+```bash
+oc get configmap -n nvidia-gpu-operator metrics-config
+```
+
+If missing, recreate it:
+```bash
+oc create configmap metrics-config -n nvidia-gpu-operator --from-file=dcgm-metrics.csv
+```
+
+### Metrics Not Appearing
+
+1. Verify ServiceMonitor is correctly configured:
+```bash
+oc get servicemonitor -n nvidia-gpu-operator -o yaml
+```
+
+2. Check OpenTelemetry collector is scraping the endpoint:
+```bash
+oc logs -n otel -l app=splunk-otel-collector | grep dcgm
+```
+
+3. Verify network policies allow communication between namespaces:
+```bash
+oc get networkpolicy -n nvidia-gpu-operator
+oc get networkpolicy -n otel
+```
 
 [Back to Table of Contents](#table-of-contents)

@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: intersight-otel
+  namespace: intersight-otel
+spec:
+  selector:
+    matchLabels:
+      app: intersight-otel
+  template:
+    metadata:
+      labels:
+        app: intersight-otel
+        component: otel-collector
+      annotations:
+        eks.amazonaws.com/compute-type: fargate
+    spec:
+      tolerations:
+        - key: eks.amazonaws.com/compute-type
+          value: fargate
+          operator: Equal
+          effect: NoSchedule
+      containers:
+        - name: intersight-otel
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          image: ghcr.io/cgascoig/intersight-otel:v0.1.2
+          # args:
+          #   - "-c"
+          #   - "/etc/intersight-otel/intersight-otel.toml"
+          command:
+            - "/target/release/intersight_otel"
+            - "-c"
+            - "/etc/intersight-otel/intersight-otel.toml"
+          env:
+            - name: RUST_LOG
+              value: "info"
+            - name: intersight_otel_key_file
+              value: /etc/intersight-otel-key/intersight.pem
+            - name: intersight_otel_key_id
+              valueFrom:
+                secretKeyRef:
+                  name: intersight-api-credentials
+                  key: intersight-key-id
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          volumeMounts:
+            - name: intersight-otel-config
+              mountPath: /etc/intersight-otel
+              readOnly: true
+            - name: intersight-otel-key
+              mountPath: /etc/intersight-otel-key
+              readOnly: true
+      volumes:
+        - name: intersight-otel-config
+          configMap:
+            name: intersight-otel-config
+        - name: intersight-otel-key
+          secret:
+            secretName: intersight-api-credentials
+            items:
+              - key: intersight-key
+                path: intersight.pem

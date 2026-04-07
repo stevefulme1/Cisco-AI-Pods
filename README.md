@@ -13,7 +13,7 @@
 * [Updates and Maintenance](#updates-and-maintenance)
 
 ## Overview
-This directory contains comprehensive documentation for the GM/Cisco/Pure Storage AI Pods infrastructure Proof of Concept. The runbook is organized into focused guides for each component and operational procedure. This is a living document.
+This directory contains comprehensive documentation for the Cisco AI Pods infrastructure. The runbook is organized into focused guides for each component and operational procedure. This is a living document.
 
 ## Best Practices
 

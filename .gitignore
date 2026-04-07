@@ -7,8 +7,12 @@ pure.json
 
 # Generated customer-specific artifacts
 backup/
+netapp/trident-installer/
 openshift/install/assisted-installer/
+splunk_ai_pods/client/
+splunk_ai_pods/signer/
 *.ezcai.yaml
+*.tar.gz
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -11,9 +11,6 @@ This directory contains an Ansible playbook and supporting files to generate the
   - [Directory Structure](#directory-structure)
   - [Prerequisites](#prerequisites)
   - [Quick Start](#quick-start)
-  - [Python Module Usage](#python-module-usage)
-    - [Example: export sensitive variables and validate only](#example-export-sensitive-variables-and-validate-only)
-    - [Example: export sensitive variables and generate output](#example-export-sensitive-variables-and-generate-output)
   - [Variables Reference](#variables-reference)
     - [`openshift.install.bare_metal`](#openshiftinstallbare_metal)
     - [`fabric_interconnects[]`](#fabric_interconnects)
@@ -23,6 +20,7 @@ This directory contains an Ansible playbook and supporting files to generate the
     - [`proxy` (optional)](#proxy-optional)
   - [Feature Flags](#feature-flags)
   - [Generated Output](#generated-output)
+  - [Acknowledgments](#acknowledgments)
   - [Security Notes](#security-notes)
 
 ---
@@ -102,73 +100,51 @@ install/
 
 4. **Run the Python module** to generate `server.json` and `nmstate_*.yaml` in `assisted-installer/`:
 
-  ```bash
-  cd openshift/install
-  export redfish_password_1='replace-with-secret-1'
-  export redfish_password_2='replace-with-secret-2'
-  export fi_password_1='replace-with-fi-secret-1'
-  export fi_password_2='replace-with-fi-secret-2'
+    ### Example: export sensitive variables and validate only
 
-  # Validate credentials only
-  python generate_server_and_nmstate_templates.py --check-env
+    ```bash
+    cd openshift/install
 
-  # Generate outputs
-  python generate_server_and_nmstate_templates.py
-  ```
+    export redfish_password_1='replace-with-secret-1'
+    export redfish_password_2='replace-with-secret-2'
+    export fi_password_1='replace-with-fi-secret-1'
+    export fi_password_2='replace-with-fi-secret-2'
+
+    # Optional: helps avoid GitHub API rate-limit issues when downloading release metadata/assets
+    export GITHUB_TOKEN='replace-with-github-token'
+
+    python generate_server_and_nmstate_templates.py --check-env
+    ```
+
+    ### Example: export sensitive variables and generate output
+
+    ```bash
+    cd openshift/install
+
+    export redfish_password_1='replace-with-secret-1'
+    export redfish_password_2='replace-with-secret-2'
+    export fi_password_1='replace-with-fi-secret-1'
+    export fi_password_2='replace-with-fi-secret-2'
+    export GITHUB_TOKEN='replace-with-github-token'  # optional
+
+    python generate_server_and_nmstate_templates.py
+    ```
 
 5. **Prepare the iServer environment**, following:  **🔗 [iServer Console Setup](https://github.com/datacenter/iserver/blob/main/doc/ocp/Console.md)**
 
 6. **Run iServer from the `assisted-installer/` directory**.
 
-  First, check the data:
+    First, check the data:
 
-  ```bash
-  iserver create ocp cluster bm --dir ./ --mode check
-  ```
+    ```bash
+    iserver create ocp cluster bm --dir ./ --mode check
+    ```
 
-  Then run:
+    Then run:
 
-  ```bash
-  iserver create ocp cluster bm --dir ./ --mode install
-  ```
-
-[Back to Table of Contents](#table-of-contents)
-
----
-
-## Python Module Usage
-
-Run the Python module as a required step to generate `server.json`, `nmstate_*.yaml`, and extract the iServer Linux release asset into `assisted-installer/`.
-
-### Example: export sensitive variables and validate only
-
-```bash
-cd openshift/install
-
-export redfish_password_1='replace-with-secret-1'
-export redfish_password_2='replace-with-secret-2'
-export fi_password_1='replace-with-fi-secret-1'
-export fi_password_2='replace-with-fi-secret-2'
-
-# Optional: helps avoid GitHub API rate-limit issues when downloading release metadata/assets
-export GITHUB_TOKEN='replace-with-github-token'
-
-python generate_server_and_nmstate_templates.py --check-env
-```
-
-### Example: export sensitive variables and generate output
-
-```bash
-cd openshift/install
-
-export redfish_password_1='replace-with-secret-1'
-export redfish_password_2='replace-with-secret-2'
-export fi_password_1='replace-with-fi-secret-1'
-export fi_password_2='replace-with-fi-secret-2'
-export GITHUB_TOKEN='replace-with-github-token'  # optional
-
-python generate_server_and_nmstate_templates.py
-```
+    ```bash
+    iserver create ocp cluster bm --dir ./ --mode install
+    ```
 
 [Back to Table of Contents](#table-of-contents)
 

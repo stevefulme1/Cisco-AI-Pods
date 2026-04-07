@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cisco-exporter-deployment
+  namespace: cisco-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cisco-exporter
+  template:
+    metadata:
+      labels:
+        app: cisco-exporter
+    spec:
+      containers:
+        - name: cisco-exporter
+          image: khurshidali76/cisco_exporter:0.2
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config
+      volumes:
+        - name: config-volume
+          configMap:
+            name: cisco-exporter-config
