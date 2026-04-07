@@ -33,5 +33,20 @@ Top-level project README:
 - Generates and stages GitOps repository content (Helm/OLM trees and rendered Argo CD applications) consumed by OpenShift GitOps.
 - [openshift-gitops README](openshift-gitops/README.md)
 
+## Troubleshooting
+
+- Workflow fails during install manifest generation:
+	- Validate required environment variables for redfish/FI passwords are exported before running the install workflow.
+	- See [install README](install/README.md).
+- Certificate rollout is incomplete:
+	- Verify certificate resources were applied and ingress/API pods were restarted as expected.
+	- See [certificates README](certificates/README.md).
+- LDAP users cannot authenticate:
+	- Confirm bind credentials and LDAP sync objects are correct and sync jobs complete successfully.
+	- See [oath_ldap README](oath_ldap/README.md).
+- GitOps applications fail to sync:
+	- Verify generated manifests are present in the target repository path and operator CRDs are installed first.
+	- See [openshift-gitops README](openshift-gitops/README.md).
+
 Back to top-level:
 - [Cisco-AI-Pods README](../README.md)

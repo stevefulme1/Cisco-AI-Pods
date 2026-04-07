@@ -20,16 +20,18 @@ This guide covers the Portworx-specific flow in this folder:
 
 ## Prerequisites
 
-- Ansible collections installed from `requirements.yaml`
-- Python dependencies installed from `requirements.txt`
+- Ansible collections installed from the repository root `requirements.yaml` (see [Prepare the Environment](../guide_prepare_the_environment.md#install-ansible-on-ubuntu))
+- Python dependencies installed from the repository root `requirements.txt` (see [Prepare the Environment](../guide_prepare_the_environment.md#install-ansible-on-ubuntu))
 - OpenShift cluster access (`oc`) with sufficient privileges
 - Pure API tokens for every array/blade listed in variables
 
 Install dependencies:
 
 ```bash
+cd ..
 ansible-galaxy collection install -r requirements.yaml
 pip install -r requirements.txt
+cd pure_storage
 ```
 
 [Back to Table of Contents](#table-of-contents)

@@ -1,11 +1,2 @@
-# For Pure Storage FlashBlade and FlashArray
-ansible
-datetime
-distro
-netaddr
-purestorage>=1.19.0
-py-pure-client>=1.67.2
-pycountry
-pyOpenSSL
-pytz
-urllib3>=1.26.5
+# Compatibility shim: use centralized Python dependencies in repository root.
+-r ../requirements.txt

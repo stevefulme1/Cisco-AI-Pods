@@ -37,16 +37,24 @@ This folder contains Pure Storage automation used by Cisco AI Pods for two main 
 
 ## Prerequisites
 
-Install required Ansible collections:
+Install required Ansible collections from the repository root requirements file by following:
+
+- [Prepare the Environment](../guide_prepare_the_environment.md#install-ansible-on-ubuntu)
+
+Example:
 
 ```bash
+cd ..
 ansible-galaxy collection install -r requirements.yaml
+cd pure_storage
 ```
 
 Install required Python dependencies:
 
 ```bash
+cd ..
 pip install -r requirements.txt
+cd pure_storage
 ```
 
 [Back to Table of Contents](#table-of-contents)

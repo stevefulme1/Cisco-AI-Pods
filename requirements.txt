@@ -1,0 +1,11 @@
+# Centralized Python dependencies for Cisco-AI-Pods automation
+distro
+kubernetes
+netaddr
+openshift
+purestorage>=1.19.0
+py-pure-client>=1.67.2
+pycountry
+pyOpenSSL
+pytz
+urllib3>=1.26.5

@@ -77,10 +77,16 @@ Before deploying the Splunk monitoring solution, ensure you have:
 
 ### Step 1: Install Ansible Requirements
 
-Install the required Ansible collections:
+Install Ansible collections from the repository root requirements file by following:
+
+- [Prepare the Environment](../guide_prepare_the_environment.md#install-ansible-on-ubuntu)
+
+Example:
 
 ```bash
-ansible-galaxy install -r requirements.yaml
+cd ..
+ansible-galaxy collection install -r requirements.yaml
+cd splunk-ai-pods
 ```
 
 ### Step 2: Prepare Variables

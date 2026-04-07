@@ -46,9 +46,9 @@ This directory contains comprehensive documentation for the Cisco AI Pods infras
 - Integration with compute and storage
 - Monitoring and maintenance
 
-### 🖥️ [C885 Configuration Automation](c885/README.md)
-**Automation for C885A GPU server deployment**
-- Cisco C885 M8 GPU server deployment
+### 🖥️ [C800 Configuration Automation](c800/README.md)
+**Automation for C845A/C880A/C885A GPU server deployment**
+- Cisco C8XX M8 GPU server deployment
 - Redfish API configuration procedures
 - GPU-optimized BIOS settings
 - Integration with main AI Pods infrastructure
@@ -107,8 +107,8 @@ Follow the Steps to [Prepare the Environment](guide_prepare_the_environment.md#p
    - Use [Intersight Automation](intersight/README.md) for compute infrastructure
    - **Checkpoint:** Validate Intersight deployment before proceeding
 
-4. **Phase 3 - C885 GPU Servers:**
-   - Follow [C885 Configuration Guide](c885/README.md) for additional GPU infrastructure
+4. **Phase 3 - C845A/C880A/C885A M8 GPU Servers:**
+   - Follow [C845A/C880A/C885A Configuration Guide](c800/README.md) for additional GPU infrastructure
    - Configure using Redfish API for GPU-specific features
    - **Checkpoint:** Validate GPU functionality and DateTime sync
 
@@ -116,8 +116,8 @@ Follow the Steps to [Prepare the Environment](guide_prepare_the_environment.md#p
    - Follow [Pure Storage Configuration](pure_storage/README.md) for storage
    - **Checkpoint:** Verify storage connectivity
 
-6. **Phase 5 - Network Completion:**
-   - Complete [Network Configuration - Phase 5](network/README.md) for data/storage networks
+6. **Phase 5 - OpenShift Deployment:**
+   - Complete [OpenShift Deployment - Phase 5](openshift/README.md)
    - **Checkpoint:** End-to-end connectivity validation
 
 7. **Phase 6 - Integration & Validation:**
@@ -132,10 +132,13 @@ Follow the Steps to [Prepare the Environment](guide_prepare_the_environment.md#p
 ### Troubleshooting
 
 1. **Identify Component:**
-   - C885 issues → [Troubleshooting C885 issues](c885/README.md#troubleshooting-c885-issues)
+   - C845/C880/C885 issues → [Troubleshooting C885 issues](c800/README.md#troubleshooting-c885-issues)
    - Compute issues → [Troubleshooting Quick Fixes](intersight/README.md#troubleshooting-quick-fixes)
    - Network issues → [Troubleshooting Common Issues](network/README.md#troubleshooting-common-issues)
-   - Storage issues → [Troubleshooting](pure_storage/README.md#troubleshooting)
+   - Pure Storage issues → [Troubleshooting](pure_storage/README.md#troubleshooting)
+   - OpenShift issues → See Individual READMEs
+     - OpenShift Installatin → [Troubleshooting](openshift/install/README.md#trou)
+     - OpenShift - Base Operators → [Troubleshooting](openshift/base_operators/gitea/)
 
 2. **Follow Procedures:**
    - Use [Troubleshooting Guide](guide_troubleshooting.md) for comprehensive procedures
@@ -223,9 +226,11 @@ terraform destroy       # Destroy infrastructure
 ### Ansible Operations
 
 ```bash
-ansible-galaxy install -r requirements.yml
+ansible-galaxy collection install -r requirements.yaml
 ansible-playbook main.yml    # Run Pure Storage setup
 ```
+
+For full environment and dependency setup, see [Prepare the Environment](guide_prepare_the_environment.md#install-ansible-on-ubuntu).
 
 ### Network Operations
 

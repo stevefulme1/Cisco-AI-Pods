@@ -20,6 +20,7 @@ This directory contains an Ansible playbook and supporting files to generate the
     - [`proxy` (optional)](#proxy-optional)
   - [Feature Flags](#feature-flags)
   - [Generated Output](#generated-output)
+  - [Troubleshooting](#troubleshooting)
   - [Acknowledgments](#acknowledgments)
   - [Security Notes](#security-notes)
 
@@ -137,13 +138,14 @@ install/
     First, check the data:
 
     ```bash
-    iserver create ocp cluster bm --dir ./ --mode check
+    cd assisted-installer
+    ./iserver create ocp cluster bm --dir ./ --mode check
     ```
 
     Then run:
 
     ```bash
-    iserver create ocp cluster bm --dir ./ --mode install
+    ./iserver create ocp cluster bm --dir ./ --mode install
     ```
 
 [Back to Table of Contents](#table-of-contents)
@@ -267,6 +269,25 @@ After the playbook runs, the `assisted-installer/` directory will contain:
 | `manifests/` | MachineConfig and operator manifests injected at install time |
 
 When running `generate_server_and_nmstate_templates.py` (without `--check-env`), the script also downloads the latest Linux `.tar.gz` asset from [datacenter/iserver releases](https://github.com/datacenter/iserver/releases) and extracts it into `assisted-installer/`. If an iServer Linux `.tar.gz` archive already exists in `assisted-installer/`, the script reuses that local archive and skips downloading from GitHub.
+
+[Back to Table of Contents](#table-of-contents)
+
+---
+
+## Troubleshooting
+
+- `generate_server_and_nmstate_templates.py` fails with missing password env vars:
+  - Run `python generate_server_and_nmstate_templates.py --check-env` to validate required environment variables.
+  - Export all required `redfish_password_<suffix>` and `fi_password_<suffix>` variables before generation.
+- iServer tarball download fails:
+  - Set `GITHUB_TOKEN` to avoid GitHub API rate limits.
+  - Alternatively place a Linux iServer `.tar.gz` archive in `assisted-installer/` and rerun.
+- Missing or incorrect `server.json`/`nmstate_*.yaml` output:
+  - Re-check `openshift.install.bare_metal.servers` interface mappings and MAC addresses in the variables file.
+  - Confirm each host has complete redfish or fabric interconnect details.
+- iServer check/install mode fails:
+  - Validate `cluster.json`, `web_server.json`, `ssh.pub`, `server.json`, and `nmstate_*.yaml` all exist under `assisted-installer/`.
+  - Run check mode first: `./iserver create ocp cluster bm --dir ./ --mode check`.
 
 [Back to Table of Contents](#table-of-contents)
 

@@ -7,55 +7,34 @@
 
 ## Table of Contents
 * [Module Dependencies](#module-dependencies)
-* [Install Python](#install-python)
 * [Install Git](#install-git)
 * [Configure Git Credentials](#configure-git-credentials)
+* [Clone Repositories](#clone-repositories)
 * [Install Visual Studio Code](#install-visual-studio-code)
 * [Install Visual Studio Code Extensions](#install-visual-studio-code-extensions)
+* [Install Python](#install-python)
+* [Create a Virtual Environment through Visual Studio Code](#create-a-virtual-environment-through-visual-studio-code)
 * [YAML Schema for auto-completion, Help, and Error Validation](#yaml-schema-for-auto-completion-help-and-error-validation)
 * [Install Ansible](#install-ansible-on-ubuntu)
 * [Install Terraform](#install-terraform-on-ubuntu)
-* [Clone Repositories](#clone-repositories)
-* [Create a Virtual Environment through Visual Studio Code](#create-a-virtual-environment-through-visual-studio-code)
 
 ## Module Dependencies
 
 | Component | Minimum Version | Recommended | Notes |
 |-----------|----------------|-------------|-------|
-| Ansible | 2.9 | 4.0+ | Storage automation |
-| Terraform | 1.3.0 | 1.5.0+ | Core automation |
+| Ansible | 2.15.0 | 2.17+ | Storage automation |
+| Terraform | 1.3.0 | 1.14+ | Core automation |
 | Intersight Terraform Provider | 1.0.64 | Latest | SaaS compatible |
-| Pure Storage Collection | 1.0 | Latest | Ansible Galaxy |
-| Python | 3.9 | 3.9+ | Ansible dependency |
-
-### [<ins>Back to Table of Contents<ins>](#table-of-contents)
-
-## Install Python
-
-```bash
-sudo apt update && sudo apt install python3-pip -y
-```
-
-### Validate Python Install
-
-```bash
-python3 --version
-```
-
-### Example Output
-
-```bash
-$ python3 --version
-Python 3.10.12
-$
-```
+| Pure Storage Collection | 1.35 | Latest | Install from repository root `requirements.yaml` |
+| Python | 3.9 | 3.9+ | Ansible and OpenShift dependency |
+| Python Modules | N/A | Latest | Install from repository root `requirements.txt` |
 
 ### [<ins>Back to Table of Contents<ins>](#table-of-contents)
 
 ## Install Git
 
 ```bash
-sudo apt install git
+sudo apt update && sudo apt install -y git
 ```
 
 ### Validate Git Installation
@@ -83,6 +62,16 @@ git config --global user.email "<email>"
 
 ### [<ins>Back to Table of Contents<ins>](#table-of-contents)
 
+## Clone Repositories
+
+```bash
+git clone https://github.com/scotttyso/intersight-tools
+git clone https://github.com/scotttyso/Cisco-AI-Pods
+cd Cisco-AI-Pods
+```
+
+### [<ins>Back to Table of Contents<ins>](#table-of-contents)
+
 ## Install Visual Studio Code
 
 - Download Here: [*Visual Studio Code*](https://code.visualstudio.com/Download)
@@ -101,11 +90,66 @@ git config --global user.email "<email>"
 
 ### [<ins>Back to Table of Contents<ins>](#table-of-contents)
 
+## Install Python
+
+```bash
+sudo apt update && sudo apt install -y python3 python3-pip python3-venv
+```
+
+### Validate Python Install
+
+```bash
+python3 --version
+```
+
+### Example Output
+
+```bash
+$ python3 --version
+Python 3.10.12
+$
+```
+
+### Create and Activate a Virtual Environment (Recommended)
+
+```bash
+cd ~
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+```
+
+> Note: Keep the virtual environment active for all Python and Ansible commands in this guide.
+
+### [<ins>Back to Table of Contents<ins>](#table-of-contents)
+
+### Create a Virtual Environment through Visual Studio Code
+
+To create local environments in VS Code using virtual environments, you can follow these steps: open the Command Palette (Ctrl+Shift+P), search for the Python: Create Environment command, and select it.
+
+> Choose one approach for virtual environment creation: terminal-based (`python3 -m venv`) or VS Code wizard. Do not create multiple virtual environments for the same workspace unless you have a specific need.
+
+![Venv](images/venv1.png)
+
+### Select an Interpreter
+
+![Venv Interpreter](images/venv_interpreter.png)
+
+### Visual Studio will create the environment
+
+![Venv Creation](images/venv_creating.png)
+
+### Select the Requirements File and press OK
+
+![Venv Creation](images/venv_requirements.png)
+
+### [<ins>Back to Table of Contents<ins>](#table-of-contents)
+
 ## YAML Schema for auto-completion, Help, and Error Validation
 
 Add the Following to `YAML: Schemas` in Visual Studio Code: Settings > Search for `YAML: Schema`: Click edit in `settings.json`.  In the `yaml.schemas` section:
 
-```bash
+```json
 "https://raw.githubusercontent.com/scotttyso/intersight-tools/master/variables/fsai-schema.json": "*.fsai.yaml",
 "https://raw.githubusercontent.com/terraform-cisco-modules/easy-imm/main/yaml_schema/easy-imm.json": "*.ezi.yaml"
 ```
@@ -114,11 +158,9 @@ Add the Following to `YAML: Schemas` in Visual Studio Code: Settings > Search fo
 
 ```json
     "yaml.schemas": {
-        "https://raw.githubusercontent.com/terraform-cisco-modules/easy-aci/main/yaml_schema/easy-aci.json": "*.eza.yaml",
         "https://raw.githubusercontent.com/terraform-cisco-modules/easy-imm/main/yaml_schema/easy-imm.json": "*.ezi.yaml",
         "https://raw.githubusercontent.com/scotttyso/intersight-tools/master/variables/fsai-schema.json": "*.fsai.yaml"
     },
-
 ```
 
 ### [<ins>Back to Table of Contents<ins>](#table-of-contents)
@@ -127,15 +169,36 @@ Add the Following to `YAML: Schemas` in Visual Studio Code: Settings > Search fo
 
 [Others](https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html)
 
-```bash
-sudo apt install software-properties-common
-sudo add-apt-repository --yes --update ppa:ansible/ansible
-sudo apt install ansible
-```
+Install Ansible inside the active virtual environment:
 
 ```bash
-cd Cisco-AI-Pods/pure_storage
+python -m pip install "ansible>=9,<11"
+```
+
+Install Python module dependencies used by automation:
+
+```bash
+cd Cisco-AI-Pods
+python -m pip install -r requirements.txt
+```
+
+Verify Python dependencies:
+
+```bash
+python -m pip show purestorage py-pure-client kubernetes openshift
+```
+
+Install Ansible collections used by automation:
+
+```bash
+cd Cisco-AI-Pods
 ansible-galaxy collection install -r requirements.yaml
+```
+
+Verify installed collections:
+
+```bash
+ansible-galaxy collection list | grep -E "kubernetes.core|purestorage.flasharray|purestorage.flashblade|ansible.posix"
 ```
 
 ### Validate Ansible Installation
@@ -148,12 +211,10 @@ ansible --version
 
 ```bash
 $ ansible --version
-ansible 2.10.8
+ansible [core 2.x]
   config file = None
-  configured module search path = ['/home/tyscott/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
-  ansible python module location = /usr/lib/python3/dist-packages/ansible
-  executable location = /usr/bin/ansible
-  python version = 3.10.12 (main, May 27 2025, 17:12:29) [GCC 11.4.0]
+  executable location = /home/<user>/.venv/bin/ansible
+  python version = 3.x.x
 $ 
 ```
 
@@ -230,30 +291,9 @@ $
 
 ### [<ins>Back to Table of Contents<ins>](#table-of-contents)
 
-## Clone Repositories
+If needed, reactivate the virtual environment:
 
 ```bash
-git clone https://github.com/scotttyso/intersight-tools
-git clone https://github.com/scotttyso/Cisco-AI-Pods
-cd Cisco-AI-Pods
+source ~/.venv/bin/activate
 ```
 
-## Create a Virtual Environment through Visual Studio Code
-
-To create local environments in VS Code using virtual environments, you can follow these steps: open the Command Palette (Ctrl+Shift+P), search for the Python: Create Environment command, and select it.
-
-![Venv](images/venv1.png)
-
-### Select an Interpreter
-
-![Venv Interpreter](images/venv_interpreter.png)
-
-### Visual Studio will create the environment
-
-![Venv Creation](images/venv_creating.png)
-
-### Select the Requirements File and press OK
-
-![Venv Creation](images/venv_requirements.png)
-
-### [<ins>Back to Table of Contents<ins>](#table-of-contents)

@@ -26,16 +26,18 @@ This includes network, security/access, system, users, and (for FlashBlade) opti
 
 ## Prerequisites
 
-- Ansible collections installed from `requirements.yaml`
-- Python dependencies installed from `requirements.txt`
+- Ansible collections installed from the repository root `requirements.yaml` (see [Prepare the Environment](../guide_prepare_the_environment.md#install-ansible-on-ubuntu))
+- Python dependencies installed from the repository root `requirements.txt` (see [Prepare the Environment](../guide_prepare_the_environment.md#install-ansible-on-ubuntu))
 - Network connectivity from Ansible host to all array management endpoints
 - API tokens for each array entry in your variables
 
 Install dependencies:
 
 ```bash
+cd ..
 ansible-galaxy collection install -r requirements.yaml
 pip install -r requirements.txt
+cd pure_storage
 ```
 
 [Back to Table of Contents](#table-of-contents)
@@ -131,7 +133,8 @@ ansible localhost -m purestorage.flashblade.purefb_info -a "fb_url=<flashblade_f
 - Variable load failures:
   - Confirm the variables path expected by the playbook (`vars/`) is present or adjust the playbook to your chosen location.
 - Module import errors:
-  - Reinstall required collections and Python packages from `requirements.yaml` and `requirements.txt`.
+  - Reinstall required collections and Python packages from the repository root `requirements.yaml` and `requirements.txt`.
+  - See [Prepare the Environment](../guide_prepare_the_environment.md#install-ansible-on-ubuntu).
 - Task skipped unexpectedly:
   - Check conditional keys like `pure_storage.settings.network`, `pure_storage.settings.security`, `pure_storage.settings.system`, and `pure_storage.notifications`.
 
