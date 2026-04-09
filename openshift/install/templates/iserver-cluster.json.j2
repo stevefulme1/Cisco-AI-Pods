@@ -15,9 +15,9 @@
 {% endif %}
     "dns_ip": "{% for dns in openshift_install.cluster_networking.dns_servers %}{{ dns }}{% if not loop.last %},{% endif %}{% endfor %}",
     "iso": "{{ openshift_install.iso | default ('full')}}",
-    "machine_network_gateway": "{{ openshift_install.cluster_networking.machine_network_gateway.v4_gateway }}",
+    "machine_network_gateway": "{{ openshift_install.cluster_networking.machine_network_gateway.v4 }}",
     "name": "{{ openshift_install.cluster_name }}",
-    "network_type": "{{ openshift_install.cluster_networking.cni | default('OVNKubernetes') }}",
+    "network_type": "{{ openshift_install.cluster_networking.container_network_interface | default('OVNKubernetes') }}",
 {% if openshift_install.ntp_servers is defined %}
     "ntp": "{% for ntp in openshift_install.ntp_servers %}{{ ntp }}{% if not loop.last %},{% endif %}{% endfor %}",
 {% endif %}

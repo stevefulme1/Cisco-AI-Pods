@@ -6,29 +6,128 @@
   vars:
     validate_certificates: false
 
+  pre_tasks:
+    - name: Verify oc CLI is available
+      ansible.builtin.command: which oc
+      changed_when: false
+      failed_when: oc_check.rc != 0
+      register: oc_check
+
+    - name: Verify required environment variables are set
+      ansible.builtin.assert:
+        that:
+          - lookup('ansible.builtin.env', 'ldap_bind_password') | length > 0
+          - lookup('ansible.builtin.env', 'openshift_token_id') | length > 0
+          - lookup('ansible.builtin.env', 'openshift_api_url') | length > 0
+        fail_msg: "Required environment variables not set: ldap_bind_password, openshift_token_id, openshift_api_url"
+
   tasks:
-    - name: Load variables from script folder
-      ansible.builtin.include_vars:
-        dir: "{{ playbook_dir }}/script_vars"
+    - name: Find variable files under script_vars
+      ansible.builtin.find:
+        paths: "{{ playbook_dir }}/../script_vars"
+        patterns:
+          - "*.yml"
+          - "*.yaml"
+        file_type: file
+      register: openshift_var_files
+
+    - name: Merge variable files into a single dictionary
+      ansible.builtin.set_fact:
+        merged_vars: "{{ merged_vars | default({}) | combine((lookup('ansible.builtin.file', item.path) | from_yaml), recursive=True) }}"
+      loop: "{{ openshift_var_files.files | sort(attribute='path') }}"
+      loop_control:
+        label: "{{ item.path | basename }}"
+
+    - name: Set merged openshift object
+      ansible.builtin.set_fact:
+        openshift: "{{ merged_vars.openshift | default({}) }}"
+
+    - name: Validate required LDAP configuration
+      ansible.builtin.assert:
+        that:
+          - openshift.ldap is defined
+          - openshift.ldap.secure_ldap is defined
+          - openshift.ldap.sync_url is defined
+          - openshift.ldap.bind_dn is defined
+          - openshift.ldap.base_dn is defined
+          - openshift.ldap.group_uid_mappings is defined
+        fail_msg: "Required LDAP configuration missing or incomplete"
+
+    # - name: Print variable as pretty JSON
+    #   ansible.builtin.debug:
+    #     msg: "{{ openshift | ansible.builtin.to_nice_json }}"
+
+    - name: Verify LDAP certificate file exists (for secure LDAP)
+      ansible.builtin.stat:
+        path: "{{ openshift.ldap.certificate_file_path }}"
+      register: cert_file_stat
+      failed_when: cert_file_stat.stat.exists == false
+      when: openshift.ldap.secure_ldap | bool
+
+    - name: Read Certificate File for LDAP Chain File Content
+      ansible.builtin.slurp:
+        src: "{{ openshift.ldap.certificate_file_path }}"
+      register: ldap_cert_chain_file
+      when: openshift.ldap.secure_ldap | bool
+
+    - name: Parse the LDAP Certificate Chain File as PEM
+      ansible.builtin.set_fact:
+        is_pem_cert: "{{ ldap_cert_chain_file['content'] | b64decode | community.crypto.x509_certificate_info is success }}"
+      ignore_errors: true # Ignore errors if parsing fails
+      register: ldap_cert_chain_cert_info
+      when: openshift.ldap.secure_ldap | bool
+
+    - name: Report LDAP Certificate Chain File Type
+      ansible.builtin.debug:
+        msg: "LDAP Certificate Chain File is a valid PEM certificate."
+      when: not ldap_cert_chain_cert_info.failed and openshift.ldap.secure_ldap | bool
+      failed_when: ldap_cert_chain_cert_info.failed
 
     - name: Log in to OpenShift (requires oc binary on host)
       ansible.builtin.command:
         cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
       register: login_result
-      no_log: true # Prevent sensitive info in logs
-    
-    - name: Create LDAP BindPassword Secret
-      ansible.builtin.shell:
-        cmd: "oc create secret generic ldap-bind-password --from-literal=bindPassword='{{ lookup('ansible.builtin.env', 'ldap_bind_password') }}' -n openshift-config"
       no_log: true
+      retries: 3
+      delay: 5
+      until: login_result is succeeded
+    
+    - name: Create LDAP BindPassword Secret (idempotent)
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: ldap-bind-password
+            namespace: openshift-config
+          type: Opaque
+          stringData:
+            bindPassword: "{{ lookup('ansible.builtin.env', 'ldap_bind_password') }}"
+        validate_certs: "{{ validate_certificates }}"
+      no_log: true
+      retries: 3
+      delay: 5
+      until: ldap_bind_pass_result is succeeded
       register: ldap_bind_pass_result
 
-    - name: Create LDAP Certificates ConfigMap
-      ansible.builtin.shell:
-        cmd: "oc create configmap ldap-ca-cert --from-file=ca.crt={{ playbook_dir }}/{{ ldap.certificate_file_name }} -n openshift-config"
-      no_log: true
+    - name: Create LDAP Certificates ConfigMap (idempotent)
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: ldap-ca-cert
+            namespace: openshift-config
+          data:
+            ca.crt: "{{ lookup('ansible.builtin.file', openshift.ldap.certificate_file_path) }}"
+        validate_certs: "{{ validate_certificates }}"
+      retries: 3
+      delay: 5
+      until: ldap_cert_result is succeeded
       register: ldap_cert_result
-      when: ldap.secure_ldap | bool
+      when: openshift.ldap.secure_ldap | bool
 
     - name: Configure ActiveDirectory OAuth
       kubernetes.core.k8s:
@@ -36,6 +135,10 @@
         # Use lookup to parse the j2 file before sending to K8s
         definition: "{{ lookup('template', 'active-directory.yaml.j2') | from_yaml }}"
         validate_certs: "{{ validate_certificates }}"
+      retries: 3
+      delay: 5
+      until: identity_result is succeeded
+      register: identity_result
 
     - name: Set Bind Password Variable
       ansible.builtin.set_fact:
@@ -47,6 +150,10 @@
         state: present
         definition: "{{ lookup('template', 'project.yaml.j2') | from_yaml }}"
         validate_certs: "{{ validate_certificates }}"
+      retries: 3
+      delay: 5
+      until: project_result is succeeded
+      register: project_result
 
     - name: Create ldap-sync.yaml
       ansible.builtin.template:
@@ -58,51 +165,114 @@
         src: templates/whitelist.txt.j2
         dest: "{{ playbook_dir }}/whitelist.txt"
 
-    - name: Create LDAP Sync Secret with CA
-      ansible.builtin.shell: |
-        oc create secret generic ldap-sync \
-          --from-file=ldap-sync.yaml={{ playbook_dir }}/ldap-sync.yaml \
-          --from-file=whitelist.txt={{ playbook_dir }}/whitelist.txt \
-          --from-file=ca.crt={{ playbook_dir }}/{{ ldap.certificate_file_name }} \
-          -n ldap-sync
-      delegate_to: localhost
-      when: ldap.secure_ldap | bool
+    - name: Read ldap-sync.yaml and whitelist.txt for secret data
+      ansible.builtin.set_fact:
+        ldap_sync_config: "{{ lookup('ansible.builtin.file', playbook_dir + '/ldap-sync.yaml') }}"
+        whitelist_config: "{{ lookup('ansible.builtin.file', playbook_dir + '/whitelist.txt') }}"
 
-    - name: Create LDAP Sync Secret without CA
-      ansible.builtin.shell: |
-        oc create secret generic ldap-sync \
-          --from-file=ldap-sync.yaml={{ playbook_dir }}/ldap-sync.yaml \
-          --from-file=whitelist.txt={{ playbook_dir }}/whitelist.txt \
-          -n ldap-sync
-      delegate_to: localhost
-      when: not ldap.secure_ldap | bool
+    - name: Create LDAP Sync Secret with CA (idempotent)
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: ldap-sync
+            namespace: ldap-sync
+          type: Opaque
+          data:
+            ldap-sync.yaml: "{{ ldap_sync_config | b64encode }}"
+            whitelist.txt: "{{ whitelist_config | b64encode }}"
+            ca.crt: "{{ lookup('ansible.builtin.file', openshift.ldap.certificate_file_path) | b64encode }}"
+        validate_certs: "{{ validate_certificates }}"
+      retries: 3
+      delay: 5
+      until: ldap_sync_secret is succeeded
+      register: ldap_sync_secret
+      when: openshift.ldap.secure_ldap | bool
+
+    - name: Create LDAP Sync Secret without CA (idempotent)
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: ldap-sync
+            namespace: ldap-sync
+          type: Opaque
+          data:
+            ldap-sync.yaml: "{{ ldap_sync_config | b64encode }}"
+            whitelist.txt: "{{ whitelist_config | b64encode }}"
+        validate_certs: "{{ validate_certificates }}"
+      retries: 3
+      delay: 5
+      until: ldap_sync_secret is succeeded
+      register: ldap_sync_secret
+      when: not openshift.ldap.secure_ldap | bool
 
     - name: Create LDAP Synchronization RBAC
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'rbac-ldap-group-sync.yaml.j2') | from_yaml }}"
         validate_certs: "{{ validate_certificates }}"
+      retries: 3
+      delay: 5
+      until: rbac_result is succeeded
+      register: rbac_result
 
-    - name: Create ldap-sync Service Account
-      ansible.builtin.shell: |
-        oc create sa ldap-sync -n ldap-sync
-      delegate_to: localhost
+    - name: Create ldap-sync Service Account (idempotent)
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: ldap-sync
+            namespace: ldap-sync
+        validate_certs: "{{ validate_certificates }}"
+      retries: 3
+      delay: 5
+      until: sa_result is succeeded
+      register: sa_result
     
-    - name: Add ldap-sync Service Account RBAC
-      ansible.builtin.shell: |
-        oc adm policy add-cluster-role-to-user ldap-group-sync \
-          -z ldap-sync \
-          -n ldap-sync
-      delegate_to: localhost
+    - name: Add ldap-sync Service Account Cluster Role Binding (idempotent)
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: ldap-sync-cluster-role-binding
+          subjects:
+            - kind: ServiceAccount
+              name: ldap-sync
+              namespace: ldap-sync
+          roleRef:
+            kind: ClusterRole
+            name: ldap-group-sync
+            apiGroup: rbac.authorization.k8s.io
+        validate_certs: "{{ validate_certificates }}"
+      retries: 3
+      delay: 5
+      until: crb_result is succeeded
+      register: crb_result
     
     - name: Create LDAP Synchronization CRON Job
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'ldap-cron.yaml.j2') | from_yaml }}"
         validate_certs: "{{ validate_certificates }}"
+      retries: 3
+      delay: 5
+      until: cronjob_result is succeeded
+      register: cronjob_result
 
-    - name: Delete Generated Files
+  post_tasks:
+    - name: Cleanup temporary files
       ansible.builtin.file:
         path: "{{ playbook_dir }}/{{ item }}"
         state: absent
       loop: ["ldap-sync.yaml", "whitelist.txt"]
+      when: cronjob_result is succeeded or ansible_failed_task is undefined
+      ignore_errors: true

@@ -9,10 +9,12 @@ This folder contains an Ansible playbook that installs the OpenShift GitOps Oper
 - [Install OpenShift GitOps Operator](#install-openshift-gitops-operator)
   - [Table of Contents](#table-of-contents)
   - [Directory Structure](#directory-structure)
-  - [What the Playbood Does](#what-the-playbood-does)
+  - [What the Playbook Does](#what-the-playbook-does)
   - [Prerequisites](#prerequisites)
+  - [Playbook Features & Improvements](#playbook-features--improvements)
   - [Required Environment Variables](#required-environment-variables)
   - [How to Run](#how-to-run)
+  - [Re-running the Playbook](#re-running-the-playbook)
   - [Validation](#validation)
   - [Troubleshooting](#troubleshooting)
 
@@ -25,7 +27,7 @@ This folder contains an Ansible playbook that installs the OpenShift GitOps Oper
 
 [Back to Table of Contents](#table-of-contents)
 
-## What the Playbood Does
+## What the Playbook Does
 
 The playbook currently performs these steps:
 
@@ -53,6 +55,19 @@ ansible-galaxy collection install kubernetes.core
 
 [Back to Table of Contents](#table-of-contents)
 
+## Playbook Features & Improvements
+
+The playbook includes these reliability updates:
+
+- Pre-task validation for `oc` CLI availability
+- Pre-task validation for required `openshift_api_url` and `openshift_token_id` environment variables
+- Retry logic on login and Kubernetes apply tasks (3 attempts, 5-second delay)
+- Idempotent resource management through `kubernetes.core.k8s` with `state: present`
+
+These updates improve reliability and make repeated runs safe.
+
+[Back to Table of Contents](#table-of-contents)
+
 ## Required Environment Variables
 
 Export before running:
@@ -76,6 +91,18 @@ To get these in OpenShift web console:
 ## How to Run
 
 From this directory:
+
+```bash
+ansible-playbook install_openshift_gitops.yaml
+```
+
+[Back to Table of Contents](#table-of-contents)
+
+## Re-running the Playbook
+
+This playbook is safe to re-run and will reconcile existing resources.
+
+If execution fails, resolve the root cause and run again:
 
 ```bash
 ansible-playbook install_openshift_gitops.yaml

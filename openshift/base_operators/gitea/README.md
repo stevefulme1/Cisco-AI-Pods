@@ -15,8 +15,10 @@ It is not recommended to use public Git repositories for this workflow, because 
 - [Directory Structure](#directory-structure)
 - [What the Playbook Does](#what-the-playbook-does)
 - [Prerequisites](#prerequisites)
+- [Playbook Features & Improvements](#playbook-features--improvements)
 - [Required Environment Variables](#required-environment-variables)
 - [How to Run](#how-to-run)
+- [Re-running the Playbook](#re-running-the-playbook)
 - [Validation](#validation)
 - [Installed Resources](#installed-resources)
 - [Template Defaults](#template-defaults)
@@ -62,6 +64,19 @@ ansible-galaxy collection install kubernetes.core
 
 [Back to Table of Contents](#table-of-contents)
 
+## Playbook Features & Improvements
+
+The playbook includes these reliability updates:
+
+- Pre-task validation for `oc` CLI availability
+- Pre-task validation for required `openshift_api_url` and `openshift_token_id` environment variables
+- Retry logic on login and all Kubernetes apply operations (3 attempts, 5-second delay)
+- Idempotent resource management via `kubernetes.core.k8s` with `state: present`
+
+These updates make repeated runs safer and reduce transient API failure impact.
+
+[Back to Table of Contents](#table-of-contents)
+
 ## Required Environment Variables
 
 The playbook reads OpenShift access values from environment variables:
@@ -82,6 +97,18 @@ Get token and API URL from the OpenShift web console:
 ## How to Run
 
 From this folder:
+
+```bash
+ansible-playbook install_gitea.yaml
+```
+
+[Back to Table of Contents](#table-of-contents)
+
+## Re-running the Playbook
+
+This playbook is safe to re-run. Existing resources are reconciled rather than recreated.
+
+If a run fails, correct the issue and run the same command again:
 
 ```bash
 ansible-playbook install_gitea.yaml

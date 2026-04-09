@@ -8,14 +8,22 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Supported Platforms](#supported-platforms)
-- [Prerequisite Checklist](#prerequisite-checklist)
-- [Folder Contents](#folder-contents)
-- [Deployment](#deployment)
-- [Sensitive Variables Reference](#sensitive-variables-reference)
-- [Verification](#verification)
-- [Troubleshooting](#troubleshooting)
+- [Cisco AI Pods UCS C800-Series Server Configuration Guide](#cisco-ai-pods-ucs-c800-series-server-configuration-guide)
+  - [Top Level Documents](#top-level-documents)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Supported Platforms](#supported-platforms)
+  - [Prerequisite Checklist](#prerequisite-checklist)
+  - [Folder Contents](#folder-contents)
+    - [main.fsai.yaml Structure](#mainfsaiyaml-structure)
+  - [Deployment](#deployment)
+    - [Step 1: Activate Python Virtual Environment](#step-1-activate-python-virtual-environment)
+    - [Step 2: Change to intersight-tools directory](#step-2-change-to-intersight-tools-directory)
+    - [Step 3: Export sensitive environment variables](#step-3-export-sensitive-environment-variables)
+    - [Step 4: Run the BMC configuration tool](#step-4-run-the-bmc-configuration-tool)
+  - [Sensitive Variables Reference](#sensitive-variables-reference)
+  - [Verification](#verification)
+  - [Troubleshooting](#troubleshooting)
 
 ## Overview
 
@@ -35,7 +43,7 @@ This configuration folder supports the following Cisco UCS servers:
 |----------|-----|------|
 | UCS C845 M8 | AMD EPYC | GPU-optimized AI/ML compute |
 | UCS C885A M8 | AMD EPYC | High-density GPU AI/ML compute (HGX) |
-| UCS C880 M7 | Intel Xeon | High-memory AI/ML compute |
+| UCS C880 M8 | Intel Xeon | High-memory AI/ML compute |
 
 All three platforms use the same `ucs_bmc.py` workflow and `c800:` model structure. Platform-specific BIOS and hardware settings are controlled through the `shared_settings.bios` block in `main.fsai.yaml`.
 

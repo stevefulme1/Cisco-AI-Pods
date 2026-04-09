@@ -16,8 +16,10 @@ It also includes validation playbooks for ingress and API certificate state.
 - [Prerequisites](#prerequisites)
 - [Certificate Requirements](#certificate-requirements)
 - [Required Environment Variables](#required-environment-variables)
+- [Playbook Features & Improvements](#playbook-features--improvements)
 - [End-to-End Playbook](#end-to-end-playbook)
 - [Validation Playbooks](#validation-playbooks)
+- [Re-running the Playbook](#re-running-the-playbook)
 - [Manual CSR Generation](#manual-csr-generation)
 - [Manual Update Method](#manual-update-method)
 - [Troubleshooting](#troubleshooting)
@@ -88,6 +90,21 @@ Notes:
 
 [Back to Table of Contents](#table-of-contents)
 
+## Playbook Features & Improvements
+
+The certificate playbooks include these reliability updates:
+
+- Pre-task checks for `oc` CLI availability
+- Required environment variable assertions before execution
+- Certificate/key file existence checks before parsing
+- Retry logic for login and Kubernetes apply operations
+- Idempotent patching using `kubernetes.core.k8s` definitions for Proxy, IngressController, and APIServer resources
+- Validation playbooks updated with the same preflight checks and login retry behavior
+
+These improvements make certificate workflows safer to execute repeatedly and easier to troubleshoot.
+
+[Back to Table of Contents](#table-of-contents)
+
 ## End-to-End Playbook
 
 Run the full workflow:
@@ -128,6 +145,18 @@ Validate API certificate rollout state:
 
 ```bash
 ansible-playbook validate_api_certificate.yaml
+```
+
+[Back to Table of Contents](#table-of-contents)
+
+## Re-running the Playbook
+
+The end-to-end certificate workflow is safe to re-run. Existing ConfigMaps, Secrets, and patched cluster resources are reconciled to the desired state.
+
+If a run stops at a prompt or fails during rollout, fix the issue and run again:
+
+```bash
+ansible-playbook load_certificates.yaml
 ```
 
 [Back to Table of Contents](#table-of-contents)

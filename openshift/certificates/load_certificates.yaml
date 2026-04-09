@@ -6,6 +6,38 @@
   vars:
     validate_certificates: false
 
+  pre_tasks:
+    - name: Verify oc CLI is available
+      ansible.builtin.command: which oc
+      changed_when: false
+      failed_when: oc_check.rc != 0
+      register: oc_check
+
+    - name: Verify required environment variables are set
+      ansible.builtin.assert:
+        that:
+          - lookup('ansible.builtin.env', 'openshift_token_id') | length > 0
+          - lookup('ansible.builtin.env', 'openshift_api_url') | length > 0
+          - lookup('ansible.builtin.env', 'user_ca_bundle_file') | length > 0
+          - lookup('ansible.builtin.env', 'ingress_cert_chain_file') | length > 0
+          - lookup('ansible.builtin.env', 'ingress_key_file') | length > 0
+          - lookup('ansible.builtin.env', 'api_cert_chain_file') | length > 0
+          - lookup('ansible.builtin.env', 'api_key_file') | length > 0
+          - lookup('ansible.builtin.env', 'api_server_hostname') | length > 0
+        fail_msg: "One or more required environment variables are missing for certificate deployment"
+
+    - name: Verify certificate and key files exist
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - "{{ lookup('ansible.builtin.env', 'user_ca_bundle_file') }}"
+        - "{{ lookup('ansible.builtin.env', 'ingress_cert_chain_file') }}"
+        - "{{ lookup('ansible.builtin.env', 'ingress_key_file') }}"
+        - "{{ lookup('ansible.builtin.env', 'api_cert_chain_file') }}"
+        - "{{ lookup('ansible.builtin.env', 'api_key_file') }}"
+      register: cert_file_stats
+      failed_when: not cert_file_stats.results | map(attribute='stat.exists') | min
+
   tasks:
     # Check if user CA Bundle Certificate File exists and is PEM format
     - name: Read User CA Bundle Certificate File Content
@@ -29,7 +61,10 @@
       ansible.builtin.command:
         cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
       register: login_result
-      no_log: true # Prevent sensitive info in logs
+      no_log: true
+      retries: 3
+      delay: 5
+      until: login_result is succeeded
     
     - name: Read lines of User CA Bundle Certificate File into List
       ansible.builtin.set_fact:
@@ -40,20 +75,40 @@
         state: present
         definition: "{{ lookup('template', 'user-ca-bundle.yaml.j2') | from_yaml }}"
         validate_certs: "{{ validate_certificates }}"
+      register: user_ca_configmap_result
+      retries: 3
+      delay: 5
+      until: user_ca_configmap_result is succeeded
 
     - name: Patch Cluster Proxy
-      ansible.builtin.shell: |
-        oc patch proxy/cluster --type=merge --patch='{"spec":{"trustedCA":{"name":"user-ca-bundle"}}}'
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: config.openshift.io/v1
+          kind: Proxy
+          metadata:
+            name: cluster
+          spec:
+            trustedCA:
+              name: user-ca-bundle
+        validate_certs: "{{ validate_certificates }}"
+      register: proxy_patch_apply_result
+      retries: 3
+      delay: 5
+      until: proxy_patch_apply_result is succeeded
 
     - name: Verify Cluster Proxy Patch
-      ansible.builtin.shell: |
-        oc get proxy cluster -o yaml
+      kubernetes.core.k8s_info:
+        api_version: config.openshift.io/v1
+        kind: Proxy
+        name: cluster
+        validate_certs: "{{ validate_certificates }}"
       register: proxy_patch_result
 
     - name: Report Cluster Proxy Patch Result
       ansible.builtin.debug:
-        msg: "Cluster Proxy Patch Result: {{ proxy_patch_result.stdout }}"
-      failed_when: "'user-ca-bundle' not in proxy_patch_result.stdout"
+        msg: "Cluster Proxy trustedCA is set to user-ca-bundle"
+      failed_when: proxy_patch_result.resources[0].spec.trustedCA.name | default('') != 'user-ca-bundle'
     
     - name: Pause for 1 minutes
       ansible.builtin.pause:
@@ -119,20 +174,42 @@
         state: present
         definition: "{{ lookup('template', 'ingress-tls-secret.yaml.j2') | from_yaml }}"
         validate_certs: "{{ validate_certificates }}"
+      register: ingress_tls_secret_result
+      retries: 3
+      delay: 5
+      until: ingress_tls_secret_result is succeeded
 
     - name: Patch Ingress Controller to use new TLS Secrets
-      ansible.builtin.shell: |
-        oc patch ingresscontroller.operator/default --type=merge -p '{"spec":{"defaultCertificate": {"name": "ingress-tls-secret"}}}' -n openshift-ingress-operator
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: operator.openshift.io/v1
+          kind: IngressController
+          metadata:
+            name: default
+            namespace: openshift-ingress-operator
+          spec:
+            defaultCertificate:
+              name: ingress-tls-secret
+        validate_certs: "{{ validate_certificates }}"
+      register: ingress_patch_apply_result
+      retries: 3
+      delay: 5
+      until: ingress_patch_apply_result is succeeded
 
     - name: Verify Ingress Controller Patch
-      ansible.builtin.shell: |
-        oc get ingresscontroller.operator/default -n openshift-ingress-operator -o yaml
+      kubernetes.core.k8s_info:
+        api_version: operator.openshift.io/v1
+        kind: IngressController
+        name: default
+        namespace: openshift-ingress-operator
+        validate_certs: "{{ validate_certificates }}"
       register: ingress_controller_patch_result
 
     - name: Report Ingress Controller Patch Result
       ansible.builtin.debug:
-        msg: "Ingress Controller Patch Result: {{ ingress_controller_patch_result.stdout }}"
-      failed_when: "'ingress-tls-secret' not in ingress_controller_patch_result.stdout"
+        msg: "Ingress Controller default certificate is set to ingress-tls-secret"
+      failed_when: ingress_controller_patch_result.resources[0].spec.defaultCertificate.name | default('') != 'ingress-tls-secret'
     
     - name: Pause for 1 minutes
       ansible.builtin.pause:
@@ -141,10 +218,12 @@
     - name: Wait for OpenShift OAuth Pods to be Running
       ansible.builtin.shell: |
         oc wait --for=condition=Ready pod --all -n openshift-authentication --timeout=300s
+      changed_when: false
 
     - name: Wait for Ingress Router Pods to be Running
       ansible.builtin.shell: |
         oc wait --for=condition=Ready pod --all -n openshift-ingress --timeout=300s
+      changed_when: false
 
     #####################
     # API CERTIFICATE
@@ -192,10 +271,31 @@
         state: present
         definition: "{{ lookup('template', 'api-tls-secret.yaml.j2') | from_yaml }}"
         validate_certs: "{{ validate_certificates }}"
+      register: api_tls_secret_result
+      retries: 3
+      delay: 5
+      until: api_tls_secret_result is succeeded
 
     - name: Patch API to use new TLS Secrets
-      ansible.builtin.shell: |
-        oc patch apiserver cluster --type=merge -p '{"spec":{"servingCerts": {"namedCertificates": [{"names": ["{{ lookup('ansible.builtin.env', 'api_server_hostname') }}"], "servingCertificate": {"name": "api-tls-secret"}}]}}}'
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: config.openshift.io/v1
+          kind: APIServer
+          metadata:
+            name: cluster
+          spec:
+            servingCerts:
+              namedCertificates:
+                - names:
+                    - "{{ lookup('ansible.builtin.env', 'api_server_hostname') }}"
+                  servingCertificate:
+                    name: api-tls-secret
+        validate_certs: "{{ validate_certificates }}"
+      register: api_patch_apply_result
+      retries: 3
+      delay: 5
+      until: api_patch_apply_result is succeeded
 
     - name: Pause for 2 minutes to allow API to restart with new certificate
       ansible.builtin.pause:

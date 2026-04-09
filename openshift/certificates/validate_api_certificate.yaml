@@ -6,6 +6,20 @@
   vars:
     validate_certificates: false
 
+  pre_tasks:
+    - name: Verify oc CLI is available
+      ansible.builtin.command: which oc
+      changed_when: false
+      failed_when: oc_check.rc != 0
+      register: oc_check
+
+    - name: Verify required environment variables are set
+      ansible.builtin.assert:
+        that:
+          - lookup('ansible.builtin.env', 'openshift_token_id') | length > 0
+          - lookup('ansible.builtin.env', 'openshift_api_url') | length > 0
+        fail_msg: "Required environment variables not set: openshift_token_id, openshift_api_url"
+
   tasks:
     #####################
     # API CERTIFICATE
@@ -14,7 +28,10 @@
       ansible.builtin.command:
         cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
       register: login_result
-      no_log: true # Prevent sensitive info in logs
+      no_log: true
+      retries: 3
+      delay: 5
+      until: login_result is succeeded
     
     - name: Wait for Kube API Server to be Ready after Certificate Update
       kubernetes.core.k8s_info:

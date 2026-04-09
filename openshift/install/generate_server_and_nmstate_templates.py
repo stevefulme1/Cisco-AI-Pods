@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Generate nmstate templates and assisted-installer/server.json from bare metal install vars."""
 
+import base64
+import binascii
 import json
 import os
 import sys
 import argparse
+import re
 import tarfile
 from urllib.error import URLError, HTTPError
 from urllib.request import Request, urlopen
@@ -16,8 +19,22 @@ import yaml
 from jinja2 import Environment, FileSystemLoader
 
 
-def load_vars_file(vars_file: Path) -> Dict[str, Any]:
-    """Load vars.ezcai.yaml as a dictionary."""
+SSH_PUBLIC_KEY_TYPE_PATTERN = re.compile(r"^(ssh-|ecdsa-|sk-)")
+
+
+def merge_dicts(base: Dict[str, Any], new_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Recursively merge two dictionaries, with new_data taking precedence."""
+    merged = dict(base)
+    for key, value in new_data.items():
+        if isinstance(merged.get(key), dict) and isinstance(value, dict):
+            merged[key] = merge_dicts(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
+def load_yaml_mapping(vars_file: Path) -> Dict[str, Any]:
+    """Load a YAML file containing a top-level mapping."""
     try:
         with open(vars_file, "r", encoding="utf-8") as file_handle:
             data = yaml.safe_load(file_handle)
@@ -29,10 +46,37 @@ def load_vars_file(vars_file: Path) -> Dict[str, Any]:
         sys.exit(1)
 
     if not isinstance(data, dict):
-        print("Error: vars.ezcai.yaml must contain a top-level mapping")
+        print(f"Error: vars file must contain a top-level mapping: {vars_file}")
         sys.exit(1)
 
     return data
+
+
+def load_vars_path(vars_path: Path) -> Dict[str, Any]:
+    """Load a vars file or recursively merge all YAML files from a vars directory."""
+    if vars_path.is_file():
+        return load_yaml_mapping(vars_path)
+
+    if not vars_path.exists():
+        print(f"Error: vars path not found: {vars_path}")
+        sys.exit(1)
+
+    if not vars_path.is_dir():
+        print(f"Error: vars path must be a file or directory: {vars_path}")
+        sys.exit(1)
+
+    vars_files = sorted(
+        [*vars_path.glob("*.yml"), *vars_path.glob("*.yaml")],
+        key=lambda path: path.name,
+    )
+    if not vars_files:
+        print(f"Error: no YAML vars files found in: {vars_path}")
+        sys.exit(1)
+
+    merged: Dict[str, Any] = {}
+    for vars_file in vars_files:
+        merged = merge_dicts(merged, load_yaml_mapping(vars_file))
+    return merged
 
 
 def get_bare_metal_config(config: Dict[str, Any]) -> Dict[str, Any]:
@@ -56,6 +100,11 @@ def get_cluster_routes(config: Dict[str, Any]) -> List[Dict[str, str]]:
     """Return bare metal cluster routes."""
     routes = get_bare_metal_config(config).get("cluster_networking", {}).get("routes", [])
     return routes if isinstance(routes, list) else []
+
+
+def get_ssh_public_key_suffix(config: Dict[str, Any]) -> Any:
+    """Return the SSH public key sensitive variable suffix."""
+    return get_bare_metal_config(config).get("ssh_public_key")
 
 
 def determine_template_type(server: Dict[str, Any]) -> Optional[str]:
@@ -286,10 +335,44 @@ def resolve_secret_value(prefix: str, suffix: Any, context: str) -> str:
     return value
 
 
+def validate_ssh_public_key_value(value: str, context: str) -> None:
+    """Validate that a value looks like an SSH public key."""
+    parts = value.strip().split()
+    if len(parts) < 2:
+        raise ValueError(f"Invalid SSH public key for {context}: expected '<type> <base64> [comment]'")
+
+    key_type, key_data = parts[0], parts[1]
+    if not SSH_PUBLIC_KEY_TYPE_PATTERN.match(key_type):
+        raise ValueError(f"Invalid SSH public key type for {context}: {key_type}")
+
+    try:
+        base64.b64decode(key_data.encode("ascii"), validate=True)
+    except (binascii.Error, UnicodeEncodeError) as error:
+        raise ValueError(f"Invalid SSH public key payload for {context}") from error
+
+
+def resolve_ssh_public_key(config: Dict[str, Any]) -> str:
+    """Resolve and validate the SSH public key from its sensitive variable suffix."""
+    suffix = get_ssh_public_key_suffix(config)
+    value = resolve_secret_value(
+        "ssh_public_key",
+        suffix,
+        "openshift.install.bare_metal.ssh_public_key",
+    )
+    validate_ssh_public_key_value(value, f"ssh_public_key_{suffix}")
+    return value
+
+
 def collect_required_credential_env_vars(servers: List[Dict[str, Any]], config: Dict[str, Any]) -> Tuple[Set[str], List[str]]:
     """Collect required credential env var names and configuration issues."""
     required_env_vars: Set[str] = set()
     config_issues: List[str] = []
+
+    ssh_public_key_suffix = get_ssh_public_key_suffix(config)
+    if ssh_public_key_suffix in (None, ""):
+        config_issues.append("missing openshift.install.bare_metal.ssh_public_key sensitive variable suffix")
+    else:
+        required_env_vars.add(f"ssh_public_key_{ssh_public_key_suffix}")
 
     for server in servers:
         hostname = server.get("hostname", "unknown-host")
@@ -329,7 +412,14 @@ def validate_credential_env_vars(servers: List[Dict[str, Any]], config: Dict[str
     required_env_vars, config_issues = collect_required_credential_env_vars(servers, config)
     missing_env_vars = sorted(env_name for env_name in required_env_vars if not os.getenv(env_name))
 
+    ssh_key_issue: Optional[str] = None
     if not config_issues and not missing_env_vars:
+        try:
+            resolve_ssh_public_key(config)
+        except ValueError as error:
+            ssh_key_issue = str(error)
+
+    if not config_issues and not missing_env_vars and not ssh_key_issue:
         return
 
     print("Error: credential environment variable validation failed")
@@ -341,13 +431,34 @@ def validate_credential_env_vars(servers: List[Dict[str, Any]], config: Dict[str
         print("Missing environment variables:")
         for env_name in missing_env_vars:
             print(f"  - {env_name}")
+    if ssh_key_issue:
+        print("SSH public key issue:")
+        print(f"  - {ssh_key_issue}")
     sys.exit(1)
+
+
+def generate_ssh_public_key_file(output_dir: Path, config: Dict[str, Any]) -> bool:
+    """Generate assisted-installer/ssh.pub from the SSH public key environment variable."""
+    ssh_public_key = resolve_ssh_public_key(config)
+    file_path = output_dir / "ssh.pub"
+    try:
+        file_path.write_text(f"{ssh_public_key.rstrip()}\n", encoding="utf-8")
+        print(f"Generated: {file_path}")
+        return True
+    except IOError as error:
+        print(f"Error writing {file_path}: {error}")
+        return False
 
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
         description="Generate nmstate templates and assisted-installer/server.json from bare metal install vars.")
+    parser.add_argument(
+        "--vars-file",
+        type=Path,
+        help="Path to a vars YAML file or a directory of vars files. Defaults to ../script_vars/.",
+    )
     parser.add_argument(
         "--check-env",
         action="store_true",
@@ -598,18 +709,15 @@ def main() -> None:
     args = parse_args()
 
     script_dir = Path(__file__).parent
-    vars_file = script_dir / "script_vars" / "vars.ezcai.yaml"
+    vars_path = args.vars_file if args.vars_file else script_dir.parent / "script_vars"
     output_dir = script_dir / "assisted-installer"
     templates_dir = script_dir / "templates"
 
-    if not vars_file.exists():
-        print(f"Error: vars file not found: {vars_file}")
-        sys.exit(1)
     if not templates_dir.exists():
         print(f"Error: templates directory not found: {templates_dir}")
         sys.exit(1)
 
-    config = load_vars_file(vars_file)
+    config = load_vars_path(vars_path)
     servers = get_servers(config)
     if not servers:
         print("Error: No servers found in openshift.install.bare_metal.servers")
@@ -630,12 +738,24 @@ def main() -> None:
 
     env = Environment(loader=FileSystemLoader(str(templates_dir)))
 
-    print(f"Loading configuration from: {vars_file}")
+    print(f"Loading configuration from: {vars_path}")
     print(f"Found {len(servers)} server(s) in configuration")
 
     cleanup_existing_nmstate_templates(output_dir)
     server_to_filename = generate_unique_nmstate_templates(servers, config, output_dir, env)
     print(f"Mapped {len(server_to_filename)} server(s) to nmstate template profiles")
+
+    print("Generating ssh.pub...", end=" ")
+    try:
+        if generate_ssh_public_key_file(output_dir, config):
+            print("✓")
+        else:
+            print("✗")
+            sys.exit(1)
+    except ValueError as error:
+        print("✗")
+        print(f"Error: {error}")
+        sys.exit(1)
 
     print("Generating server.json...", end=" ")
     try:
