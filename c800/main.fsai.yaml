@@ -11,16 +11,18 @@ c800:
     bios:
       cbs_cmn_apbdis: '1'
       cbs_cmn_cpu_global_cstate_ctrl: Auto
+      # cbs_cmn_determinism_slider 
       cbs_cmn_determinism_enable: Power
       cbs_cmn_gnb_nb_iommu: Enabled
+      # cbs_cmn_gnb_smu_df_cstates 
       cbs_cmn_gnb_smu_df_cstates_rs: Auto
       cbs_cpu_smt_ctrl: Enable
       cbs_df_cmn_dram_nps: NPS4
       cbs_df_cmn_mem_intlv: Auto
+      # cbs_df_cmn4link_max_xgmi_speed 
       csb_df_cmn_3_link_max_xgmi_speed: 32Gbps
       sha384pcr_bank: Enabled
       terminal_type: VT-UTF8
-    boot_order: true
     device_connector:
       intersight:
         organization: EXAMPLE
@@ -33,30 +35,4 @@ c800:
       ipv4:
         gateway: 198.18.1.1
         netmask: 255.255.255.0
-    ldap:
-      base_settings:
-        domain_name: example.com
-      binding_parameters:
-        bind_dn: CN=nam,DC=example,DC=com
-      ldap_groups:
-        - end_point_role: Administrator
-          group_dn: CN=ucsadmins,OU=groups,DC=example,DC=com
-      ldap_servers:
-        - port: 636
-          server: ad.example.com
-          vendor: MSAD
-      search_parameters:
-        group_attribute: memberOf
-        user_attribute: sAMAccountName
-    local_user:
-      - enabled: true
-        password: 2
-        role: ReadOnly
-        username: ipmi
-    ntp:
-      ntp_servers:
-        - 198.18.50.7
-        - 198.18.65.96
-        - 198.18.33.162
-      timezone: America/Detroit
   username: root

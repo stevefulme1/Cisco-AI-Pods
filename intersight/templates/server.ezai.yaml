@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/Cisco-AI-Pods/schema/cisco-ai-pods.json --- IGNORE ---
+---
+#=======================================
+#   Templates -> Server - Variables
+#=======================================
+intersight:
+  organizations:
+    EXAMPLE:
+      templates:
+        server:
+          - bios_policy: Common/VirtualizationM8AmdTpm
+            boot_order_policy: Common/M2Uefi
+            create_template: true
+            firmware_policy: Common/FwJuly2025
+            imc_access_policy: KVMAccess
+            ipmi_over_lan_policy: Common/IPMI
+            lan_connectivity_policy: ControllerLCPv2
+            local_user_policy: Common/LocalUsers
+            name: ControllerVirtualizationM8AmdTPM
+            power_policy: Common/Server
+            serial_over_lan_policy: Common/SoL
+            snmp_policy: Common/SNMP
+            storage_policy: Common/M2Raid
+            target_platform: FIAttached
+            thermal_policy: Common/Server
+            uuid_pool: Common/Uuid
+            virtual_kvm_policy: Common/vKVM
+            virtual_media_policy: Common/vMedia
+          - bios_policy: Common/VirtualizationM8AmdTpm
+            boot_order_policy: Common/M2Uefi
+            create_template: true
+            firmware_policy: Common/FwJuly2025
+            imc_access_policy: KVMAccess
+            ipmi_over_lan_policy: Common/IPMI
+            lan_connectivity_policy: WorkerLCPv2
+            local_user_policy: Common/LocalUsers
+            name: WorkerVirtualizationM8AmdTPM
+            power_policy: Common/Server
+            serial_over_lan_policy: Common/SoL
+            snmp_policy: Common/SNMP
+            storage_policy: Common/M2Raid
+            target_platform: FIAttached
+            thermal_policy: Common/Server
+            uuid_pool: Common/Uuid
+            virtual_kvm_policy: Common/vKVM
+            virtual_media_policy: Common/vMedia

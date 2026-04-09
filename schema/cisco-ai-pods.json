@@ -18206,7 +18206,7 @@
                     "title": "Target"
                 },
                 {
-                    "description": "Definition of the list of properties defined in 'server.Profile.targets', excluding properties defined in parent classes.",
+                    "description": "Definition of the list of properties defined in 'server.Profile.targets', excluding properties defined in parent classes.\n\nRequired Attributes:\n  * `name`\n  * `serial_number` or `pre_assign`",
                     "properties": {
                         "pre_assign": {
                             "$ref": "#/definitions/intersight.profiles.server.targets.pre_assign"
@@ -18221,6 +18221,9 @@
                             "title": "Server Identity Reservations",
                             "type": "array",
                             "uniqueItems": true
+                        },
+                        "serial_number": {
+                            "$ref": "#/definitions/intersight.abstract.serial/properties/serial_number"
                         },
                         "static_uuid_address": {
                             "default": "",
@@ -18249,12 +18252,21 @@
                             ]
                         }
                     },
+                    "anyOf": [
+                        {
+                            "required": [
+                                "serial_number"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "pre_assign"
+                            ]
+                        }
+                    ],
                     "required": [],
                     "title": "target",
                     "type": "object"
-                },
-                {
-                    "$ref": "#/definitions/intersight.abstract.serial"
                 }
             ],
             "description": "List of Server Target Settings.",

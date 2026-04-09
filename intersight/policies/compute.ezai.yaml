@@ -1,0 +1,54 @@
+---
+# yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/Cisco-AI-Pods/schema/cisco-ai-pods.json --- IGNORE ---
+#=======================================
+#   Policies -> Compute - Variables
+#=======================================
+intersight:
+  organizations:
+    Common:
+      policies:
+        bios:
+          - baud_rate: '115200'
+            bios_template: Virtualization-M8-AMD-Tpm
+            boot_performance_mode: Max Performance
+            console_redirection: com-0
+            name: VirtualizationM8AmdTpm
+            serial_port_aenable: enabled
+            terminal_type: vt100
+        boot_order:
+          - boot_devices:
+              - device_name: M2
+                device_type: local_disk
+                slot: MSTOR-RAID
+              - device_name: CIMC-DVD
+                device_type: virtual_media
+                subtype: cimc-mapped-dvd
+              - device_name: KVM-DVD
+                device_type: virtual_media
+                subtype: kvm-mapped-dvd
+              - device_name: UEFI
+                device_type: uefi_shell
+            boot_mode: Uefi
+            enable_secure_boot: false
+            name: M2Uefi
+        firmware:
+          - model_bundle_version:
+              - firmware_version: 5.4(0.250040)
+                server_models:
+                  - UCSX-215C-M8
+            name: FwJuly2025
+            target_platform: FIAttached
+        scrub:
+          - bios: true
+            disk: false
+            name: ScrubBios
+        virtual_media:
+          - add_virtual_media:
+              - device_type: cdd
+                file_location: https://198.18.2.11/discovery.iso
+                mount_options: noauto
+                name: discovery
+                protocol: https
+            enable_low_power_usb: true
+            enable_virtual_media_encryption: true
+            name: vMedia

@@ -1,0 +1,60 @@
+---
+# yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/Cisco-AI-Pods/schema/cisco-ai-pods.json --- IGNORE ---
+#========================================
+#   Policies -> Ethernet - Variables
+#========================================
+intersight:
+  organizations:
+    Common:
+      policies:
+        ethernet_adapter:
+          - adapter_template: 16RxQs-5G
+            name: 16RxQs5G
+          - adapter_template: 16RxQs-5G
+            name: Linux-NVMe-RoCE
+            roce_settings:
+              class_of_service: 5
+              enable_rdma_over_converged_ethernet: true
+              memory_regions: 131072
+              queue_pairs: 1024
+              resource_groups: 8
+              version: 2
+          - adapter_template: Linux-v2
+            name: Linux-v2
+        ethernet_network_control:
+          - cdp_enable: true
+            lldp_enable_receive: true
+            lldp_enable_transmit: true
+            name: CdpLldp
+        ethernet_qos:
+          - mtu: 9000
+            name: BestEffort
+            priority: Best Effort
+            rate_limit: 100000
+          - mtu: 9000
+            name: Platinum
+            priority: Platinum
+            rate_limit: 100000
+    EXAMPLE:
+      policies:
+        ethernet_network_group:
+          - allowed_vlans: '1501'
+            name: EXAMPLE:VLAN1501:AI:PRD:MGMT:OOB
+            native_vlan: 1501
+          - allowed_vlans: '1502'
+            name: EXAMPLE:VLAN1502:AI:PRD:MGMT:IB
+            native_vlan: 1502
+          - allowed_vlans: '1503'
+            name: EXAMPLE:VLAN1503:AI:PRD:VM:MGMT
+          - allowed_vlans: '1504'
+            name: EXAMPLE:VLAN1504:AI:PRD:NFS
+            native_vlan: 1504
+          - allowed_vlans: '1504'
+            name: EXAMPLE:VLAN1504:AI:PRD:Storage
+            native_vlan: 1504
+          - allowed_vlans: '1505'
+            name: EXAMPLE:VLAN1505:AI:PRD:NVMe-oF:A
+            native_vlan: 1505
+          - allowed_vlans: '1506'
+            name: EXAMPLE:VLAN1506:AI:PRD:NVMe-oF:B
+            native_vlan: 1506

@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/Cisco-AI-Pods/schema/cisco-ai-pods.json --- IGNORE ---
+#===========================================
+#   Policies -> Environment - Variables
+#===========================================
+intersight:
+  organizations:
+    Common:
+      policies:
+        power:
+          - name: X9508
+            power_allocation: 8400
+            power_redundancy: Grid
+          - name: Server
+            power_redundancy: Grid
+            power_restore: LastState
+        thermal:
+          - fan_control_mode: Balanced
+            name: X9508
+          - fan_control_mode: Balanced
+            name: Server
