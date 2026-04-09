@@ -38,9 +38,15 @@ cd pure_storage
 
 ## Configuration Inputs
 
-Primary variable file:
+Primary variable input:
 
-- `script_vars/vars.ezcai.yaml`
+- `script_vars/*.yaml`
+
+> **Tip:** The `examples/` folder contains a sample input YAML file. Copy it to `script_vars/` and update the values for your environment:
+> ```bash
+> mkdir -p script_vars
+> cp examples/pure_storage.ezai.yaml script_vars/
+> ```
 
 Important keys:
 
@@ -78,6 +84,7 @@ What this does:
 - Creates/rotates a Portworx API user (`pure_storage.portworx.array_user`) on each FlashArray and FlashBlade.
 - Collects generated API tokens.
 - Renders `pure.json` from `templates/pure.json.j2`.
+- Writes `pure.json` with restricted file permissions.
 
 Expected output:
 
@@ -95,14 +102,20 @@ ansible-playbook install_portworx.yaml
 
 What this does:
 
-1. Logs in to OpenShift.
-2. Creates namespace from `pure_storage.portworx.namespace`.
-3. Creates secret `px-pure-secret` from local `pure.json` (if it does not already exist).
-4. Creates Portworx subscription `portworx-certified` in `openshift-operators`.
-5. Waits for deployment `portworx-operator` to become ready.
-6. Prompts for confirmation before deploying StorageCluster.
-7. Applies `templates/storage-cluster.yaml.j2`.
-8. Applies one StorageClass per entry in `pure_storage.portworx.storage_classes` using `templates/storage-classes.yaml.j2`.
+1. Loads and validates required Portworx variables.
+2. Validates required OpenShift environment variables.
+3. Verifies `oc` availability and `pure.json` presence.
+4. Logs in to OpenShift.
+5. Creates namespace from `pure_storage.portworx.namespace`.
+6. Creates or updates secret `px-pure-secret` from local `pure.json`.
+7. Creates Portworx subscription `portworx-certified` in `openshift-operators`.
+8. Waits for deployment `portworx-operator` to become ready.
+9. Applies `templates/storage-cluster.yaml.j2`.
+10. Applies one StorageClass per entry in `pure_storage.portworx.storage_classes` using `templates/storage-classes.yaml.j2`.
+
+Optional behavior:
+
+- Set `prompt_before_storagecluster_apply=true` to require interactive confirmation before StorageCluster apply.
 
 [Back to Table of Contents](#table-of-contents)
 
@@ -139,8 +152,8 @@ Confirm PVCs bind successfully and backing volumes are created.
   - Ensure every `api_token_id` in variables has a matching `pure_api_token_<id>` environment variable.
 - Portworx operator not ready:
   - Check subscription and CSV in `openshift-operators`.
-- Secret already exists with stale data:
-  - Delete and recreate `px-pure-secret` or update it from regenerated `pure.json`.
+- Secret exists but contains old values:
+  - Re-run `create_pure_json.yaml` then `install_portworx.yaml` to reconcile `px-pure-secret`.
 - StorageCluster not progressing:
   - Check events and describe the StorageCluster resource.
 

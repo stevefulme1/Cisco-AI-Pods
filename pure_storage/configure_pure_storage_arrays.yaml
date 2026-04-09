@@ -1,42 +1,47 @@
 ---
-- hosts: localhost
+- name: Configure Pure Storage Arrays (FlashArray and FlashBlade)
+  hosts: localhost
   connection: local
   gather_facts: false
-  tasks:
+  vars:
+    pure_storage_vars_dir: "{{ playbook_dir }}/script_vars"
 
-    # - name: Day0 Provisioning | Confirm the latest SDKs are installed
-    #   pip:
-    #     name:
-    #       - datetime
-    #       - distro
-    #       - netaddr
-    #       - purity_fb
-    #       - purestorage
-    #       - py-pure-client
-    #       - pycountry
-    #       - pytz
-    #     state: latest
-
-    - name: Day0 Provisioning | Load variables from custom file
+  pre_tasks:
+    - name: Day0 Provisioning | Load variables from script_vars
       ansible.builtin.include_vars:
-        dir: "{{ playbook_dir }}/vars"
-    
+        dir: "{{ pure_storage_vars_dir }}"
+        extensions:
+          - yaml
+          - yml
+
+    - name: Day0 Provisioning | Validate pure_storage is defined
+      ansible.builtin.assert:
+        that:
+          - pure_storage is defined
+          - (pure_storage.flash_arrays is defined) or (pure_storage.flash_blades is defined)
+        fail_msg: "pure_storage data was not loaded or has no flash_arrays/flash_blades entries."
+
+  tasks:
     - name: Day0 Provisioning | FlashArray
-      include_tasks:
+      ansible.builtin.include_tasks:
         file: "{{ playbook_dir }}/tasks/flash_array/main.yaml"
       vars:
         api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token_{{ item.api_token_id }}') }}"
         array_fqdn: "{{ item.array_fqdn }}"
         array_url: "{{ item.array_url }}"
       when: pure_storage.flash_arrays is defined
-      with_items: "{{ pure_storage.flash_arrays }}"
+      loop: "{{ pure_storage.flash_arrays }}"
+      loop_control:
+        label: "{{ item.array_fqdn }}"
 
     - name: Day0 Provisioning | FlashBlade
-      include_tasks:
+      ansible.builtin.include_tasks:
         file: "{{ playbook_dir }}/tasks/flash_blade/main.yaml"
       vars:
         api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token_{{ item.api_token_id }}') }}"
         array_fqdn: "{{ item.array_fqdn }}"
         array_url: "{{ item.array_url }}"
       when: pure_storage.flash_blades is defined
-      with_items: "{{ pure_storage.flash_blades }}"
+      loop: "{{ pure_storage.flash_blades }}"
+      loop_control:
+        label: "{{ item.array_fqdn }}"

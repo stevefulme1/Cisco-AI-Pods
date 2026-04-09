@@ -2,21 +2,66 @@
 - name: Deploy Portworx 3.5.2 on OpenShift 4.21
   connection: local
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   vars:
     validate_certificates: false
+    prompt_before_storagecluster_apply: false
+    pure_storage_vars_dir: "{{ playbook_dir }}/script_vars"
 
-  tasks:
+  pre_tasks:
     - name: Load variables from script folder
       ansible.builtin.include_vars:
-        file: "{{ playbook_dir }}/script_vars/vars.ezcai.yaml"
+        dir: "{{ pure_storage_vars_dir }}"
+        extensions:
+          - yaml
+          - yml
 
+    - name: Validate required Portworx values are present
+      ansible.builtin.assert:
+        that:
+          - pure_storage is defined
+          - pure_storage.portworx is defined
+          - pure_storage.portworx.namespace is defined
+          - pure_storage.portworx.operator_source is defined
+          - pure_storage.portworx.storage_classes is defined
+          - pure_storage.portworx.storage_classes | length > 0
+        fail_msg: "Missing required pure_storage.portworx keys in script_vars."
+
+    - name: Validate OpenShift environment variables exist
+      ansible.builtin.assert:
+        that:
+          - lookup('ansible.builtin.env', 'openshift_token_id') | length > 0
+          - lookup('ansible.builtin.env', 'openshift_api_url') | length > 0
+        fail_msg: "Missing openshift_token_id or openshift_api_url environment variable."
+
+    - name: Ensure oc binary is available
+      ansible.builtin.command: oc version --client
+      changed_when: false
+
+    - name: Ensure pure.json exists
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/pure.json"
+      register: pure_json_file
+
+    - name: Fail when pure.json is missing
+      ansible.builtin.assert:
+        that:
+          - pure_json_file.stat.exists
+        fail_msg: "{{ playbook_dir }}/pure.json not found. Run create_pure_json.yaml first."
+
+  tasks:
     - name: Log in to OpenShift (requires oc binary on host)
       ansible.builtin.command:
-        cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
+        cmd: >-
+          oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }}
+          --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
       register: login_result
-      no_log: true # Prevent sensitive info in logs
-    
+      no_log: true
+      changed_when: false
+      retries: 3
+      delay: 5
+      until: login_result.rc == 0
+
     - name: Create Portworx Namespace
       kubernetes.core.k8s:
         name: "{{ pure_storage.portworx.namespace }}"
@@ -24,21 +69,20 @@
         state: present
         validate_certs: "{{ validate_certificates }}"
 
-    - name: Get secret information
-      kubernetes.core.k8s_info:
-        api_version: v1
-        kind: Secret
-        name: px-pure-secret
-        namespace: "{{ pure_storage.portworx.namespace }}"
+    - name: Create or update Portworx Secret
+      kubernetes.core.k8s:
+        state: present
         validate_certs: "{{ validate_certificates }}"
-      register: secret_check
-
-    - name: Create Portworx Secret
-      ansible.builtin.shell:
-        cmd: "oc create secret generic px-pure-secret --from-file=pure.json={{ playbook_dir }}/pure.json -n {{ pure_storage.portworx.namespace }}"
+        definition:
+          apiVersion: v1
+          kind: Secret
+          type: Opaque
+          metadata:
+            name: px-pure-secret
+            namespace: "{{ pure_storage.portworx.namespace }}"
+          stringData:
+            pure.json: "{{ lookup('ansible.builtin.file', playbook_dir + '/pure.json') }}"
       no_log: true
-      register: portworx_result
-      when: secret_check.resources | length == 0
 
     - name: Create Subscription for Portworx Operator
       kubernetes.core.k8s:
@@ -64,15 +108,16 @@
         namespace: openshift-operators
         validate_certs: "{{ validate_certificates }}"
       register: operator_deploy
-      until: 
+      until:
         - operator_deploy.resources | length > 0
         - operator_deploy.resources[0].status.readyReplicas | default(0) > 0
       retries: 30
       delay: 15
 
-    - name: Prompt to continue with the next tasks
+    - name: Prompt to continue with StorageCluster apply
       ansible.builtin.pause:
-        prompt: "Confirm the Operator is ready to 'continue'. Press 'c' to continue or 'a' to abort."
+        prompt: "Operator appears ready. Press Enter to continue, or Ctrl+C then A to abort."
+      when: prompt_before_storagecluster_apply | bool
 
     - name: Deploy Portworx StorageCluster (Version 3.5.2)
       kubernetes.core.k8s:

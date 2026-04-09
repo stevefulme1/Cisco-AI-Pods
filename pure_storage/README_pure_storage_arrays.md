@@ -46,14 +46,15 @@ cd pure_storage
 
 Current files in this folder:
 
-- `script_vars/vars.ezcai.yaml`: main variable definitions
-- `script_vars/vars.ezcai.example.yaml`: sample input
+- `script_vars/*.yaml`: variable definitions loaded by the playbook
 - `configure_pure_storage_arrays.yaml`: array configuration playbook
 
-Important note:
+> **Tip:** The `examples/` folder contains a sample input YAML file. Copy it to `script_vars/` and update the values for your environment:
+> ```bash
+> cp examples/pure_storage.ezai.yaml script_vars/
+> ```
 
-- `configure_pure_storage_arrays.yaml` currently loads variables from `{{ playbook_dir }}/vars`.
-- If your active data is in `script_vars/vars.ezcai.yaml`, copy or mirror it into a `vars/` location before running, or update the playbook path in your local workflow.
+The playbook validates that `pure_storage` exists and that at least one of `pure_storage.flash_arrays` or `pure_storage.flash_blades` is defined before running tasks.
 
 [Back to Table of Contents](#table-of-contents)
 
@@ -131,7 +132,7 @@ ansible localhost -m purestorage.flashblade.purefb_info -a "fb_url=<flashblade_f
 - Authentication errors:
   - Confirm `pure_api_token_<id>` environment variable names match `api_token_id` values.
 - Variable load failures:
-  - Confirm the variables path expected by the playbook (`vars/`) is present or adjust the playbook to your chosen location.
+  - Confirm at least one YAML file exists in `script_vars/` and contains a `pure_storage` root key.
 - Module import errors:
   - Reinstall required collections and Python packages from the repository root `requirements.yaml` and `requirements.txt`.
   - See [Prepare the Environment](../guide_prepare_the_environment.md#install-ansible-on-ubuntu).
