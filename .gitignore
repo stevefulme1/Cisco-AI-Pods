@@ -17,6 +17,13 @@ script_vars/
 *.tar.gz
 *.tsv
 
+# Terraform Generated Files
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform.lock.hcl
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

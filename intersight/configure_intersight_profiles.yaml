@@ -1,0 +1,211 @@
+---
+- name: Configure Intersight Profiles
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.intersight
+  vars:
+    intersight_model_root: "{{ playbook_dir }}"
+    intersight_api_key_id: "{{ lookup('ansible.builtin.env', 'intersight_api_key_id') }}"
+    intersight_api_private_key: "{{ lookup('ansible.builtin.env', 'intersight_secret_key') }}"
+    intersight_api_uri: "{{ lookup('ansible.builtin.env', 'intersight_api_uri') | default('https://intersight.com/api/v1', true) }}"
+    intersight_validate_certs: "{{ lookup('ansible.builtin.env', 'intersight_validate_certs') | default('true', true) | bool }}"
+    intersight_schema: "{{ lookup('ansible.builtin.file', playbook_dir ~ '/../schema/cisco-ai-pods.json') | from_json }}"
+    model_files: >-
+      {{
+        query('ansible.builtin.fileglob', intersight_model_root ~ '/global_settings*.yaml')
+        + query('ansible.builtin.fileglob', intersight_model_root ~ '/organizations/*.yaml')
+        + query('ansible.builtin.fileglob', intersight_model_root ~ '/profiles/*.yaml')
+        + query('ansible.builtin.fileglob', intersight_model_root ~ '/intersight_templates/*.yaml')
+      }}
+  environment:
+    INTERSIGHT_API_KEY_ID: "{{ intersight_api_key_id }}"
+    INTERSIGHT_API_PRIVATE_KEY: "{{ intersight_api_private_key }}"
+    INTERSIGHT_API_URI: "{{ intersight_api_uri }}"
+  tasks:
+    - name: Ensure required authentication variables are present
+      ansible.builtin.assert:
+        that:
+          - intersight_api_key_id | length > 0
+          - intersight_api_private_key | length > 0
+        fail_msg: >-
+          Set intersight_api_key_id and intersight_secret_key before running this playbook.
+
+    - name: Initialize merged model
+      ansible.builtin.set_fact:
+        merged_model: {}
+
+    - name: Merge model files
+      ansible.builtin.set_fact:
+        merged_model: >-
+          {{
+            merged_model
+            | combine((lookup('ansible.builtin.file', item) | from_yaml), recursive=True, list_merge='append')
+          }}
+      loop: "{{ model_files }}"
+
+    - name: Collect organizations map and profile name prefix/suffix
+      ansible.builtin.set_fact:
+        organizations_map: "{{ merged_model.intersight.organizations | default({}) }}"
+        profile_name_prefix: "{{ merged_model.intersight.profiles.name_prefix | default({}) }}"
+        profile_name_suffix: "{{ merged_model.intersight.profiles.name_suffix | default({}) }}"
+        template_name_prefix: "{{ merged_model.intersight.templates.name_prefix | default({}) }}"
+        template_name_suffix: "{{ merged_model.intersight.templates.name_suffix | default({}) }}"
+
+    - name: Configure Domain profiles
+      cisco.intersight.intersight_domain:
+        name: |-
+          {{
+            profile_name_prefix.domain | default(profile_name_prefix.default | default(''))
+            ~ item.1.name
+            ~ profile_name_suffix.domain | default(profile_name_suffix.default | default(''))
+          }}
+        description: "{{ item.1.description | default(omit) }}"
+        organization: "{{ item.0.key }}"
+        network_connectivity_policy: "{{ item.1.network_connectivity_policy | default(omit) }}"
+        ntp_policy: "{{ item.1.ntp_policy | default(omit) }}"
+        snmp_policy: "{{ item.1.snmp_policy | default(omit) }}"
+        switch_control_policy: "{{ item.1.switch_control_policy | default(omit) }}"
+        system_qos_policy: "{{ item.1.system_qos_policy | default(omit) }}"
+        assigned_switch_a_serial: "{{ item.1.serial_numbers[0] | default(omit) }}"
+        assigned_switch_b_serial: "{{ item.1.serial_numbers[1] | default(omit) }}"
+        port_policy_fi_a: "{{ item.1.port_policies[0] | default(omit) }}"
+        port_policy_fi_b: "{{ item.1.port_policies[1] | default(item.1.port_policies[0] | default(omit)) }}"
+        vlan_policy_fi_a: "{{ item.1.vlan_policies[0] | default(omit) }}"
+        vlan_policy_fi_b: "{{ item.1.vlan_policies[1] | default(item.1.vlan_policies[0] | default(omit)) }}"
+        state: present
+      loop: >-
+        {{
+          query('ansible.builtin.subelements', organizations_map | dict2items,
+                'value.profiles.domain', {'skip_missing': True})
+        }}
+
+    - name: Configure Chassis profiles (one profile per target)
+      cisco.intersight.intersight_chassis_profile:
+        name: |-
+          {{
+            profile_name_prefix.chassis | default(profile_name_prefix.default | default(''))
+            ~ item.1.name
+            ~ profile_name_suffix.chassis | default(profile_name_suffix.default | default(''))
+          }}
+        organization: "{{ item.0.0.key }}"
+        description: "{{ item.0.1.description | default(omit) }}"
+        imc_access_policy: "{{ item.0.1.imc_access_policy | default(omit) }}"
+        power_policy: "{{ item.0.1.power_policy | default(omit) }}"
+        snmp_policy: "{{ item.0.1.snmp_policy | default(omit) }}"
+        thermal_policy: "{{ item.0.1.thermal_policy | default(omit) }}"
+        assigned_chassis_name: "{{ item.1.serial_number | default(item.1.name) }}"
+        state: present
+      loop: >-
+        {{
+          query('ansible.builtin.subelements',
+            query('ansible.builtin.subelements', organizations_map | dict2items,
+                  'value.profiles.chassis', {'skip_missing': True}),
+            '1.targets', {'skip_missing': True})
+        }}
+
+    - name: Configure Server profile templates
+      cisco.intersight.intersight_server_profile_template:
+        name: |-
+          {{
+            template_name_prefix.server | default(template_name_prefix.default | default(''))
+            ~ item.1.name
+            ~ template_name_suffix.server | default(template_name_suffix.default | default(''))
+          }}
+        organization: "{{ item.0.key }}"
+        description: "{{ item.1.description | default(omit) }}"
+        target_platform: "{{ (item.1.target_platform | default('FIAttached') | lower | replace('fiattached', 'fi-attached')) }}"
+        adapter_policy: "{{ item.1.adapter_configuration_policy | default(item.1.adapter_policy | default(omit)) }}"
+        bios_policy: "{{ item.1.bios_policy | default(omit) }}"
+        boot_order_policy: "{{ item.1.boot_order_policy | default(omit) }}"
+        certificate_policy: "{{ item.1.certificate_management_policy | default(item.1.certificate_policy | default(omit)) }}"
+        firmware_policy: "{{ item.1.firmware_policy | default(omit) }}"
+        ipmi_over_lan_policy: "{{ item.1.ipmi_over_lan_policy | default(omit) }}"
+        lan_connectivity_policy: "{{ item.1.lan_connectivity_policy | default(omit) }}"
+        local_user_policy: "{{ item.1.local_user_policy | default(omit) }}"
+        power_policy: "{{ item.1.power_policy | default(omit) }}"
+        serial_over_lan_policy: "{{ item.1.serial_over_lan_policy | default(omit) }}"
+        snmp_policy: "{{ item.1.snmp_policy | default(omit) }}"
+        storage_policy: "{{ item.1.storage_policy | default(omit) }}"
+        thermal_policy: "{{ item.1.thermal_policy | default(omit) }}"
+        virtual_kvm_policy: "{{ item.1.virtual_kvm_policy | default(omit) }}"
+        virtual_media_policy: "{{ item.1.virtual_media_policy | default(omit) }}"
+        state: present
+      when: item.1.create_template | default(true)
+      loop: >-
+        {{
+          query('ansible.builtin.subelements', organizations_map | dict2items,
+                'value.templates.server', {'skip_missing': True})
+        }}
+
+    - name: Build server template lookup per organization
+      ansible.builtin.set_fact:
+        server_templates_by_org: >-
+          {{
+            server_templates_by_org | default({})
+            | combine({item.key: dict((
+              item.value.templates.server | default([])
+              | map('combine', {
+                  'prefixed_name': (
+                    template_name_prefix.server | default(template_name_prefix.default | default(''))
+                    ~ item_server.name
+                    ~ template_name_suffix.server | default(template_name_suffix.default | default(''))
+                  )
+                }
+              )
+              | map(attribute='prefixed_name')
+              | zip(item.value.templates.server | default([]))
+            ))}, recursive=True)
+          }}
+      loop: "{{ organizations_map | dict2items }}"
+      vars:
+        item_server: "{{ item.value.templates.server | default([]) | first | default({}) }}"
+
+    - name: Configure Server profiles from associated templates (pre-assign unsupported)
+      cisco.intersight.intersight_server_profile:
+        name: |-
+          {{
+            profile_name_prefix.server | default(profile_name_prefix.default | default(''))
+            ~ item.1.name
+            ~ profile_name_suffix.server | default(profile_name_suffix.default | default(''))
+          }}
+        organization: "{{ item.0.0.key }}"
+        target_platform: "{{ item.0.1.target_platform | default('FIAttached') }}"
+        adapter_policy: >-
+          {{
+            (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).adapter_configuration_policy
+            | default((server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).adapter_policy | default(omit))
+          }}
+        bios_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).bios_policy | default(omit) }}"
+        boot_order_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).boot_order_policy | default(omit) }}"
+        certificate_policy: >-
+          {{
+            (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).certificate_management_policy
+            | default((server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).certificate_policy | default(omit))
+          }}
+        firmware_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).firmware_policy | default(omit) }}"
+        ipmi_over_lan_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).ipmi_over_lan_policy | default(omit) }}"
+        lan_connectivity_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).lan_connectivity_policy | default(omit) }}"
+        local_user_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).local_user_policy | default(omit) }}"
+        power_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).power_policy | default(omit) }}"
+        serial_over_lan_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).serial_over_lan_policy | default(omit) }}"
+        snmp_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).snmp_policy | default(omit) }}"
+        storage_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).storage_policy | default(omit) }}"
+        thermal_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).thermal_policy | default(omit) }}"
+        virtual_kvm_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).virtual_kvm_policy | default(omit) }}"
+        virtual_media_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).virtual_media_policy | default(omit) }}"
+        state: present
+      loop: >-
+        {{
+          query('ansible.builtin.subelements',
+            query('ansible.builtin.subelements', organizations_map | dict2items,
+                  'value.profiles.server', {'skip_missing': True}),
+            '1.targets', {'skip_missing': True})
+        }}
+
+    - name: Report profile module gaps compared to Terraform model
+      ansible.builtin.debug:
+        msg:
+          - "Server profile pre-assign by chassis/slot is not currently implemented by cisco.intersight.intersight_server_profile."
+          - "This playbook creates profile names from targets and applies policies from ucs_server_profile_template where possible."

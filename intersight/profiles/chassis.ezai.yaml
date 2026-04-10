@@ -17,4 +17,3 @@ intersight:
               - name: ucsai5200-2
                 serial_number: FOX29100001
             thermal_policy: Common/X9508
-

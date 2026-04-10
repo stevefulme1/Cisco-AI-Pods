@@ -7666,6 +7666,724 @@
             "type": "object",
             "unevaluatedProperties": false
         },
+        "intersight.bios.templates": {
+            "type": "object",
+            "description": "Map of BIOS Template Settings.",
+            "object_type": "not_applicable",
+            "required": [],
+            "title": "bios_template",
+            "properties": {
+                "AnalyticalDatabaseSystems-M6-Intel": {
+                    "cpu_perf_enhancement": "Auto",
+                    "energy_efficient_turbo": "enabled",
+                    "intel_virtualization_technology": "disabled",
+                    "intel_vt_for_directed_io": "disabled",
+                    "memory_refresh_rate": "1x Refresh",
+                    "patrol_scrub": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c6report": "enabled",
+                    "work_load_config": "Balanced"
+                },
+                "AnalyticalDatabaseSystems-M7-Intel": {
+                    "intel_virtualization_technology": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c6report": "enabled",
+                    "work_load_config": "Balanced"
+                },
+                "AnalyticsDatabaseSystems-M5-Intel": {
+                    "cpu_power_management": "custom",
+                    "intel_vt_for_directed_io": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "disabled",
+                    "processor_c6report": "disabled"
+                },
+                "Analytics-M8-AMD": {
+                    "cbs_cmn_apbdis": "1",
+                    "cbs_cmn_apbdis_df_pstate_rs": "0",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Auto",
+                    "cbs_cmn_efficiency_mode_en_rs": "High Performance Mode",
+                    "cbs_cmn_gnb_nb_iommu": "Auto",
+                    "cbs_cmn_gnb_smu_df_cstates": "Auto",
+                    "cbs_cmn_gnb_smucppc": "enabled",
+                    "cbs_cpu_smt_ctrl": "disabled",
+                    "cbs_df_cmn4link_max_xgmi_speed": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "disabled",
+                    "cbs_df_cmn_dram_nps": "Auto",
+                    "cbs_df_cmn_mem_intlv_control": "Auto",
+                    "cpu_perf_enhancement": "Disabled",
+                    "pcie_slots_cdn_enable": "enabled"
+                },
+                "AzureStack-M6-Intel": {
+                    "ipv4http": "disabled",
+                    "ipv4pxe": "enabled",
+                    "ipv6http": "disabled",
+                    "ipv6pxe": "enabled",
+                    "pop_support": "disabled",
+                    "vmd_enable": "disabled",
+                    "intel_vt_for_directed_io": "enabled",
+                    "intel_vtd_coherency_support": "disabled",
+                    "intel_vtdats_support": "enabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "c1auto_demotion": "enabled",
+                    "c1auto_un_demotion": "enabled",
+                    "cpu_perf_enhancement": "Disabled",
+                    "llc_alloc": "enabled",
+                    "upi_link_enablement": "Auto",
+                    "upi_power_management": "disabled",
+                    "virtual_numa": "disabled",
+                    "xpt_remote_prefetch": "Auto",
+                    "adjacent_cache_line_prefetch": "enabled",
+                    "autonumous_cstate_enable": "disabled",
+                    "boot_performance_mode": "Max Performance",
+                    "cmci_enable": "enabled",
+                    "config_tdp_level": "Normal",
+                    "core_multi_processing": "all",
+                    "cpu_energy_performance": "balanced-performance",
+                    "cpu_performance": "custom",
+                    "energy_efficient_turbo": "disabled",
+                    "enhanced_intel_speed_step_tech": "enabled",
+                    "epp_profile": "Balanced Performance",
+                    "hardware_prefetch": "enabled",
+                    "hwpm_enable": "Disabled",
+                    "intel_dynamic_speed_select": "disabled",
+                    "intel_hyper_threading_tech": "enabled",
+                    "intel_speed_select": "Base",
+                    "intel_turbo_boost_tech": "enabled",
+                    "intel_virtualization_technology": "enabled",
+                    "ip_prefetch": "enabled",
+                    "kti_prefetch": "enabled",
+                    "llc_prefetch": "enabled",
+                    "package_cstate_limit": "C0 C1 State",
+                    "patrol_scrub": "enabled",
+                    "processor_c1e": "disabled",
+                    "pstate_coord_type": "HW ALL",
+                    "pwr_perf_tuning": "os",
+                    "qpi_link_frequency": "auto",
+                    "qpi_link_speed": "Auto",
+                    "snc": "disabled",
+                    "streamer_prefetch": "enabled",
+                    "ufs_disable": "enabled",
+                    "work_load_config": "I/O Sensitive",
+                    "x2apic_opt_out": "disabled",
+                    "xpt_prefetch": "Auto",
+                    "cpu_pa_limit": "enabled",
+                    "dma_ctrl_opt_in": "enabled",
+                    "enable_mktme": "disabled",
+                    "enable_sgx": "disabled",
+                    "enable_tme": "enabled",
+                    "epoch_update": "Manual User Defined Owner EPOCHs",
+                    "sgx_auto_registration_agent": "disabled",
+                    "sgx_epoch0": "0",
+                    "sgx_epoch1": "0",
+                    "sgx_factory_reset": "disabled",
+                    "sgx_le_pub_key_hash0": "0",
+                    "sgx_le_pub_key_hash1": "0",
+                    "sgx_le_pub_key_hash2": "0",
+                    "sgx_le_pub_key_hash3": "0",
+                    "sgx_le_wr": "enabled",
+                    "sgx_package_info_in_band_access": "disabled",
+                    "sgx_qos": "enabled",
+                    "sha256pcr_bank": "enabled",
+                    "sha384pcr_bank": "enabled",
+                    "tpm_control": "enabled",
+                    "tpm_pending_operation": "None",
+                    "tpm_ppi_required": "enabled",
+                    "tpm_support": "enabled",
+                    "txt_support": "enabled"
+                },
+                "AzureStack-M7-Intel": {
+                    "ipv4http": "disabled",
+                    "ipv4pxe": "enabled",
+                    "ipv6http": "disabled",
+                    "ipv6pxe": "enabled",
+                    "pop_support": "disabled",
+                    "vmd_enable": "disabled",
+                    "intel_vt_for_directed_io": "enabled",
+                    "intel_vtd_coherency_support": "disabled",
+                    "intel_vtdats_support": "enabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "c1auto_demotion": "enabled",
+                    "c1auto_un_demotion": "enabled",
+                    "cpu_perf_enhancement": "Disabled",
+                    "llc_alloc": "enabled",
+                    "upi_link_enablement": "Auto",
+                    "upi_power_management": "disabled",
+                    "virtual_numa": "disabled",
+                    "xpt_remote_prefetch": "Auto",
+                    "adjacent_cache_line_prefetch": "enabled",
+                    "autonumous_cstate_enable": "disabled",
+                    "boot_performance_mode": "Max Performance",
+                    "cmci_enable": "enabled",
+                    "config_tdp_level": "Normal",
+                    "core_multi_processing": "all",
+                    "cpu_energy_performance": "balanced-performance",
+                    "cpu_performance": "custom",
+                    "energy_efficient_turbo": "disabled",
+                    "enhanced_intel_speed_step_tech": "enabled",
+                    "epp_profile": "Balanced Performance",
+                    "hardware_prefetch": "enabled",
+                    "hwpm_enable": "Disabled",
+                    "intel_dynamic_speed_select": "disabled",
+                    "intel_hyper_threading_tech": "enabled",
+                    "intel_speed_select": "Base",
+                    "intel_turbo_boost_tech": "enabled",
+                    "intel_virtualization_technology": "enabled",
+                    "ip_prefetch": "enabled",
+                    "kti_prefetch": "enabled",
+                    "llc_prefetch": "enabled",
+                    "package_cstate_limit": "C0 C1 State",
+                    "patrol_scrub": "enabled",
+                    "processor_c1e": "disabled",
+                    "pstate_coord_type": "HW ALL",
+                    "pwr_perf_tuning": "os",
+                    "qpi_link_frequency": "auto",
+                    "qpi_link_speed": "Auto",
+                    "snc": "disabled",
+                    "streamer_prefetch": "enabled",
+                    "ufs_disable": "enabled",
+                    "work_load_config": "I/O Sensitive",
+                    "x2apic_opt_out": "disabled",
+                    "xpt_prefetch": "Auto",
+                    "cpu_pa_limit": "enabled",
+                    "dma_ctrl_opt_in": "enabled",
+                    "enable_mktme": "disabled",
+                    "enable_sgx": "disabled",
+                    "enable_tme": "enabled",
+                    "epoch_update": "Manual User Defined Owner EPOCHs",
+                    "sgx_auto_registration_agent": "disabled",
+                    "sgx_epoch0": "0",
+                    "sgx_epoch1": "0",
+                    "sgx_factory_reset": "disabled",
+                    "sgx_le_pub_key_hash0": "0",
+                    "sgx_le_pub_key_hash1": "0",
+                    "sgx_le_pub_key_hash2": "0",
+                    "sgx_le_pub_key_hash3": "0",
+                    "sgx_le_wr": "enabled",
+                    "sgx_package_info_in_band_access": "disabled",
+                    "sgx_qos": "enabled",
+                    "sha256pcr_bank": "enabled",
+                    "sha384pcr_bank": "enabled",
+                    "tpm_control": "enabled",
+                    "tpm_pending_operation": "None",
+                    "tpm_ppi_required": "enabled",
+                    "tpm_support": "enabled",
+                    "txt_support": "enabled"
+                },
+                "CPUIntensive-M6-Intel": {
+                    "adjacent_cache_line_prefetch": "disabled",
+                    "cpu_perf_enhancement": "Auto",
+                    "kti_prefetch": "enabled",
+                    "llc_alloc": "disabled",
+                    "llc_prefetch": "disabled",
+                    "memory_refresh_rate": "1x Refresh",
+                    "patrol_scrub": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "enabled",
+                    "processor_c6report": "enabled",
+                    "snc": "enabled",
+                    "streamer_prefetch": "disabled",
+                    "upi_link_enablement": "1",
+                    "upi_power_management": "enabled",
+                    "work_load_config": "Balanced",
+                    "xpt_prefetch": "enabled"
+                },
+                "CPUIntensive-M7-Intel": {
+                    "kti_prefetch": "enabled",
+                    "llc_alloc": "disabled",
+                    "llc_prefetch": "disabled",
+                    "patrol_scrub": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c6report": "enabled",
+                    "select_memory_ras_configuration": "maximum-performance",
+                    "snc": "SNC4",
+                    "upi_link_enablement": "2",
+                    "upi_power_management": "enabled",
+                    "xpt_prefetch": "enabled"
+                },
+                "CPUIntensive-M8-AMD": {
+                    "cbs_cmn_apbdis": "1",
+                    "cbs_cmn_apbdis_df_pstate_rs": "0",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Power",
+                    "cbs_cmn_efficiency_mode_en_rs": "High Performance Mode",
+                    "cbs_cmn_gnb_nb_iommu": "Auto",
+                    "cbs_cmn_gnb_smu_df_cstates": "Auto",
+                    "cbs_cmn_gnb_smucppc": "Auto",
+                    "cbs_cpu_smt_ctrl": "Auto",
+                    "cbs_df_cmn4link_max_xgmi_speed": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "enabled",
+                    "cbs_df_cmn_dram_nps": "NPS4",
+                    "cbs_df_cmn_mem_intlv_control": "Auto",
+                    "cpu_perf_enhancement": "Auto",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "svm_mode": "enabled"
+                },
+                "ComputationIntensive-M6-AMD": {
+                    "cbs_cmn_apbdis": "1",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Power",
+                    "cbs_cmn_efficiency_mode_en": "Auto",
+                    "cbs_cmn_fixed_soc_pstate": "P0",
+                    "cbs_cmn_gnb_nb_iommu": "Auto",
+                    "cbs_cpu_smt_ctrl": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "enabled",
+                    "cbs_df_cmn_dram_nps": "NPS4",
+                    "cisco_xgmi_max_speed": "enabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "svm_mode": "enabled"
+                },
+                "DataAnalytics-M6-Intel": {
+                    "cpu_perf_enhancement": "Auto",
+                    "energy_efficient_turbo": "enabled",
+                    "intel_vt_for_directed_io": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "enabled",
+                    "processor_c6report": "enabled",
+                    "work_load_config": "Balanced"
+                },
+                "DataAnalytics-M7-Intel": {
+                    "intel_virtualization_technology": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c6report": "enabled"
+                },
+                "EnergyEfficiency-M5-Intel": {
+                    "auto_cc_state": "enabled",
+                    "cpu_power_management": "custom",
+                    "intel_turbo_boost_tech": "disabled",
+                    "package_cstate_limit": "C6 Retention",
+                    "pcie_slots_cdn_enable": "enabled"
+                },
+                "EnergyEfficiency-M6-AMD": {
+                    "cbs_cmn_apbdis": "0",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "disabled",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "disabled",
+                    "cbs_cmn_determinism_slider": "Performance",
+                    "cbs_cmn_efficiency_mode_en": "Auto",
+                    "cbs_cmn_fixed_soc_pstate": "P3",
+                    "cbs_cmn_gnb_nb_iommu": "Auto",
+                    "cbs_cpu_smt_ctrl": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "Auto",
+                    "cbs_df_cmn_dram_nps": "NPS1",
+                    "cisco_xgmi_max_speed": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "svm_mode": "enabled"
+                },
+                "EnergyEfficiency-M6-Intel": {
+                    "adjacent_cache_line_prefetch": "disabled",
+                    "energy_efficient_turbo": "enabled",
+                    "hardware_prefetch": "disabled",
+                    "ip_prefetch": "disabled",
+                    "package_cstate_limit": "C6 Non Retention",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "enabled",
+                    "processor_c6report": "enabled",
+                    "streamer_prefetch": "disabled",
+                    "work_load_config": "Balanced"
+                },
+                "EnergyEfficient-M7-Intel": {
+                    "energy_efficient_turbo": "enabled",
+                    "package_cstate_limit": "C6 Non Retention",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "enabled",
+                    "processor_c6report": "enabled",
+                    "work_load_config": "Balanced"
+                },
+                "EnergyEfficiency-M8-AMD": {
+                    "cbs_cmn_apbdis": "Auto",
+                    "cbs_cmn_apbdis_df_pstate_rs": "0",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "disabled",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "disabled",
+                    "cbs_cmn_determinism_slider": "Power",
+                    "cbs_cmn_efficiency_mode_en_rs": "Efficiency Mode",
+                    "cbs_cmn_gnb_nb_iommu": "Auto",
+                    "cbs_cmn_gnb_smu_df_cstates": "Auto",
+                    "cbs_cmn_gnb_smucppc": "enabled",
+                    "cbs_cpu_smt_ctrl": "Auto",
+                    "cbs_df_cmn4link_max_xgmi_speed": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "Auto",
+                    "cbs_df_cmn_dram_nps": "Auto",
+                    "cbs_df_cmn_mem_intlv_control": "Auto",
+                    "cpu_perf_enhancement": "Disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "svm_mode": "enabled"
+                },
+                "HighPerformanceComputing-M5-Intel": {
+                    "intel_hyper_threading_tech": "disabled",
+                    "intel_virtualization_technology": "disabled",
+                    "intel_vt_for_directed_io": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "work_load_config": "Balanced"
+                },
+                "HighPerformanceComputing-M6-AMD": {
+                    "cbs_cmn_apbdis": "1",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Power",
+                    "cbs_cmn_efficiency_mode_en": "Auto",
+                    "cbs_cmn_fixed_soc_pstate": "P0",
+                    "cbs_cmn_gnb_nb_iommu": "disabled",
+                    "cbs_cpu_smt_ctrl": "disabled",
+                    "cbs_df_cmn_acpi_srat_l3numa": "Auto",
+                    "cbs_df_cmn_dram_nps": "NPS4",
+                    "cisco_xgmi_max_speed": "enabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "svm_mode": "disabled"
+                },
+                "HighPerformanceComputing-M6-Intel": {
+                    "cpu_perf_enhancement": "Auto",
+                    "intel_virtualization_technology": "disabled",
+                    "intel_vt_for_directed_io": "disabled",
+                    "llc_alloc": "disabled",
+                    "llc_prefetch": "disabled",
+                    "memory_refresh_rate": "1x Refresh",
+                    "patrol_scrub": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "snc": "enabled",
+                    "upi_power_management": "enabled",
+                    "work_load_config": "Balanced",
+                    "xpt_prefetch": "enabled"
+                },
+                "HighPerformanceComputing-M7-Intel": {
+                    "intel_virtualization_technology": "disabled",
+                    "llc_alloc": "disabled",
+                    "llc_prefetch": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c6report": "enabled",
+                    "work_load_config": "Balanced"
+                },
+                "HPC-M8-AMD": {
+                    "cbs_cmn_apbdis": "1",
+                    "cbs_cmn_apbdis_df_pstate_rs": "0",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Power",
+                    "cbs_cmn_efficiency_mode_en_rs": "High Performance Mode",
+                    "cbs_cmn_gnb_nb_iommu": "Auto",
+                    "cbs_cmn_gnb_smu_df_cstates": "Auto",
+                    "cbs_cmn_gnb_smucppc": "Auto",
+                    "cbs_cpu_smt_ctrl": "disabled",
+                    "cbs_df_cmn4link_max_xgmi_speed": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "Auto",
+                    "cbs_df_cmn_dram_nps": "NPS4",
+                    "cbs_df_cmn_mem_intlv_control": "Auto",
+                    "cpu_perf_enhancement": "Auto",
+                    "pcie_slots_cdn_enable": "enabled"
+                },
+                "IOIntensive-M6-AMD": {
+                    "cbs_cmn_apbdis": "1",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Power",
+                    "cbs_cmn_efficiency_mode_en": "Auto",
+                    "cbs_cmn_fixed_soc_pstate": "P0",
+                    "cbs_cmn_gnb_nb_iommu": "Auto",
+                    "cbs_cpu_smt_ctrl": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "Auto",
+                    "cbs_df_cmn_dram_nps": "NPS4",
+                    "cisco_xgmi_max_speed": "enabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "svm_mode": "enabled"
+                },
+                "IOIntensive-M6-Intel": {
+                    "adjacent_cache_line_prefetch": "disabled",
+                    "hardware_prefetch": "disabled",
+                    "llc_prefetch": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "streamer_prefetch": "disabled"
+                },
+                "IOIntensive-M8-AMD": {
+                    "cbs_cmn_apbdis": "1",
+                    "cbs_cmn_apbdis_df_pstate_rs": "0",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Power",
+                    "cbs_cmn_efficiency_mode_en_rs": "Maximum IO Performance Mode",
+                    "cbs_cmn_gnb_nb_iommu": "Auto",
+                    "cbs_cmn_gnb_smu_df_cstates": "disabled",
+                    "cbs_cmn_gnb_smucppc": "Auto",
+                    "cbs_cpu_smt_ctrl": "Auto",
+                    "cbs_df_cmn4link_max_xgmi_speed": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "Auto",
+                    "cbs_df_cmn_dram_nps": "NPS4",
+                    "cbs_df_cmn_mem_intlv_control": "Auto",
+                    "cpu_perf_enhancement": "Disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "svm_mode": "enabled"
+                },
+                "JavaApplicationServer-M5-Intel": {
+                    "cpu_power_management": "custom",
+                    "intel_virtualization_technology": "disabled",
+                    "intel_vt_for_directed_io": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "disabled",
+                    "processor_c6report": "disabled"
+                },
+                "LowLatency-M5-Intel": {
+                    "cpu_power_management": "custom",
+                    "intel_hyper_threading_tech": "disabled",
+                    "intel_virtualization_technology": "disabled",
+                    "intel_vt_for_directed_io": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "disabled",
+                    "processor_c6report": "disabled",
+                    "work_load_config": "Balanced"
+                },
+                "LowLatency-M6-AMD": {
+                    "cbs_cmn_apbdis": "Auto",
+                    "cbs_cmn_cpu_cpb": "disabled",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "disabled",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Power",
+                    "cbs_cmn_efficiency_mode_en": "Auto",
+                    "cbs_cmn_fixed_soc_pstate": "Auto",
+                    "cbs_cmn_gnb_nb_iommu": "disabled",
+                    "cbs_cpu_smt_ctrl": "disabled",
+                    "cbs_df_cmn_acpi_srat_l3numa": "Auto",
+                    "cbs_df_cmn_dram_nps": "Auto",
+                    "cisco_xgmi_max_speed": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "svm_mode": "enabled"
+                },
+                "LowLatency-M6-Intel": {
+                    "cpu_performance": "enterprise",
+                    "energy_efficient_turbo": "enabled",
+                    "intel_turbo_boost_tech": "disabled",
+                    "intel_virtualization_technology": "disabled",
+                    "intel_vt_for_directed_io": "disabled",
+                    "memory_refresh_rate": "1x Refresh",
+                    "patrol_scrub": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "work_load_config": "Balanced"
+                },
+                "LowLatency-M7-Intel": {
+                    "intel_hyper_threading_tech": "disabled",
+                    "intel_turbo_boost_tech": "disabled",
+                    "intel_virtualization_technology": "disabled",
+                    "intel_vt_for_directed_io": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "work_load_config": "Balanced"
+                },
+                "LowLatency-M8-AMD": {
+                    "cbs_cmn_apbdis": "Auto",
+                    "cbs_cmn_apbdis_df_pstate_rs": "0",
+                    "cbs_cmn_cpu_cpb": "disabled",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Performance",
+                    "cbs_cmn_efficiency_mode_en_rs": "High Performance Mode",
+                    "cbs_cmn_gnb_nb_iommu": "disabled",
+                    "cbs_cmn_gnb_smu_df_cstates": "disabled",
+                    "cbs_cmn_gnb_smucppc": "Auto",
+                    "cbs_cpu_smt_ctrl": "disabled",
+                    "cbs_df_cmn4link_max_xgmi_speed": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "Auto",
+                    "cbs_df_cmn_dram_nps": "Auto",
+                    "cbs_df_cmn_mem_intlv_control": "disabled",
+                    "cpu_perf_enhancement": "Disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "svm_mode": "disabled"
+                },
+                "M5-amd-virtual": {
+                    "cpu_power_management": "custom",
+                    "nvmdimm_perform_config": "Balanced Profile",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "disabled",
+                    "processor_c3report": "disabled",
+                    "processor_c6report": "disabled",
+                    "processor_cstate": "disabled"
+                },
+                "M5-intel-virtual": {
+                    "cpu_power_management": "custom",
+                    "nvmdimm_perform_config": "Balanced Profile",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "disabled",
+                    "processor_c3report": "disabled",
+                    "processor_c6report": "disabled",
+                    "processor_cstate": "disabled",
+                    "txt_support": "enabled"
+                },
+                "M6-amd-virtual": {
+                    "cbs_cmn_fixed_soc_pstate": "P0",
+                    "cbs_df_cmn_acpi_srat_l3numa": "enabled",
+                    "cbs_df_cmn_dram_nps": "NPS4",
+                    "pcie_slots_cdn_enable": "enabled"
+                },
+                "M6-intel-virtual": {
+                    "cpu_perf_enhancement": "Auto",
+                    "energy_efficient_turbo": "enabled",
+                    "nvmdimm_perform_config": "Balanced Profile",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "enabled",
+                    "processor_c6report": "enabled",
+                    "txt_support": "enabled"
+                },
+                "MaximumPerformance-M5-Intel": {
+                    "cpu_power_management": "custom",
+                    "imc_interleave": "1-way Interleave",
+                    "intel_virtualization_technology": "disabled",
+                    "intel_vt_for_directed_io": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "disabled",
+                    "processor_c6report": "disabled",
+                    "snc": "enabled",
+                    "work_load_config": "Balanced"
+                },
+                "OnlineTransactionProcessing-M5-Intel": {
+                    "cpu_power_management": "custom",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "disabled",
+                    "processor_c6report": "disabled"
+                },
+                "RDBMS-M8-AMD": {
+                    "cbs_cmn_apbdis": "1",
+                    "cbs_cmn_apbdis_df_pstate_rs": "0",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Auto",
+                    "cbs_cmn_efficiency_mode_en_rs": "Maximum IO Performance Mode",
+                    "cbs_cmn_gnb_nb_iommu": "Auto",
+                    "cbs_cmn_gnb_smu_df_cstates": "disabled",
+                    "cbs_cmn_gnb_smucppc": "Auto",
+                    "cbs_cpu_smt_ctrl": "enabled",
+                    "cbs_df_cmn4link_max_xgmi_speed": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "Auto",
+                    "cbs_df_cmn_dram_nps": "NPS4",
+                    "cbs_df_cmn_mem_intlv_control": "Auto",
+                    "cpu_perf_enhancement": "Disabled",
+                    "pcie_slots_cdn_enable": "enabled"
+                },
+                "RelationalDatabaseSystems-M6-Intel": {
+                    "cpu_perf_enhancement": "Auto",
+                    "llc_alloc": "disabled",
+                    "llc_prefetch": "disabled",
+                    "memory_refresh_rate": "1x Refresh",
+                    "patrol_scrub": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c6report": "enabled",
+                    "snc": "enabled",
+                    "upi_power_management": "enabled",
+                    "xpt_prefetch": "enabled"
+                },
+                "RelationalDatabaseSystems-M7-Intel": {
+                    "llc_alloc": "disabled",
+                    "llc_prefetch": "disabled",
+                    "patrol_scrub": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "snc": "Auto",
+                    "xpt_prefetch": "enabled"
+                },
+                "SystemDefault": {},
+                "VDI-M6-AMD": {
+                    "cbs_cmn_apbdis": "1",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "disabled",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Power",
+                    "cbs_cmn_efficiency_mode_en": "Auto",
+                    "cbs_cmn_fixed_soc_pstate": "P0",
+                    "cbs_cmn_gnb_nb_iommu": "Auto",
+                    "cbs_cpu_smt_ctrl": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "enabled",
+                    "cbs_df_cmn_dram_nps": "NPS4",
+                    "cisco_xgmi_max_speed": "enabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "svm_mode": "enabled"
+                },
+                "Virtualization-M5-Intel": {
+                    "cpu_power_management": "custom",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "disabled",
+                    "processor_c6report": "disabled"
+                },
+                "Virtualization-M6-AMD": {
+                    "cbs_cmn_apbdis": "1",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Power",
+                    "cbs_cmn_efficiency_mode_en": "Auto",
+                    "cbs_cmn_fixed_soc_pstate": "P0",
+                    "cbs_cmn_gnb_nb_iommu": "Auto",
+                    "cbs_cpu_smt_ctrl": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "enabled",
+                    "cbs_df_cmn_dram_nps": "NPS4",
+                    "cisco_xgmi_max_speed": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "svm_mode": "enabled"
+                },
+                "Virtualization-M6-Intel": {
+                    "cpu_perf_enhancement": "Auto",
+                    "energy_efficient_turbo": "enabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "enabled",
+                    "processor_c6report": "enabled"
+                },
+                "Virtualization-M7-Intel": {
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c6report": "enabled",
+                    "work_load_config": "Balanced"
+                },
+                "Virtualization-M8-AMD": {
+                    "cbs_cmn_apbdis": "0",
+                    "cbs_cmn_apbdis_df_pstate_rs": "0",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Power",
+                    "cbs_cmn_efficiency_mode_en_rs": "High Performance Mode",
+                    "cbs_cmn_gnb_nb_iommu": "Auto",
+                    "cbs_cmn_gnb_smu_df_cstates": "Auto",
+                    "cbs_cmn_gnb_smucppc": "enabled",
+                    "cbs_cpu_smt_ctrl": "enabled",
+                    "cbs_df_cmn4link_max_xgmi_speed": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "Auto",
+                    "cbs_df_cmn_dram_nps": "Auto",
+                    "cbs_df_cmn_mem_intlv_control": "Auto",
+                    "cpu_perf_enhancement": "Disabled",
+                    "pcie_slots_cdn_enable": "enabled"
+                },
+                "tpm": {
+                    "sha1pcr_bank": "disabled",
+                    "sha256pcr_bank": "enabled",
+                    "tpm_control": "enabled",
+                    "tpm_ppi_required": "enabled",
+                    "tpm_support": "enabled"
+                },
+                "tpm_disabled": {
+                    "tpm_control": "disabled",
+                    "tpm_support": "disabled"
+                }
+            }
+        },
         "intersight.boot_order": {
             "allOf": [
                 {
@@ -8218,17 +8936,49 @@
                 },
                 "variable_id": {
                     "default": 1,
-                    "description": "The default value is `1`.  The Sensitive Variable Identifier to be used with this Certificate. i.e. `var.cert_mgmt_certificate_1` and `var.cert_mgmt_private_key_1`, when the Type is `IMC` or just `var.cert_mgmt_private_key_1` for `RootCA` Type.",
+                    "description": "The default value is `1`.  (Deprecated: Use certificate_file and private_key_file instead) The Sensitive Variable Identifier to be used with this Certificate.  A number Between 1-64 to denote the variables cert_mgmt_certificate_[1-64] and cert_mgmt_private_key_[1-64].",
                     "intersight_api": "$ref:certificatemanagement.CertificateBase:Certificate",
                     "maximum": 64,
                     "minimum": 1,
                     "title": "variable_id",
                     "type": "integer"
+                },
+                "certificate_file": {
+                    "description": "Absolute path to the certificate file on the host. File must be in PEM format. Example: `/etc/pki/certs/server.crt` or `/opt/certs/certificate.pem`. For IMC type, both certificate_file and private_key_file are required. For RootCA type, only certificate_file is required.",
+                    "title": "certificate_file",
+                    "type": "string",
+                    "examples": [
+                        "/etc/pki/certs/server.crt"
+                    ]
+                },
+                "private_key_file": {
+                    "description": "Absolute path to the private key file on the host. File must be in PEM format. Example: `/etc/pki/private/server.key` or `/opt/certs/private-key.pem`. Required for IMC type certificates only.",
+                    "title": "private_key_file",
+                    "type": "string",
+                    "examples": [
+                        "/etc/pki/private/server.key"
+                    ]
                 }
             },
             "required": [
                 "type",
-                "variable_id"
+                "certificate_file"
+            ],
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "IMC"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "private_key_file"
+                        ]
+                    }
+                }
             ],
             "title": "certificates",
             "type": "object"
@@ -8932,6 +9682,632 @@
             "title": "tcp_offload - TCP Offload Settings - object_type: vnic.TcpOffloadSettings",
             "type": "object"
         },
+        "intersight.ethernet_adapter.templates": {
+            "type": "object",
+            "description": "Map of Adapter Template Settings.",
+            "object_type": "not_applicable",
+            "required": [],
+            "title": "adapter_template",
+            "properties": {
+                "16RxQs-4G": {
+                    "description": "Recommended adapter settings for 16RxQs 4th Gen VIC.",
+                    "completion": {
+                        "queue_count": 9,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 19,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 8,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 4096
+                    },
+                    "transmit": {
+                        "queue_count": 1,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 4096
+                    }
+                },
+                "16RxQs-5G": {
+                    "description": "Recommended adapter settings for 16RxQs 5th Gen VIC.",
+                    "completion": {
+                        "queue_count": 9,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 19,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 16,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 16384
+                    },
+                    "transmit": {
+                        "queue_count": 1,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 16384
+                    }
+                },
+                "Linux": {
+                    "description": "Recommended adapter settings for Linux.",
+                    "completion": {
+                        "queue_count": 2,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 4,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "receive_side_scaling_enable": false,
+                    "receive": {
+                        "queue_count": 1,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 512
+                    }
+                },
+                "Linux-NVMe-RoCE": {
+                    "description": "Recommended adapter settings for Linux NVMe with RoCEv2.",
+                    "completion": {
+                        "queue_count": 2,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 256,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "roce_settings": {
+                        "class_of_service": 5,
+                        "enable_rdma_over_converged_ethernet": true,
+                        "memory_regions": 131072,
+                        "ObjectType": "vnic.RoceSettings",
+                        "queue_pairs": 1024,
+                        "resource_groups": 8,
+                        "version": 2
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 1,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 512
+                    }
+                },
+                "Linux-v2": {
+                    "description": "Recommended adapter settings for Linux Version 2.",
+                    "completion": {
+                        "queue_count": 9,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 11,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "roce_settings": {
+                        "class_of_service": 5,
+                        "enable_rdma_over_converged_ethernet": true,
+                        "memory_regions": 131072,
+                        "ObjectType": "vnic.RoceSettings",
+                        "queue_pairs": 1024,
+                        "resource_groups": 8,
+                        "version": 2
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 8,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 4096
+                    },
+                    "transmit": {
+                        "queue_count": 1,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 4096
+                    }
+                },
+                "MQ": {
+                    "description": "Recommended adapter settings for MQ.",
+                    "completion": {
+                        "queue_count": 576,
+                        "ObjectType": "vnic.CompletionQueueSettings",
+                        "ring_size": 4
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 256,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 512,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 512
+                    },
+                    "transmit": {
+                        "queue_count": 64,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 256
+                    }
+                },
+                "MQ-SMBd": {
+                    "description": "Recommended adapter settings for MQ-SMBd.",
+                    "completion": {
+                        "queue_count": 576,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 512,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "roce_settings": {
+                        "class_of_service": 5,
+                        "enable_rdma_over_converged_ethernet": true,
+                        "memory_regions": 65536,
+                        "ObjectType": "vnic.RoceSettings",
+                        "queue_pairs": 256,
+                        "resource_groups": 2,
+                        "version": 2
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 512,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 512
+                    },
+                    "transmit": {
+                        "queue_count": 64,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 256
+                    }
+                },
+                "MQ-SMBd-v2": {
+                    "description": "Recommended adapter settings for VIC 1400/14000/15000 series and later optimized for Multi Queue SMBd high performance networking.",
+                    "completion": {
+                        "queue_count": 576,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 512,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "roce_settings": {
+                        "class_of_service": 5,
+                        "enable_rdma_over_converged_ethernet": true,
+                        "memory_regions": 131072,
+                        "ObjectType": "vnic.RoceSettings",
+                        "queue_pairs": 2048,
+                        "resource_groups": 32,
+                        "version": 2
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 512,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 4096
+                    },
+                    "transmit": {
+                        "queue_count": 64,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 4096
+                    }
+                },
+                "MQ-v2": {
+                    "description": "Recommended adapter settings for VIC 1400/14000/15000 series and later optimized for Multi Queue high performance networking.",
+                    "completion": {
+                        "queue_count": 576,
+                        "ObjectType": "vnic.CompletionQueueSettings",
+                        "ring_size": 4
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 256,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 512,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 4096
+                    },
+                    "transmit": {
+                        "queue_count": 64,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 4096
+                    }
+                },
+                "SMBClient": {
+                    "description": "Recommended adapter settings for SMBClient.",
+                    "roce_settings": {
+                        "class_of_service": 0,
+                        "enable_rdma_over_converged_ethernet": true,
+                        "memory_regions": 131072,
+                        "ObjectType": "vnic.RoceSettings",
+                        "queue_pairs": 2048,
+                        "resource_groups": 32,
+                        "version": 1
+                    },
+                    "receive_side_scaling_enable": true
+                },
+                "SMBServer": {
+                    "description": "Recommended adapter settings for SMBServer.",
+                    "roce_settings": {
+                        "class_of_service": 0,
+                        "enable_rdma_over_converged_ethernet": true,
+                        "memory_regions": 131072,
+                        "ObjectType": "vnic.RoceSettings",
+                        "queue_pairs": 2048,
+                        "resource_groups": 32,
+                        "version": 1
+                    },
+                    "receive_side_scaling_enable": true
+                },
+                "Solaris": {
+                    "description": "Recommended adapter settings for Solaris.",
+                    "completion": {
+                        "queue_count": 2,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 4,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "receive_side_scaling_enable": false
+                },
+                "SRIOV-HPN": {
+                    "description": "Recommended adapter settings for SRIOV high performance and networking.",
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 32,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    }
+                },
+                "usNIC": {
+                    "description": "Recommended adapter settings for usNIC.",
+                    "completion": {
+                        "queue_count": 12,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 6,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 512
+                    },
+                    "transmit": {
+                        "queue_count": 6,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 256
+                    },
+                    "UplinkFailbackTimeout": 0
+                },
+                "usNICOracleRAC": {
+                    "description": "Recommended adapter settings for usNICOracleRAC.",
+                    "completion": {
+                        "queue_count": 2000,
+                        "ObjectType": "vnic.CompletionQueueSettings",
+                        "ring_size": 4
+                    },
+                    "InterruptScaling": true,
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 1024,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 1000,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 512
+                    },
+                    "transmit": {
+                        "queue_count": 1000,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 256
+                    },
+                    "UplinkFailbackTimeout": 0
+                },
+                "VMware": {
+                    "description": "Recommended adapter settings for VMware.",
+                    "completion": {
+                        "queue_count": 2,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 4,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "receive_side_scaling_enable": false,
+                    "receive": {
+                        "queue_count": 4,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 512
+                    }
+                },
+                "VMWareNVMeRoCEv2": {
+                    "description": "Recommended adapter settings for VMware NVMe ROCEv2.",
+                    "completion": {
+                        "queue_count": 2,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 256,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "roce_settings": {
+                        "class_of_service": 5,
+                        "enable_rdma_over_converged_ethernet": true,
+                        "memory_regions": 131072,
+                        "ObjectType": "vnic.RoceSettings",
+                        "queue_pairs": 1024,
+                        "resource_groups": 8,
+                        "version": 2
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 1,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 512
+                    },
+                    "transmit": {
+                        "queue_count": 1,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 256
+                    }
+                },
+                "VMwarePassThru": {
+                    "description": "Recommended adapter settings for VMwarePassThru.",
+                    "completion": {
+                        "queue_count": 8,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 12,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "receive_side_scaling_enable": true,
+                    "transmit": {
+                        "queue_count": 4,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 256
+                    }
+                },
+                "VMware-High-Trf": {
+                    "description": "Recommended adapter settings for VMware High Traffic.",
+                    "completion": {
+                        "queue_count": 9,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 11,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "receive": {
+                        "queue_count": 8,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 4096
+                    },
+                    "receive_side_scaling_enable": true,
+                    "transmit": {
+                        "queue_count": 1,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 4096
+                    }
+                },
+                "VMware-v2": {
+                    "description": "Recommended adapter settings for VMware Version 2.",
+                    "completion": {
+                        "queue_count": 9,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 11,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "roce_settings": {
+                        "class_of_service": 5,
+                        "enable_rdma_over_converged_ethernet": true,
+                        "memory_regions": 131072,
+                        "ObjectType": "vnic.RoceSettings",
+                        "queue_pairs": 1024,
+                        "resource_groups": 8,
+                        "version": 2
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 8,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 4096
+                    },
+                    "transmit": {
+                        "queue_count": 1,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 4096
+                    }
+                },
+                "Win-AzureStack": {
+                    "description": "Recommended adapter settings for Win-AzureStack.",
+                    "completion": {
+                        "queue_count": 11,
+                        "ObjectType": "vnic.CompletionQueueSettings",
+                        "ring_size": 256
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 256,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "roce_settings": {
+                        "class_of_service": 5,
+                        "enable_rdma_over_converged_ethernet": true,
+                        "memory_regions": 131072,
+                        "ObjectType": "vnic.RoceSettings",
+                        "queue_pairs": 256,
+                        "resource_groups": 2,
+                        "version": 2
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 8,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 4096
+                    },
+                    "transmit": {
+                        "queue_count": 3,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 1024
+                    },
+                    "enable_vxlan_offload": true
+                },
+                "Win-HPN": {
+                    "description": "Recommended adapter settings for Windows High Performance Networking.",
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 512,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "receive_side_scaling_enable": true,
+                    "enable_vxlan_offload": true
+                },
+                "Win-HPN-SMBd": {
+                    "description": "Recommended adapter settings for Windows High Performance Networking SMBd.",
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 512,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "roce_settings": {
+                        "class_of_service": 5,
+                        "enable_rdma_over_converged_ethernet": true,
+                        "memory_regions": 131072,
+                        "ObjectType": "vnic.RoceSettings",
+                        "queue_pairs": 256,
+                        "resource_groups": 2,
+                        "version": 2
+                    },
+                    "receive_side_scaling_enable": true,
+                    "enable_vxlan_offload": true
+                },
+                "Win-HPN-SMBd-v2": {
+                    "description": "Recommended adapter settings for VIC 1400/14000/15000 series and later optimized for Windows SMBd high performance networking.",
+                    "completion": {
+                        "queue_count": 9,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 512,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "roce_settings": {
+                        "class_of_service": 5,
+                        "enable_rdma_over_converged_ethernet": true,
+                        "memory_regions": 131072,
+                        "ObjectType": "vnic.RoceSettings",
+                        "queue_pairs": 256,
+                        "resource_groups": 2,
+                        "version": 2
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 8,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 4096
+                    },
+                    "transmit": {
+                        "queue_count": 1,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 4096
+                    },
+                    "enable_vxlan_offload": true
+                },
+                "Win-HPN-v2": {
+                    "description": "Recommended adapter settings for VIC 1400/14000/15000 series and later optimized for Windows high performance networking.",
+                    "completion": {
+                        "queue_count": 9,
+                        "ObjectType": "vnic.CompletionQueueSettings"
+                    },
+                    "interrupt_settings": {
+                        "timer": 125,
+                        "coalescing_type": "MIN",
+                        "queue_count": 512,
+                        "mode": "MSIx",
+                        "ObjectType": "vnic.EthInterruptSettings"
+                    },
+                    "receive_side_scaling_enable": true,
+                    "receive": {
+                        "queue_count": 8,
+                        "ObjectType": "vnic.EthRxQueueSettings",
+                        "ring_size": 4096
+                    },
+                    "transmit": {
+                        "queue_count": 1,
+                        "ObjectType": "vnic.EthTxQueueSettings",
+                        "ring_size": 4096
+                    },
+                    "enable_vxlan_offload": true
+                },
+                "Windows": {
+                    "description": "Recommended adapter settings for Windows."
+                }
+            }
+        },
         "intersight.ethernet_adapter.transmit": {
             "description": "Ethernet Adapter Policy - Transmit Queue Settings.  Options are:\n\n  * `queue_count`\n  * `ring_size`",
             "intersight_api": "TxQueueSettings",
@@ -9629,6 +11005,106 @@
             },
             "title": "scsi_io - Scsi Queue Settings - object_type: vnic.ScsiQueueSettings",
             "type": "object"
+        },
+        "intersight.fibre_channel_adapter.templates": {
+            "type": "object",
+            "description": "Map of Adapter Template Settings.",
+            "object_type": "not_applicable",
+            "required": [],
+            "title": "adapter_template",
+            "properties": {
+                "FCNVMeInitiator": {
+                    "description": "Recommended adapter settings for FC NVMe Initiator.",
+                    "error_recovery": {
+                        "port_down_io_retry": 30,
+                        "ObjectType": "vnic.FcErrorRecoverySettings",
+                        "port_down_timeout": 30000
+                    },
+                    "IoThrottleCount": 256
+                },
+                "FCNVMeTarget": {
+                    "description": "Recommended adapter settings for FC NVMe Target.",
+                    "error_recovery": {
+                        "port_down_io_retry": 30,
+                        "ObjectType": "vnic.FcErrorRecoverySettings",
+                        "port_down_timeout": 30000
+                    },
+                    "IoThrottleCount": 256
+                },
+                "Initiator": {
+                    "description": "Recommended adapter settings for SCSI Initiator.",
+                    "error_recovery": {
+                        "port_down_io_retry": 30,
+                        "ObjectType": "vnic.FcErrorRecoverySettings",
+                        "port_down_timeout": 10000
+                    },
+                    "IoThrottleCount": 256
+                },
+                "Linux": {
+                    "description": "Recommended adapter settings for Linux.",
+                    "error_recovery": {
+                        "port_down_io_retry": 30,
+                        "ObjectType": "vnic.FcErrorRecoverySettings",
+                        "port_down_timeout": 30000
+                    },
+                    "IoThrottleCount": 256
+                },
+                "Solaris": {
+                    "description": "Recommended adapter settings for Solaris.",
+                    "error_recovery": {
+                        "port_down_io_retry": 30,
+                        "ObjectType": "vnic.FcErrorRecoverySettings",
+                        "port_down_timeout": 30000
+                    },
+                    "flogi": {
+                        "ObjectType": "vnic.FlogiSettings",
+                        "retries": 8,
+                        "timeout": 20000
+                    },
+                    "IoThrottleCount": 256
+                },
+                "Target": {
+                    "description": "Recommended adapter settings for Target.",
+                    "error_recovery": {
+                        "port_down_io_retry": 30,
+                        "ObjectType": "vnic.FcErrorRecoverySettings",
+                        "port_down_timeout": 30000
+                    },
+                    "IoThrottleCount": 256
+                },
+                "VMware": {
+                    "description": "Recommended adapter settings for VMware.",
+                    "error_recovery": {
+                        "port_down_io_retry": 30,
+                        "ObjectType": "vnic.FcErrorRecoverySettings",
+                        "port_down_timeout": 10000
+                    },
+                    "IoThrottleCount": 256
+                },
+                "WindowsBoot": {
+                    "description": "Recommended adapter settings for Windows Boot.",
+                    "error_recovery": {
+                        "port_down_io_retry": 30,
+                        "ObjectType": "vnic.FcErrorRecoverySettings",
+                        "port_down_timeout": 5000
+                    },
+                    "plogi": {
+                        "ObjectType": "vnic.PlogiSettings",
+                        "retries": 8,
+                        "timeout": 4000
+                    },
+                    "IoThrottleCount": 256
+                },
+                "Windows": {
+                    "description": "Recommended adapter settings for Windows.",
+                    "error_recovery": {
+                        "port_down_io_retry": 30,
+                        "ObjectType": "vnic.FcErrorRecoverySettings",
+                        "port_down_timeout": 30000
+                    },
+                    "IoThrottleCount": 256
+                }
+            }
         },
         "intersight.fibre_channel_adapter.transmit": {
             "description": "Fibre-Channel Adapter Policy - Transmit Queue Settings.  Options are:\n\n  * `ring_size`",
@@ -10787,7 +12263,7 @@
                         },
                         "password": {
                             "default": 1,
-                            "description": "The default value is `1`.  The iSCSI Remote Target Password Sensitive Variable Identifier.  i.e. `var.iscsi_boot_password`.",
+                            "description": "The default value is `1`.  The iSCSI Boot password Sensitive Variable Identifier.  A number Between 1-64 to denote the variables iscsi_boot_password_[1-64].  i.e. `export iscsi_boot_password_1='cisco123'`.",
                             "intersight_api": "$ref:Chap:vnic.IscsiAuthProfile:Password",
                             "maximum": 64,
                             "minimum": 1,
@@ -12097,7 +13573,7 @@
                 },
                 "password": {
                     "default": 1,
-                    "description": "The default value is `1`.  The LDAP Binding Parameter Password Sensitive Variable Identifier.  i.e. `var.binding_parameters_password`.",
+                    "description": "The default value is `1`.  The LDAP Binding Parameter Password Sensitive Variable Identifier.  A number Between 1-64 to denote the variables binding_parameters_password_[1-64].  i.e. `export binding_parameters_password_1='cisco123'`.",
                     "intersight_api": "Password",
                     "maximum": 64,
                     "minimum": 1,
@@ -12545,7 +14021,7 @@
                 },
                 "password": {
                     "default": 1,
-                    "description": "The default value is `1`.  The Local User Authentication Password Sensitive Variable Identifier.  i.e. `var.local_user_password_1`.",
+                    "description": "The default value is `1`.  The Local User Authentication Password Sensitive Variable Identifier.  A number Between 1-64 to denote the variables local_user_password_[1-64].  i.e. `export local_user_password_1='cisco123'`.",
                     "intersight_api": "Password",
                     "maximum": 64,
                     "minimum": 1,
@@ -15754,7 +17230,7 @@
                     "minItems": 1,
                     "title": "pc_ids - Pc Ids",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": false
                 },
                 "priority": {
                     "default": "Best Effort",
@@ -15940,7 +17416,7 @@
                     "minItems": 1,
                     "title": "pc_ids - Pc Ids",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": false
                 },
                 "user_labels": {
                     "description": "List of one or two User Labels to assocate to the port(s).  One if both Fabrics share the same User Label.",
@@ -16020,7 +17496,7 @@
                     "minItems": 1,
                     "title": "pc_ids - Pc Ids",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": false
                 },
                 "user_labels": {
                     "description": "List of one or two User Labels to assocate to the port(s).  One if both Fabrics share the same User Label.",
@@ -16160,7 +17636,7 @@
                     "minItems": 1,
                     "title": "pc_ids - Pc Ids\nIntersight",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": false
                 },
                 "user_labels": {
                     "description": "List of one or two User Labels to assocate to the port(s).  One if both Fabrics share the same User Label.",
@@ -22413,6 +23889,83 @@
             "title": "Class",
             "type": "object"
         },
+        "intersight.system_qos.templates": {
+            "type": "object",
+            "description": "Map of System QoS template class values derived from configure_default_classes and configure_recommended_classes.",
+            "object_type": "not_applicable",
+            "required": [],
+            "title": "system_qos_templates",
+            "properties": {
+                "configure_default_classes": {
+                    "description": "Template class values used when configure_default_classes is enabled.",
+                    "classes": [
+                        {
+                            "cos": 255,
+                            "packet_drop": true,
+                            "priority": "Best Effort",
+                            "state": "Enabled",
+                            "weight": 10
+                        },
+                        {
+                            "cos": 3,
+                            "mtu": 2240,
+                            "packet_drop": false,
+                            "priority": "FC",
+                            "state": "Enabled",
+                            "weight": 10
+                        }
+                    ]
+                },
+                "configure_recommended_classes": {
+                    "description": "Template class values used when configure_recommended_classes is enabled.",
+                    "classes": [
+                        {
+                            "cos": 255,
+                            "packet_drop": true,
+                            "priority": "Best Effort",
+                            "state": "Enabled",
+                            "weight": 5
+                        },
+                        {
+                            "cos": 1,
+                            "packet_drop": true,
+                            "priority": "Bronze",
+                            "state": "Enabled",
+                            "weight": 7
+                        },
+                        {
+                            "cos": 4,
+                            "packet_drop": true,
+                            "priority": "Gold",
+                            "state": "Enabled",
+                            "weight": 9
+                        },
+                        {
+                            "cos": 3,
+                            "mtu": 2240,
+                            "packet_drop": false,
+                            "priority": "FC",
+                            "state": "Enabled",
+                            "weight": 10
+                        },
+                        {
+                            "cos": 5,
+                            "packet_drop": false,
+                            "priority": "Platinum",
+                            "state": "Enabled",
+                            "weight": 10
+                        },
+                        {
+                            "cos": 2,
+                            "packet_drop": true,
+                            "priority": "Silver",
+                            "state": "Enabled",
+                            "weight": 8
+                        }
+                    ]
+                }
+            }
+        },
         "intersight.tags": {
             "description": "An arbitrary key and value pair that can be used to tag REST resources and organize managed objects by\nassigning meta-data tags to any object.\n\nRequired Attributes:\n  * `key`\n  * `value`",
             "items": {
@@ -22468,7 +24021,6 @@
             "description": "Use this section to Create or Define UCS Templates.  Options are:\n\n  * `chassis`\n  * `domain`\n  * `name`_prefix`\n  * `name`_suffix`\n  * `server`",
             "properties": {
                 "chassis": {
-                    "description": "In Cisco Intersight, a Chassis Profile Template enables resource management by streamlining policy alignment, and chassis configuration. You can create Chassis Profile Templates using the UCS Chassis Profile Template wizard to provision chassis, create policies to ensure smooth deployment of a chassis, and eliminate failures that are caused by inconsistent configuration. The UCS Chassis Profile Templates wizard has the following policies that are attached to a template:\n\n  * `Chassis Configuration` \u2014 IMC Access, Power, SNMP and Thermal\n\nRequired Base Attributes:\n  * `create_template`\n  * `name`\n\nOptional Base Attributes:\n  * `description`\n  * `tags`\n\n#=======================================\n# Chassis Configuration\n#=======================================\n  * `imc_access_policy`\n  * `power_policy`\n  * `snmp_policy`\n  * `thermal_policy`",
                     "intersight_uri": "chassis/Profiles",
                     "items": {
                         "$ref": "#/definitions/intersight.templates.chassis"
@@ -22478,10 +24030,10 @@
                     "object_type": "chassis.Profile",
                     "title": "chassis - Chassis Profile Template - Intersight Uri: chassis/ProfileTemplates",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": true,
+                    "Description": "In Cisco Intersight, a Chassis Profile Template enables resource management by streamlining policy alignment, and chassis configuration. You can create Chassis Profile Templates using the UCS Chassis Profile Template wizard to provision chassis, create policies to ensure smooth deployment of a chassis, and eliminate failures that are caused by inconsistent configuration. The UCS Chassis Profile Templates wizard has the following policies that are attached to a template:\n\n  * `Chassis Configuration` \u2014 IMC Access, Power, SNMP and Thermal\n\nRequired Base Attributes:\n  * `create_template`\n  * `name`\n\nOptional Base Attributes:\n  * `description`\n  * `tags`\n\n#=======================================\n# Chassis Configuration\n#=======================================\n  * `imc_access_policy`\n  * `power_policy`\n  * `snmp_policy`\n  * `thermal_policy`"
                 },
                 "domain": {
-                    "description": "In Cisco Intersight, a Domain Profile Template enables resource management by streamlining policy alignment, and domain configuration. You can create Domain Profile Templates using the UCS Domain Profile Template wizard to provision Fabric Interconnects, create policies to ensure smooth deployment of a Pair of Fabric Interconnects, and eliminate failures that are caused by inconsistent configuration. The Domain Profile Templates wizard groups the domain policies into the following three categories to provide a quick Summary View of the policies that are attached to a template:`\n  * `VLAN & VSAN Configuration` \u2014 VLAN and VSAN policies for Fabric Interconnect A and Fabric Interconnect B.\n     - Note: Both Fabrics can share the same policies or they can be distinct.\n  * `Ports Configuration` \u2014 Port policies.\n     - Note: Both Fabrics can share the same port policy or they can be distinct.\n  * `UCS Domain Configuration` \u2014 Management: NTP, Syslog, Network Connectivity and SNMP.  Network: System QoS and Switch Control.\n\nRequired Base Attributes:\n  * `create_template`\n  * `name`\n\nOptional Base Attributes:\n  * `description`\n  * `tags`\n\n#=======================================\n# VLAN & VSAN Configuration\n#=======================================\n  * `vlan_policies` - required - A list of one or two VLAN policies.  A list of one will assign the same policy to both fabrics.\n  * `vsan_policies` - A list of one or two VSAN policies.  A list of one will assign the same policy to both fabrics.\n\n#=======================================\n# Ports Configuration\n#=======================================\n  * `port_policies` - required\n\n#=======================================\n# UCS Domain Configuration - Management\n#=======================================\n  * `certificate_management_policy`\n  * `ldap_policy`\n  * `network_connectivity_policy`\n  * `ntp_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n\n#=======================================\n# UCS Domain Configuration - Network\n#=======================================\n  * `switch_control_policy`\n  * `system_qos_policy` - required",
                     "intersight_uri": "fabric/SwitchClusterProfiles",
                     "items": {
                         "$ref": "#/definitions/intersight.templates.domain"
@@ -22491,7 +24043,8 @@
                     "object_type": "fabric.SwitchClusterProfileTemplate",
                     "title": "domain - Domain Cluster Profile Template - Intersight Uri: fabric/SwitchClusterProfileTemplates",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": true,
+                    "Description": "In Cisco Intersight, a Domain Profile Template enables resource management by streamlining policy alignment, and domain configuration. You can create Domain Profile Templates using the UCS Domain Profile Template wizard to provision Fabric Interconnects, create policies to ensure smooth deployment of a Pair of Fabric Interconnects, and eliminate failures that are caused by inconsistent configuration. The Domain Profile Templates wizard groups the domain policies into the following three categories to provide a quick Summary View of the policies that are attached to a template:`\n  * `VLAN & VSAN Configuration` \u2014 VLAN and VSAN policies for Fabric Interconnect A and Fabric Interconnect B.\n     - Note: Both Fabrics can share the same policies or they can be distinct.\n  * `Ports Configuration` \u2014 Port policies.\n     - Note: Both Fabrics can share the same port policy or they can be distinct.\n  * `UCS Domain Configuration` \u2014 Management: NTP, Syslog, Network Connectivity and SNMP.  Network: System QoS and Switch Control.\n\nRequired Base Attributes:\n  * `create_template`\n  * `name`\n\nOptional Base Attributes:\n  * `description`\n  * `tags`\n\n#=======================================\n# VLAN & VSAN Configuration\n#=======================================\n  * `vlan_policies` - required - A list of one or two VLAN policies.  A list of one will assign the same policy to both fabrics.\n  * `vsan_policies` - A list of one or two VSAN policies.  A list of one will assign the same policy to both fabrics.\n\n#=======================================\n# Ports Configuration\n#=======================================\n  * `port_policies` - required\n\n#=======================================\n# UCS Domain Configuration - Management\n#=======================================\n  * `certificate_management_policy`\n  * `ldap_policy`\n  * `network_connectivity_policy`\n  * `ntp_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n\n#=======================================\n# UCS Domain Configuration - Network\n#=======================================\n  * `switch_control_policy`\n  * `system_qos_policy` - required"
                 },
                 "name_prefix": {
                     "$ref": "#/definitions/intersight.profiles.name.prefix_suffix"
@@ -22500,7 +24053,6 @@
                     "$ref": "#/definitions/intersight.profiles.name.prefix_suffix"
                 },
                 "server": {
-                    "description": "In Cisco Intersight, a Server Profile Template enables resource management by streamlining policy alignment, and server configuration. You can create Server Profile Templates using the UCS Server Profile Template wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profile Templates wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:`\n  * `Compute Policies` \u2014 BIOS, Boot Order, and Virtual Media.\n  * `Network Policies` \u2014 Adapter Configuration, iSCSI Boot, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create Ethernet Network Policy, Ethernet Adapter Policy, and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create Fibre Channel Network Policy, Fibre Channel Adapter Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * `Storage Policies` \u2014 Drive Security, SD Card and Storage policies`\n  * `Management Policies` \u2014 Certificate Management, Device Connector, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, Certificate Management, and Virtual KVM policies\n\nRequired Attributes:\n  * `create_template`\n  * `name`\n\nRequired for Standalone:\n  * `target_platform`\n\nOptional Attributes:\n  * `description`\n  * `tags`\n#===========================\n# Compute Configuration\n#===========================\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `persistent_memory_policy` - Standalone Only\n  * `power_policy` - FIAttached Only\n  * `thermal_policy`\n  * `uuid_pool` - FIAttached Only\n  * `virtual_media_policy`\n#===========================\n# Management Configuration\n#===========================\n  * `certificate_management_policy`\n  * `device_connector_policy `- Standalone Only\n  * `imc_access_policy` - FIAttached Only\n  * `ipmi_over_lan_policy`\n  * `ldap_policy` - Standalone Only\n  * `local_user_policy`\n  * `network_connectivity_policy` - Standalone Only\n  * `ntp_policy`- Standalone Only\n  * `serial_over_lan_policy`\n  * `smtp_policy` - Standalone Only\n  * `snmp_policy`\n  * `ssh_policy` - Standalone Only\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n#===========================\n# Storage Configuration\n#===========================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n#===========================\n# Network Configuration\n#===========================\n  * `adapter_configuration_policy` - Standalone Only\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`",
                     "intersight_uri": "server/ProfileTemplates",
                     "items": {
                         "$ref": "#/definitions/intersight.templates.server"
@@ -22510,7 +24062,8 @@
                     "object_type": "server.ProfileTemplate",
                     "title": "server - Server Profile Template - Intersight Uri: server/ProfileTemplates",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": true,
+                    "Description": "In Cisco Intersight, a Server Profile Template enables resource management by streamlining policy alignment, and server configuration. You can create Server Profile Templates using the UCS Server Profile Template wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profile Templates wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:`\n  * `Compute Policies` \u2014 BIOS, Boot Order, and Virtual Media.\n  * `Network Policies` \u2014 Adapter Configuration, iSCSI Boot, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create Ethernet Network Policy, Ethernet Adapter Policy, and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create Fibre Channel Network Policy, Fibre Channel Adapter Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * `Storage Policies` \u2014 Drive Security, SD Card and Storage policies`\n  * `Management Policies` \u2014 Certificate Management, Device Connector, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, Certificate Management, and Virtual KVM policies\n\nRequired Attributes:\n  * `create_template`\n  * `name`\n\nRequired for Standalone:\n  * `target_platform`\n\nOptional Attributes:\n  * `description`\n  * `tags`\n#===========================\n# Compute Configuration\n#===========================\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `persistent_memory_policy` - Standalone Only\n  * `power_policy` - FIAttached Only\n  * `thermal_policy`\n  * `uuid_pool` - FIAttached Only\n  * `virtual_media_policy`\n#===========================\n# Management Configuration\n#===========================\n  * `certificate_management_policy`\n  * `device_connector_policy `- Standalone Only\n  * `imc_access_policy` - FIAttached Only\n  * `ipmi_over_lan_policy`\n  * `ldap_policy` - Standalone Only\n  * `local_user_policy`\n  * `network_connectivity_policy` - Standalone Only\n  * `ntp_policy`- Standalone Only\n  * `serial_over_lan_policy`\n  * `smtp_policy` - Standalone Only\n  * `snmp_policy`\n  * `ssh_policy` - Standalone Only\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n#===========================\n# Storage Configuration\n#===========================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n#===========================\n# Network Configuration\n#===========================\n  * `adapter_configuration_policy` - Standalone Only\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`"
                 }
             },
             "required": [],
@@ -24533,8 +26086,7 @@
                     ]
                 }
             ],
-            "required": [
-            ],
+            "required": [],
             "title": "OpenShift Container Platform (OCP) deployment settings",
             "type": "object",
             "unevaluatedProperties": false

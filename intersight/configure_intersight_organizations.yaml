@@ -1,0 +1,66 @@
+---
+- name: Configure Intersight Organizations
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  collections:
+    - cisco.intersight
+  vars:
+    intersight_model_root: "{{ playbook_dir }}"
+    intersight_api_key_id: "{{ lookup('ansible.builtin.env', 'intersight_api_key_id') }}"
+    intersight_api_private_key: "{{ lookup('ansible.builtin.env', 'intersight_secret_key') }}"
+    intersight_api_uri: "{{ lookup('ansible.builtin.env', 'intersight_api_uri') | default('https://intersight.com/api/v1', true) }}"
+    intersight_validate_certs: "{{ lookup('ansible.builtin.env', 'intersight_validate_certs') | default('true', true) | bool }}"
+    intersight_schema: "{{ lookup('ansible.builtin.file', playbook_dir ~ '/../schema/cisco-ai-pods.json') | from_json }}"
+    model_files: "{{ query('ansible.builtin.fileglob', intersight_model_root ~ '/global_settings*.yaml') + query('ansible.builtin.fileglob', intersight_model_root ~ '/organizations/*.yaml') }}"
+  environment:
+    INTERSIGHT_API_KEY_ID: "{{ intersight_api_key_id }}"
+    INTERSIGHT_API_PRIVATE_KEY: "{{ intersight_api_private_key }}"
+    INTERSIGHT_API_URI: "{{ intersight_api_uri }}"
+  tasks:
+    - name: Ensure required authentication variables are present
+      ansible.builtin.assert:
+        that:
+          - intersight_api_key_id | length > 0
+          - intersight_api_private_key | length > 0
+        fail_msg: >-
+          Set intersight_api_key_id and intersight_secret_key before running this playbook.
+
+    - name: Initialize merged model
+      ansible.builtin.set_fact:
+        merged_model: {}
+
+    - name: Merge model files
+      ansible.builtin.set_fact:
+        merged_model: "{{ merged_model | combine((lookup('ansible.builtin.file', item) | from_yaml), recursive=True, list_merge='append') }}"
+      loop: "{{ model_files }}"
+
+    - name: Collect organizations map
+      ansible.builtin.set_fact:
+        organizations_map: "{{ merged_model.intersight.organizations | default({}) }}"
+
+    - name: Ensure organizations exist
+      cisco.intersight.intersight_organization:
+        name: "{{ item.key }}"
+        description: "{{ item.value.description | default(omit) }}"
+        share_resources: "{{ (item.value.organizations_to_share_with | default([]) | length) > 0 }}"
+        shared_orgs: "{{ item.value.organizations_to_share_with | default(omit) }}"
+        state: present
+      loop: "{{ organizations_map | dict2items }}"
+
+    - name: Ensure resource groups exist
+      cisco.intersight.intersight_resource_group:
+        name: "{{ item.1.name }}"
+        description: "{{ item.1.description | default(omit) }}"
+        resources: "{{ item.1.resources.targets | default([]) | map('regex_replace', '^(.*)$', '{\"domain_name\": \"\\1\"}') | map('from_yaml') | list }}"
+        state: present
+      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.resource_groups', {'skip_missing': True}) }}"
+
+    - name: Attach resource groups to organizations
+      cisco.intersight.intersight_organization:
+        name: "{{ item.key }}"
+        resource_groups: "{{ item.value.resource_groups | default([]) | map(attribute='name') | list }}"
+        description: "{{ item.value.description | default(omit) }}"
+        state: present
+      when: (item.value.resource_groups | default([]) | length) > 0
+      loop: "{{ organizations_map | dict2items }}"
