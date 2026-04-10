@@ -1,6 +1,6 @@
 intersight:
   organizations:
-    Common:
+    common:
       pools:
         mac:
           - mac_blocks:
@@ -29,7 +29,7 @@ intersight:
             uuid_blocks:
               - from: 0000-000000000000
                 size: 256
-    NUSDCM:
+    EXAMPLE:
       pools:
         ip:
           - ipv4_blocks:

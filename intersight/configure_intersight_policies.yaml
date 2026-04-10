@@ -6,7 +6,7 @@
   collections:
     - cisco.intersight
   vars:
-    intersight_model_root: "{{ playbook_dir }}"
+    intersight_model_root: "{{ playbook_dir }}/script_vars"
     intersight_api_key_id: "{{ lookup('ansible.builtin.env', 'intersight_api_key_id') }}"
     intersight_api_private_key: "{{ lookup('ansible.builtin.env', 'intersight_secret_key') }}"
     intersight_api_uri: "{{ lookup('ansible.builtin.env', 'intersight_api_uri') | default('https://intersight.com/api/v1', true) }}"
@@ -117,6 +117,21 @@
         }}
       loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.device_connector', {'skip_missing': True}) }}"
 
+    - name: Configure Drive Security policies
+      cisco.intersight.intersight_drive_security_policy: >
+        {{
+          item.1
+          | merge_schema_defaults(intersight_schema, 'intersight.drive_security')
+          | to_module_params('intersight_drive_security_policy')
+          | combine({
+              'name': (policy_name_prefix.default | default('') ~ item.1.name ~ policy_name_suffix.default | default('')),
+              'organization': item.0.key,
+              'state': 'present',
+              'validate_certs': module_validate_certs
+            })
+        }}
+      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.drive_security', {'skip_missing': True}) }}"
+
     - name: Configure Ethernet Adapter policies
       cisco.intersight.intersight_ethernet_adapter_policy: >
         {{
@@ -222,6 +237,21 @@
         }}
       loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.fibre_channel_qos', {'skip_missing': True}) }}"
 
+    - name: Configure Fibre Channel Zone policies
+      cisco.intersight.intersight_fibre_channel_zone_policy: >
+        {{
+          item.1
+          | merge_schema_defaults(intersight_schema, 'intersight.fc_zone')
+          | to_module_params('intersight_fibre_channel_zone_policy')
+          | combine({
+              'name': (policy_name_prefix.fc_zone | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.fc_zone | default(policy_name_suffix.default | default(''))),
+              'organization': item.0.key,
+              'state': 'present',
+              'validate_certs': module_validate_certs
+            })
+        }}
+      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.fc_zone', {'skip_missing': True}) }}"
+
     - name: Configure Firmware policies
       cisco.intersight.intersight_firmware_policy: >
         {{
@@ -297,21 +327,6 @@
         }}
       loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.iscsi_adapter', {'skip_missing': True}) }}"
 
-    - name: Configure iSCSI Boot policies
-      cisco.intersight.intersight_iscsi_boot_policy: >
-        {{
-          item.1
-          | merge_schema_defaults(intersight_schema, 'intersight.iscsi_boot')
-          | to_module_params('intersight_iscsi_boot_policy')
-          | combine({
-              'name': (policy_name_prefix.default | default('') ~ item.1.name ~ policy_name_suffix.default | default('')),
-              'organization': item.0.key,
-              'state': 'present',
-              'validate_certs': module_validate_certs
-            })
-        }}
-      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.iscsi_boot', {'skip_missing': True}) }}"
-
     - name: Configure iSCSI Static Target policies
       cisco.intersight.intersight_iscsi_static_target_policy: >
         {{
@@ -326,6 +341,21 @@
             })
         }}
       loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.iscsi_static_target', {'skip_missing': True}) }}"
+
+    - name: Configure iSCSI Boot policies
+      cisco.intersight.intersight_iscsi_boot_policy: >
+        {{
+          item.1
+          | merge_schema_defaults(intersight_schema, 'intersight.iscsi_boot')
+          | to_module_params('intersight_iscsi_boot_policy')
+          | combine({
+              'name': (policy_name_prefix.default | default('') ~ item.1.name ~ policy_name_suffix.default | default('')),
+              'organization': item.0.key,
+              'state': 'present',
+              'validate_certs': module_validate_certs
+            })
+        }}
+      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.iscsi_boot', {'skip_missing': True}) }}"
 
     - name: Configure LAN Connectivity policies
       cisco.intersight.intersight_lan_connectivity_policy: >
@@ -652,6 +682,36 @@
             })
         }}
       loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.virtual_media', {'skip_missing': True}) }}"
+
+    - name: Configure vHBA Template policies
+      cisco.intersight.intersight_vhba_template: >
+        {{
+          item.1
+          | merge_schema_defaults(intersight_schema, 'intersight.vhba_template')
+          | to_module_params('intersight_vhba_template')
+          | combine({
+              'name': (policy_name_prefix.vhba_template | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.vhba_template | default(policy_name_suffix.default | default(''))),
+              'organization': item.0.key,
+              'state': 'present',
+              'validate_certs': module_validate_certs
+            })
+        }}
+      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.vhba_template', {'skip_missing': True}) }}"
+
+    - name: Configure vNIC Template policies
+      cisco.intersight.intersight_vnic_template: >
+        {{
+          item.1
+          | merge_schema_defaults(intersight_schema, 'intersight.vnic_template')
+          | to_module_params('intersight_vnic_template')
+          | combine({
+              'name': (policy_name_prefix.vnic_template | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.vnic_template | default(policy_name_suffix.default | default(''))),
+              'organization': item.0.key,
+              'state': 'present',
+              'validate_certs': module_validate_certs
+            })
+        }}
+      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.vnic_template', {'skip_missing': True}) }}"
 
     - name: Configure VLAN policies
       cisco.intersight.intersight_vlan_policy: >

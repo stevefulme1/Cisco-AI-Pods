@@ -1,67 +1,21 @@
-# yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/Cisco-AI-Pods/schema/cisco-ai-pods.json --- IGNORE ---
 ---
 #====================================
 #   Policies -> VLAN - Variables
 #====================================
 intersight:
   organizations:
-    Common:
+    common:
       policies:
         multicast:
-          - name: Multicast
+          - name: mcast
         vlan:
-          - name: VLANs
-            vlans:
-              - auto_allow_on_uplinks: true
-                multicast_policy: Common/Multicast
-                name: VLAN1501:AI:PRD:MGMT:OOB
-                vlan_list: '1501'
-              - auto_allow_on_uplinks: true
-                multicast_policy: Common/Multicast
-                name: VLAN1502:AI:PRD:MGMT:IB
-                vlan_list: '1502'
-              - auto_allow_on_uplinks: true
-                multicast_policy: Common/Multicast
-                name: VLAN1503:AI:PRD:VM:MGMT
-                vlan_list: '1503'
-              - auto_allow_on_uplinks: true
-                multicast_policy: Common/Multicast
-                name: VLAN1504:AI:PRD:Storage
-                vlan_list: '1504'
-              - auto_allow_on_uplinks: true
-                multicast_policy: Common/Multicast
-                name: VLAN1505:AI:PRD:NVMe-oF:A
-                vlan_list: '1505'
-              - auto_allow_on_uplinks: true
-                multicast_policy: Common/Multicast
-                name: VLAN1506:AI:PRD:NVMe-oF:B
-                vlan_list: '1506'
-    EXAMPLE:
-      policies:
-        vlan:
-          - name: EXAMPLE:VLANs
-            vlans:
-              - auto_allow_on_uplinks: true
-                multicast_policy: Common/Multicast
-                name: EXAMPLE:VLAN1501:AI:PRD:MGMT:OOB
-                vlan_list: '1501'
-              - auto_allow_on_uplinks: true
-                multicast_policy: Common/Multicast
-                name: EXAMPLE:VLAN1502:AI:PRD:MGMT:IB
-                vlan_list: '1502'
-              - auto_allow_on_uplinks: true
-                multicast_policy: Common/Multicast
-                name: EXAMPLE:VLAN1503:AI:PRD:VM:MGMT
-                vlan_list: '1503'
-              - auto_allow_on_uplinks: true
-                multicast_policy: Common/Multicast
-                name: EXAMPLE:VLAN1504:AI:PRD:Storage
-                vlan_list: '1504'
-              - auto_allow_on_uplinks: true
-                multicast_policy: Common/Multicast
-                name: EXAMPLE:VLAN1505:AI:PRD:NVMe-oF:A
-                vlan_list: '1505'
-              - auto_allow_on_uplinks: true
-                multicast_policy: Common/Multicast
-                name: EXAMPLE:VLAN1506:AI:PRD:NVMe-oF:B
-                vlan_list: '1506'
+        - name: aci-vlans
+          vlans:
+            - auto_allow_on_uplinks: true
+              multicast_policy: mcast
+              name: vlan
+              native_vlan: true
+              vlan_list: '1'
+            - multicast_policy: mcast
+              name: vlan
+              vlan_list: 101-103,1000-1199

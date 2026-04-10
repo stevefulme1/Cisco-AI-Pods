@@ -6,7 +6,7 @@
   collections:
     - cisco.intersight
   vars:
-    intersight_model_root: "{{ playbook_dir }}"
+    intersight_model_root: "{{ playbook_dir }}/script_vars"
     intersight_api_key_id: "{{ lookup('ansible.builtin.env', 'intersight_api_key_id') }}"
     intersight_api_private_key: "{{ lookup('ansible.builtin.env', 'intersight_secret_key') }}"
     intersight_api_uri: "{{ lookup('ansible.builtin.env', 'intersight_api_uri') | default('https://intersight.com/api/v1', true) }}"

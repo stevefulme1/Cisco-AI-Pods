@@ -6,7 +6,7 @@
   collections:
     - cisco.intersight
   vars:
-    intersight_model_root: "{{ playbook_dir }}"
+    intersight_model_root: "{{ playbook_dir }}/script_vars"
     intersight_api_key_id: "{{ lookup('ansible.builtin.env', 'intersight_api_key_id') }}"
     intersight_api_private_key: "{{ lookup('ansible.builtin.env', 'intersight_secret_key') }}"
     intersight_api_uri: "{{ lookup('ansible.builtin.env', 'intersight_api_uri') | default('https://intersight.com/api/v1', true) }}"
@@ -69,6 +69,31 @@
           query('ansible.builtin.subelements', organizations_map | dict2items,
                 'value.pools.mac', {'skip_missing': True})
         }}
+
+    - name: Debug IP pool payloads
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            (
+              item.1
+              | merge_schema_defaults(intersight_schema, 'intersight.ip')
+              | to_module_params('intersight_ip_pool')
+              | combine({
+                  'name': (pool_name_prefix.ip | default(pool_name_prefix.default | default(''))
+                           ~ item.1.name
+                           ~ pool_name_suffix.ip | default(pool_name_suffix.default | default(''))),
+                  'organization': item.0.key,
+                  'state': 'present'
+                })
+            ) | to_nice_json
+          }}
+      loop: >-
+        {{
+          query('ansible.builtin.subelements', organizations_map | dict2items,
+                'value.pools.ip', {'skip_missing': True})
+        }}
+      loop_control:
+        label: "{{ item.0.key }} :: {{ item.1.name | default('unnamed-ip-pool') }}"
 
     - name: Configure IP pools
       cisco.intersight.intersight_ip_pool: >-

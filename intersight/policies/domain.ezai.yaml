@@ -5,7 +5,7 @@
 #======================================
 intersight:
   organizations:
-    Common:
+    common:
       policies:
         flow_control:
           - name: FlowCtrl

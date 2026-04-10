@@ -6,10 +6,10 @@
 #==================================
 intersight:
   organizations:
-    EXAMPLE:
+    Asgard:
       create_organization: true
       resource_groups:
-        - name: EXAMPLE
+        - name: Asgard
           resources:
             targets:
               - ucsai5100
@@ -17,4 +17,4 @@ intersight:
     Common:
       create_organization: true
       organizations_to_share_with:
-        - EXAMPLE
+        - Asgard

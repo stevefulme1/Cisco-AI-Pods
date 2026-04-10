@@ -5,7 +5,7 @@
 #====================================
 intersight:
   organizations:
-    Common:
+    common:
       policies:
         port:
           - device_model: UCSX-S9108-100G
@@ -23,9 +23,6 @@ intersight:
                 link_control_policy: LinkCtrl
                 pc_ids:
                   - 3
-    common:
-      policies:
-        port:
           - device_model: UCS-FI-6454
             names:
               - r143e-1-a

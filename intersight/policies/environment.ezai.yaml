@@ -5,7 +5,7 @@
 #===========================================
 intersight:
   organizations:
-    Common:
+    common:
       policies:
         power:
           - name: X9508

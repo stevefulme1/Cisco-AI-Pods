@@ -5,7 +5,7 @@
 #=======================================
 intersight:
   organizations:
-    Common:
+    common:
       policies:
         bios:
           - baud_rate: '115200'

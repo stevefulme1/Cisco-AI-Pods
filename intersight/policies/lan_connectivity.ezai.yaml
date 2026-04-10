@@ -5,20 +5,20 @@
 #================================================
 intersight:
   organizations:
-    EXAMPLE:
+    Asgard:
       policies:
         lan_connectivity:
           - name: ControllerLCP
             target_platform: FIAttached
             vnics:
               - enable_failover: true
-                ethernet_adapter_policy: Common/Linux-v2
-                ethernet_network_control_policy: Common/CdpLldp
+                ethernet_adapter_policy: common/Linux-v2
+                ethernet_network_control_policy: common/both
                 ethernet_network_group_policies:
-                  - EXAMPLE:VLAN1502:AI:PRD:MGMT:IB
-                ethernet_qos_policy: Common/BestEffort
+                  - common/aci-mgmt
+                ethernet_qos_policy: common/best-effort
                 mac_address_pools:
-                  - Common/FabricA
+                  - common/single
                 names:
                   - eno5
                 placement:
@@ -28,13 +28,13 @@ intersight:
             target_platform: FIAttached
             vnics:
               - enable_failover: true
-                ethernet_adapter_policy: Common/16RxQs5G
-                ethernet_network_control_policy: Common/CdpLldp
+                ethernet_adapter_policy: common/16RxQs5G
+                ethernet_network_control_policy: common/both
                 ethernet_network_group_policies:
-                  - EXAMPLE:VLAN1502:AI:PRD:MGMT:IB
-                ethernet_qos_policy: Common/BestEffort
+                  - common/aci-mgmt
+                ethernet_qos_policy: common/best-effort
                 mac_address_pools:
-                  - Common/K8S-Mgmt
+                  - common/single
                 names:
                   - eno5
                 placement:
@@ -44,15 +44,14 @@ intersight:
             target_platform: FIAttached
             vnics:
               - enable_failover: true
-                ethernet_adapter_policy: Common/Linux-v2
-                ethernet_network_control_policy: Common/CdpLldp
+                ethernet_adapter_policy: common/Linux-v2
+                ethernet_network_control_policy: common/both
                 ethernet_network_group_policies:
-                  - EXAMPLE:VLAN1502:AI:PRD:MGMT:IB
-                  - EXAMPLE:VLAN1503:AI:PRD:VM:MGMT
-                ethernet_qos_policy: Common/BestEffort
+                  - common/aci-mgmt
+                  - common/aci-dvs
+                ethernet_qos_policy: common/best-effort
                 mac_address_pools:
-                  - Common/FabricA
-                  - Common/FabricB
+                  - common/single
                 names:
                   - eno5
                   - eno6
@@ -60,15 +59,13 @@ intersight:
                   pci_order:
                     - 0
                     - 1
-              - ethernet_adapter_policy: Common/16RxQs5G
-                ethernet_network_control_policy: Common/CdpLldp
+              - ethernet_adapter_policy: common/16RxQs5G
+                ethernet_network_control_policy: common/both
                 ethernet_network_group_policies:
-                  - EXAMPLE:VLAN1505:AI:PRD:NVMe-oF:A
-                  - EXAMPLE:VLAN1506:AI:PRD:NVMe-oF:B
-                ethernet_qos_policy: Common/Platinum
+                  - common/aci-storage
+                ethernet_qos_policy: common/platinum
                 mac_address_pools:
-                  - Common/FabricA
-                  - Common/FabricB
+                  - common/single
                 names:
                   - eno7
                   - eno8
@@ -76,15 +73,13 @@ intersight:
                   pci_order:
                     - 2
                     - 3
-              - ethernet_adapter_policy: Common/16RxQs5G
-                ethernet_network_control_policy: Common/CdpLldp
+              - ethernet_adapter_policy: common/16RxQs5G
+                ethernet_network_control_policy: common/both
                 ethernet_network_group_policies:
-                  - EXAMPLE:VLAN1505:AI:PRD:NVMe-oF:A
-                  - EXAMPLE:VLAN1506:AI:PRD:NVMe-oF:B
-                ethernet_qos_policy: Common/Platinum
+                  - common/aci-storage
+                ethernet_qos_policy: common/platinum
                 mac_address_pools:
-                  - Common/FabricA
-                  - Common/FabricB
+                  - common/single
                 names:
                   - eno9
                   - eno10
@@ -93,13 +88,13 @@ intersight:
                     - 4
                     - 5
               - enable_failover: true
-                ethernet_adapter_policy: Common/16RxQs5G
-                ethernet_network_control_policy: Common/CdpLldp
+                ethernet_adapter_policy: common/16RxQs5G
+                ethernet_network_control_policy: common/both
                 ethernet_network_group_policies:
-                  - EXAMPLE:VLAN1504:AI:PRD:NFS
-                ethernet_qos_policy: Common/Platinum
+                  - common/aci-storage
+                ethernet_qos_policy: common/platinum
                 mac_address_pools:
-                  - Common/FabricA
+                  - common/single
                 names:
                   - eno11
                 placement:
@@ -109,15 +104,14 @@ intersight:
             target_platform: FIAttached
             vnics:
               - enable_failover: true
-                ethernet_adapter_policy: Common/16RxQs5G
-                ethernet_network_control_policy: Common/CdpLldp
+                ethernet_adapter_policy: common/16RxQs5G
+                ethernet_network_control_policy: common/both
                 ethernet_network_group_policies:
-                  - EXAMPLE:VLAN1502:AI:PRD:MGMT:IB
-                  - EXAMPLE:VLAN1503:AI:PRD:VM:MGMT
-                ethernet_qos_policy: Common/BestEffort
+                  - common/aci-mgmt
+                  - common/aci-dvs
+                ethernet_qos_policy: common/best-effort
                 mac_address_pools:
-                  - Common/K8S-Mgmt
-                  - Common/K8S-Workload
+                  - common/single
                 names:
                   - eno5
                   - eno6
@@ -129,13 +123,13 @@ intersight:
                     - A
                     - B
               - enable_failover: true
-                ethernet_adapter_policy: Common/Linux-v2
-                ethernet_network_control_policy: Common/CdpLldp
+                ethernet_adapter_policy: common/Linux-v2
+                ethernet_network_control_policy: common/both
                 ethernet_network_group_policies:
-                  - EXAMPLE:VLAN1504:AI:PRD:Storage
-                ethernet_qos_policy: Common/Platinum
+                  - common/aci-storage
+                ethernet_qos_policy: common/platinum
                 mac_address_pools:
-                  - Common/K8S-Storage
+                  - common/single
                 names:
                   - eno7
                 placement:

@@ -5,11 +5,15 @@
 #==========================================
 intersight:
   organizations:
-    Common:
+    Asgard:
       policies:
-        ipmi_over_lan:
-          - name: IPMI
-            privilege: admin
+        imc_access:
+          - inband_ip_pool: InbandMgmt
+            inband_vlan_id: 1502
+            name: KVMAccess
+            out_of_band_ip_pool: OobandMgmt
+    common:
+      policies:
         local_user:
           - name: LocalUsers
             password_properties:
@@ -46,18 +50,6 @@ intersight:
           - local_logging:
               minimum_severity: warning
             name: Syslog
-        virtual_kvm:
-          - allow_tunneled_vkvm: true
-            name: vKVM
-    EXAMPLE:
-      policies:
-        imc_access:
-          - inband_ip_pool: InbandMgmt
-            inband_vlan_id: 1502
-            name: KVMAccess
-            out_of_band_ip_pool: OobandMgmt
-    common:
-      policies:
         imc_access:
           - description: aci-kvm IMC Access Policy
             inband_ip_pool: aci-kvm-inband
@@ -95,46 +87,6 @@ intersight:
               filter: sAMAccountName=$userid
               group_attribute: memberof
             user_search_precedence: LocalUserDb
-        local_user:
-          - description: users Local User Policy
-            name: users
-            password_properties:
-              always_send_user_password: false
-              enable_password_expiry: true
-              enforce_strong_password: true
-              grace_period: 0
-              notification_period: 15
-              password_expiry_duration: 90
-              password_history: 0
-            users:
-              - enabled: true
-                password: 1
-                role: admin
-                username: admin
-        network_connectivity:
-          - description: dns Network Connectivity Policy
-            dns_servers_v4:
-              - 10.101.128.15
-              - 10.101.128.16
-            name: dns
-        ntp:
-          - description: ntp NTP Policy
-            enabled: true
-            name: ntp
-            ntp_servers:
-              - 10.101.128.15
-              - 10.101.128.16
-            timezone: America/New_York
-        serial_over_lan:
-          - baud_rate: 115200
-            com_port: com0
-            description: sol Serial over LAN Policy
-            name: sol
-            ssh_port: 2400
-        snmp:
-          - description: snmp SNMP Policy
-            name: snmp
-            snmp_port: 161
         virtual_kvm:
           - allow_tunneled_vkvm: true
             description: vkvm Virtual KVM Policy
@@ -148,11 +100,11 @@ intersight:
           - assigned_sensitive_data: true
             certificates:
               - type: IMC
-                certificate_file: /etc/pki/certs/imc-cert.pem
-                private_key_file: /etc/pki/private/imc-key.pem
+                certificate_file: ~/scotttyso/certificates/r142c-osv/api-r142c-osv.cer
+                private_key_file: ~/scotttyso/certificates/r142c-osv/api-r142c-osv.key
               - name: RootExample
                 type: RootCA
-                certificate_file: /etc/pki/certs/root-ca.pem
+                certificate_file: ~/scotttyso/certificates/rich-AD2-CA-1.crt
             name: Example_Certificates
         device_connector:
           - configuration_from_intersight_only: false

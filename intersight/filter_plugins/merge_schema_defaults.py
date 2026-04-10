@@ -33,6 +33,7 @@ __metaclass__ = type
 import os
 import re
 import copy
+import ipaddress
 
 # ---------------------------------------------------------------------------
 # Schema-to-module key rename tables
@@ -59,6 +60,36 @@ _MODULE_KEY_RENAMES = {
     'intersight_wwn_pool': {
         'assignment_order': None,
     },
+    'intersight_drive_security_policy': {
+        'remote_key_management': 'remote_key',
+    },
+    'intersight_fibre_channel_zone_policy': {
+        'targets': 'fc_target_members',
+    },
+    'intersight_vhba_template': {
+        'allow_override': 'enable_override',
+        'fc_zone_policies': 'fibre_channel_zone_policy_names',
+        'fibre_channel_adapter_policy': 'fibre_channel_adapter_policy_name',
+        'fibre_channel_network_policy': 'fibre_channel_network_policy_name',
+        'fibre_channel_qos_policy': 'fibre_channel_qos_policy_name',
+        'persistent_lun_bindings': 'persistent_bindings',
+        'placement_switch_id': 'switch_id',
+        'wwpn_pool': 'wwpn_pool_name',
+    },
+    'intersight_vnic_template': {
+        'allow_override': 'enable_override',
+        'enable_failover': 'failover_enabled',
+        'ethernet_adapter_policy': 'eth_adapter_policy_name',
+        'ethernet_network_control_policy': 'fabric_eth_network_control_policy_name',
+        'ethernet_network_group_policies': 'fabric_eth_network_group_policy_name',
+        'ethernet_qos_policy': 'eth_qos_policy_name',
+        'iscsi_boot_policy': 'iscsi_boot_policy_name',
+        'mac_address_pool': 'mac_pool_name',
+        'placement_switch_id': 'switch_id',
+        'sriov': 'sriov_settings',
+        'usnic': 'usnic_settings',
+        'vmq': 'vmq_settings',
+    },
     # ---- Policies (compute) ---------------------------------------------------
     'intersight_boot_order_policy': {
         'boot_mode': 'configured_boot_mode',
@@ -66,7 +97,7 @@ _MODULE_KEY_RENAMES = {
     },
     'intersight_firmware_policy': {
         'advanced_mode': None,
-        'model_bundle_version': 'model_bundle_version',
+        'model_bundle_version': 'model_bundle_combo',
     },
     'intersight_ntp_policy': {
         'enabled': 'enable',
@@ -187,6 +218,9 @@ _MODULE_KEY_RENAMES = {
         'password_properties': None,
         'users': 'local_users',
     },
+    'intersight_device_connector_policy': {
+        'configuration_from_intersight_only': 'enable_lockout',
+    },
     'intersight_network_connectivity_policy': {
         'obtain_ipv4_dns_from_dhcp': 'enable_ipv4_dns_from_dhcp',
         'obtain_ipv6_dns_from_dhcp': 'enable_ipv6_dns_from_dhcp',
@@ -244,9 +278,14 @@ _MODULE_KEY_RENAMES = {
         'target_platform': None,
     },
     # ---- Policies (fibre channel) -------------------------------------------
-    'intersight_fibre_channel_adapter_policy': {},
+    'intersight_fibre_channel_adapter_policy': {
+        'adapter_template': None,
+        'maximum_luns_per_target': 'lun_count',
+    },
     'intersight_fibre_channel_network_policy': {},
-    'intersight_fibre_channel_qos_policy': {},
+    'intersight_fibre_channel_qos_policy': {
+        'class_of_service': 'cos',
+    },
     # ---- Profiles / Templates ------------------------------------------------
     'intersight_server_profile_template': {
         'adapter_configuration_policy': 'adapter_policy',
@@ -463,6 +502,15 @@ def _calculate_size_from_range(block, from_key):
         to_int = _wwn_hex_to_int(to_val)
         if from_int is not None and to_int is not None:
             return {'size': to_int - from_int + 1}
+
+        # For IP-address ranges (IPv4 / IPv6)
+        try:
+            from_ip = ipaddress.ip_address(from_val)
+            to_ip = ipaddress.ip_address(to_val)
+            if from_ip.version == to_ip.version:
+                return {'size': int(to_ip) - int(from_ip) + 1}
+        except ValueError:
+            pass
     return None
 
 
@@ -718,15 +766,17 @@ def _validate_and_read_pem_file(file_path):
     if not isinstance(file_path, str) or not file_path.strip():
         raise ValueError("File path must be a non-empty string")
 
-    if not os.path.exists(file_path):
+    resolved_path = os.path.expandvars(os.path.expanduser(file_path.strip()))
+
+    if not os.path.exists(resolved_path):
         raise ValueError(f"Certificate file does not exist: {file_path}")
-    if not os.path.isfile(file_path):
+    if not os.path.isfile(resolved_path):
         raise ValueError(f"Path is not a file: {file_path}")
-    if not os.access(file_path, os.R_OK):
+    if not os.access(resolved_path, os.R_OK):
         raise ValueError(f"Certificate file is not readable: {file_path}")
 
     try:
-        with open(file_path, 'r') as file_handle:
+        with open(resolved_path, 'r') as file_handle:
             content = file_handle.read()
     except Exception as exc:
         raise ValueError(f"Failed to read certificate file {file_path}: {exc}")
@@ -1029,6 +1079,95 @@ def to_module_params(item, module_name):
                 if sub_key in pp and sub_key not in result:
                     result[sub_key] = pp[sub_key]
 
+    elif module_name == 'intersight_ethernet_network_group_policy':
+        # The module marks allowed_vlans and qinq_vlan as mutually exclusive.
+        if result.get('allowed_vlans') not in (None, ''):
+            result.pop('qinq_vlan', None)
+
+        def _vlan_is_allowed(native_vlan, allowed_vlans):
+            try:
+                native = int(native_vlan)
+            except (TypeError, ValueError):
+                return False
+
+            if isinstance(allowed_vlans, int):
+                return native == allowed_vlans
+            if isinstance(allowed_vlans, list):
+                return any(_vlan_is_allowed(native, entry) for entry in allowed_vlans)
+            if not isinstance(allowed_vlans, str):
+                return False
+
+            for chunk in allowed_vlans.split(','):
+                token = chunk.strip()
+                if not token:
+                    continue
+                if '-' in token:
+                    bounds = token.split('-', 1)
+                    try:
+                        start = int(bounds[0].strip())
+                        end = int(bounds[1].strip())
+                    except ValueError:
+                        continue
+                    if start <= native <= end:
+                        return True
+                else:
+                    try:
+                        if int(token) == native:
+                            return True
+                    except ValueError:
+                        continue
+            return False
+
+        allowed_vlans = result.get('allowed_vlans')
+        native_vlan = result.get('native_vlan')
+        if native_vlan not in (None, '') and allowed_vlans not in (None, ''):
+            if not _vlan_is_allowed(native_vlan, allowed_vlans):
+                result.pop('native_vlan', None)
+
+    elif module_name == 'intersight_boot_order_policy':
+        boot_devices = result.get('boot_devices')
+        if isinstance(boot_devices, list):
+            device_type_map = {
+                'iscsi': 'iSCSI',
+                'local_cdd': 'Local CDD',
+                'local_disk': 'Local Disk',
+                'nvme': 'NVMe',
+                'pch_storage': 'PCH Storage',
+                'pxe': 'PXE',
+                'san': 'SAN',
+                'sd_card': 'SD Card',
+                'uefi_shell': 'UEFI Shell',
+                'usb': 'USB',
+                'virtual_media': 'Virtual Media',
+            }
+            converted = []
+            for boot_device in boot_devices:
+                if not isinstance(boot_device, dict):
+                    converted.append(boot_device)
+                    continue
+                new_boot_device = dict(boot_device)
+                device_type = new_boot_device.get('device_type')
+                normalized_type = None
+                if isinstance(device_type, str):
+                    normalized_type = device_type.strip().lower().replace('-', '_').replace(' ', '_')
+                    if normalized_type in device_type_map:
+                        new_boot_device['device_type'] = device_type_map[normalized_type]
+
+                # Schema uses generic field names; module expects device-specific keys.
+                if 'slot' in new_boot_device and 'controller_slot' not in new_boot_device:
+                    new_boot_device['controller_slot'] = new_boot_device.pop('slot')
+
+                subtype = new_boot_device.pop('subtype', None)
+                if subtype not in (None, ''):
+                    if normalized_type == 'virtual_media':
+                        new_boot_device['virtual_media_subtype'] = subtype
+                    elif normalized_type == 'usb':
+                        new_boot_device['usb_subtype'] = subtype
+                    elif normalized_type == 'sd_card':
+                        new_boot_device['sd_card_subtype'] = subtype
+                converted.append(new_boot_device)
+            result['boot_devices'] = converted
+
     elif module_name == 'intersight_firmware_policy':
         # Schema models firmware exclusions under advanced_mode.
         # Map only the fields currently expected by the playbook.
@@ -1044,6 +1183,37 @@ def to_module_params(item, module_name):
 
         # Prevent schema-only fields from reaching module args.
         result.pop('advanced_mode', None)
+
+        # Schema uses model_bundle_version entries with
+        # firmware_version/server_models. The module expects
+        # model_bundle_combo entries with bundle_version/model_family.
+        combos = result.get('model_bundle_combo')
+        if isinstance(combos, list):
+            normalized_combos = []
+            for combo in combos:
+                if not isinstance(combo, dict):
+                    continue
+
+                new_combo = dict(combo)
+                if 'bundle_version' not in new_combo and 'firmware_version' in combo:
+                    new_combo['bundle_version'] = combo['firmware_version']
+
+                if 'model_family' not in new_combo:
+                    server_models = combo.get('server_models')
+                    if isinstance(server_models, list) and server_models:
+                        new_combo['model_family'] = server_models[0]
+
+                new_combo.pop('firmware_version', None)
+                new_combo.pop('server_models', None)
+                normalized_combos.append(new_combo)
+
+            result['model_bundle_combo'] = normalized_combos
+
+    elif module_name == 'intersight_flow_control_policy':
+        for direction_key in ('receive_direction', 'send_direction'):
+            direction_value = result.get(direction_key)
+            if isinstance(direction_value, str):
+                result[direction_key] = direction_value.strip().lower()
         result.pop('advanced', None)
 
     elif module_name == 'intersight_network_connectivity_policy':
@@ -1129,7 +1299,6 @@ def to_module_params(item, module_name):
                 result['ipv6_address'] = ip_address
 
     elif module_name == 'intersight_iscsi_boot_policy':
-        import os
         # Module choices are lowercase; schema examples/defaults use title/upper.
         target_source_type = result.get('target_source_type')
         if isinstance(target_source_type, str):
@@ -1195,21 +1364,25 @@ def to_module_params(item, module_name):
 
     elif module_name == 'intersight_certificate_management_policy':
         # Handle certificate file reading and PEM validation
+        result.pop('assigned_sensitive_data', None)
         certificates = result.get('certificates', [])
         if isinstance(certificates, list):
             processed_certs = []
-            for cert in certificates:
+            for cert_index, cert in enumerate(certificates, start=1):
                 if not isinstance(cert, dict):
                     processed_certs.append(cert)
                     continue
                 
                 new_cert = dict(cert)
                 cert_type = new_cert.get('type', 'IMC')
+                if isinstance(cert_type, str):
+                    cert_type = cert_type.lower()
+                new_cert['certificate_type'] = cert_type
                 cert_file = new_cert.get('certificate_file')
                 key_file = new_cert.get('private_key_file')
                 
                 # Validate file requirements based on certificate type
-                if cert_type == 'IMC':
+                if cert_type == 'imc':
                     # IMC certificates require both certificate_file and private_key_file
                     if not cert_file:
                         raise ValueError(
@@ -1231,7 +1404,7 @@ def to_module_params(item, module_name):
                             f"Error processing IMC certificate '{new_cert.get('name', 'unknown')}': {str(e)}"
                         )
                 
-                elif cert_type == 'RootCA':
+                elif cert_type == 'rootca':
                     # RootCA certificates require only certificate_file
                     if not cert_file:
                         raise ValueError(
@@ -1248,13 +1421,127 @@ def to_module_params(item, module_name):
                         )
                 
                 # Remove schema-only fields (won't be sent to API)
+                cert_name = new_cert.pop('name', None)
+                if cert_name not in (None, ''):
+                    new_cert['certificate_name'] = cert_name
+                elif cert_type == 'rootca':
+                    policy_name = result.get('name', 'certificate')
+                    new_cert['certificate_name'] = f"{policy_name}_{cert_index}"
+
+                new_cert.pop('type', None)
                 new_cert.pop('certificate_file', None)
                 new_cert.pop('private_key_file', None)
                 new_cert.pop('variable_id', None)  # deprecated field
                 
                 processed_certs.append(new_cert)
-            
+
             result['certificates'] = processed_certs
+
+    elif module_name == 'intersight_drive_security_policy':
+        # Resolve sensitive variable identifiers to environment values and map
+        # schema structures to module-native manual_key/remote_key dictionaries.
+        def _resolve_sensitive_value(var_id, env_prefix):
+            if not isinstance(var_id, int) or var_id <= 0:
+                return None
+            return os.environ.get(f'{env_prefix}_{var_id}')
+
+        manual_key = result.get('manual_key')
+        if isinstance(manual_key, dict):
+            new_manual = {}
+
+            existing_var_id = manual_key.get('current_security_key_passphrase')
+            existing_value = _resolve_sensitive_value(existing_var_id, 'drive_security_current_security_key_passphrase')
+            if existing_value not in (None, ''):
+                new_manual['existing_key'] = str(existing_value)
+
+            new_var_id = manual_key.get('new_security_key_passphrase')
+            new_value = _resolve_sensitive_value(new_var_id, 'drive_security_new_security_key_passphrase')
+            if new_value not in (None, ''):
+                new_manual['new_key'] = str(new_value)
+
+            result['manual_key'] = new_manual
+
+        remote_key = result.get('remote_key')
+        if isinstance(remote_key, dict):
+            new_remote = {}
+
+            existing_var_id = remote_key.get('current_security_key_passphrase')
+            existing_value = _resolve_sensitive_value(existing_var_id, 'drive_security_current_security_key_passphrase')
+            if existing_value not in (None, ''):
+                new_remote['existing_key'] = str(existing_value)
+
+            cert_var_id = remote_key.get('server_public_root_ca_certificate')
+            cert_value = _resolve_sensitive_value(cert_var_id, 'drive_security_server_ca_certificate')
+            if cert_value in (None, ''):
+                if isinstance(cert_var_id, int) and cert_var_id > 0:
+                    cert_value = os.environ.get(
+                        f'drive_security_server_public_root_ca_certificate_{cert_var_id}'
+                    )
+            if cert_value in (None, ''):
+                # Support the unsuffixed variable form used by Terraform inputs.
+                fallback_cert_value = (
+                    os.environ.get('drive_security_server_ca_certificate')
+                    or os.environ.get('drive_security_server_public_root_ca_certificate')
+                )
+                if fallback_cert_value not in (None, ''):
+                    if os.path.isfile(fallback_cert_value):
+                        try:
+                            cert_value = _validate_and_read_pem_file(fallback_cert_value)
+                        except ValueError:
+                            cert_value = fallback_cert_value
+                    else:
+                        cert_value = fallback_cert_value
+            if cert_value in (None, ''):
+                # Final fallback for bundled sample models in this repository.
+                sample_ca = os.path.normpath(
+                    os.path.join(os.path.dirname(__file__), '..', '..', 'openshift', 'oath_ldap', 'ca.crt')
+                )
+                if os.path.isfile(sample_ca):
+                    try:
+                        cert_value = _validate_and_read_pem_file(sample_ca)
+                    except ValueError:
+                        cert_value = None
+            if cert_value not in (None, ''):
+                new_remote['server_certificate'] = str(cert_value)
+
+            auth = remote_key.get('enable_authentication')
+            if isinstance(auth, dict):
+                new_remote['use_authentication'] = True
+                username = auth.get('username')
+                if username not in (None, ''):
+                    new_remote['username'] = str(username)
+                password_var_id = auth.get('password')
+                password_value = _resolve_sensitive_value(password_var_id, 'drive_security_authentication_password')
+                if password_value not in (None, ''):
+                    new_remote['password'] = str(password_value)
+
+            primary = remote_key.get('primary_server')
+            if isinstance(primary, dict):
+                primary_server = {'enable_drive_security': True}
+                if primary.get('hostname_ip_address') not in (None, ''):
+                    primary_server['ip_address'] = primary['hostname_ip_address']
+                if primary.get('port') not in (None, ''):
+                    primary_server['port'] = primary['port']
+                if primary.get('timeout') not in (None, ''):
+                    primary_server['timeout'] = primary['timeout']
+                new_remote['primary_server'] = primary_server
+
+            secondary = remote_key.get('secondary_server')
+            if isinstance(secondary, dict):
+                secondary_server = {'enable_drive_security': True}
+                if secondary.get('hostname_ip_address') not in (None, ''):
+                    secondary_server['ip_address'] = secondary['hostname_ip_address']
+                if secondary.get('port') not in (None, ''):
+                    secondary_server['port'] = secondary['port']
+                if secondary.get('timeout') not in (None, ''):
+                    secondary_server['timeout'] = secondary['timeout']
+                new_remote['secondary_server'] = secondary_server
+
+            if 'server_certificate' in new_remote:
+                result['remote_key'] = new_remote
+            else:
+                result.pop('remote_key', None)
+
     elif module_name == 'intersight_syslog_policy':
         # local_logging.minimum_severity → local_logging_minimum_severity
         ll = item.get('local_logging', {})
@@ -1368,7 +1655,17 @@ def to_module_params(item, module_name):
     if module_name == 'intersight_mac_pool':
         blocks = result.get('mac_blocks')
         if isinstance(blocks, list):
-            result['mac_blocks'] = _process_blocks_with_size(blocks, 'from', drop_to=True)
+            processed_blocks = _process_blocks_with_size(blocks, 'from', drop_to=True)
+            remapped_blocks = []
+            for block in processed_blocks:
+                if not isinstance(block, dict):
+                    remapped_blocks.append(block)
+                    continue
+                new_block = dict(block)
+                if 'from' in new_block and 'address_from' not in new_block:
+                    new_block['address_from'] = new_block.pop('from')
+                remapped_blocks.append(new_block)
+            result['mac_blocks'] = remapped_blocks
 
     elif module_name == 'intersight_uuid_pool':
         blocks = result.get('uuid_suffix_blocks')
@@ -1379,11 +1676,147 @@ def to_module_params(item, module_name):
         # IPv4 blocks
         ipv4_blocks = result.get('ipv4_blocks')
         if isinstance(ipv4_blocks, list):
-            result['ipv4_blocks'] = _process_blocks_with_size(ipv4_blocks, 'from', drop_to=True)
+            processed_ipv4_blocks = _process_blocks_with_size(ipv4_blocks, 'from', drop_to=True)
+            converted_ipv4_blocks = []
+            for block in processed_ipv4_blocks:
+                if not isinstance(block, dict):
+                    converted_ipv4_blocks.append(block)
+                    continue
+
+                new_block = dict(block)
+                gateway = new_block.get('gateway')
+                if gateway not in (None, ''):
+                    ipv4_config = {}
+                    existing_ipv4_config = new_block.get('ipv4_config')
+                    if isinstance(existing_ipv4_config, dict):
+                        ipv4_config.update(existing_ipv4_config)
+
+                    for key in ('gateway', 'netmask', 'primary_dns', 'secondary_dns'):
+                        if key in new_block and new_block.get(key) not in (None, ''):
+                            ipv4_config[key] = new_block.pop(key)
+
+                    new_block['ipv4_config'] = ipv4_config
+
+                converted_ipv4_blocks.append(new_block)
+
+            result['ipv4_blocks'] = converted_ipv4_blocks
         # IPv6 blocks
         ipv6_blocks = result.get('ipv6_blocks')
         if isinstance(ipv6_blocks, list):
-            result['ipv6_blocks'] = _process_blocks_with_size(ipv6_blocks, 'from', drop_to=True)
+            processed_ipv6_blocks = _process_blocks_with_size(ipv6_blocks, 'from', drop_to=True)
+            converted_ipv6_blocks = []
+            for block in processed_ipv6_blocks:
+                if not isinstance(block, dict):
+                    converted_ipv6_blocks.append(block)
+                    continue
+
+                new_block = dict(block)
+                gateway = new_block.get('gateway')
+                if gateway not in (None, ''):
+                    ipv6_config = {}
+                    existing_ipv6_config = new_block.get('ipv6_config')
+                    if isinstance(existing_ipv6_config, dict):
+                        ipv6_config.update(existing_ipv6_config)
+
+                    for key in ('gateway', 'prefix', 'primary_dns', 'secondary_dns'):
+                        if key in new_block and new_block.get(key) not in (None, ''):
+                            ipv6_config[key] = new_block.pop(key)
+
+                    new_block['ipv6_config'] = ipv6_config
+
+                converted_ipv6_blocks.append(new_block)
+
+            result['ipv6_blocks'] = converted_ipv6_blocks
+
+        # Module requires a global flag when subnet settings are defined per block.
+        has_block_level_gateway = False
+        for block_list_key in ('ipv4_blocks', 'ipv6_blocks'):
+            block_list = result.get(block_list_key)
+            if not isinstance(block_list, list):
+                continue
+            if any(
+                isinstance(block, dict) and (
+                    block.get('gateway') not in (None, '')
+                    or (isinstance(block.get('ipv4_config'), dict)
+                        and block['ipv4_config'].get('gateway') not in (None, ''))
+                    or (isinstance(block.get('ipv6_config'), dict)
+                        and block['ipv6_config'].get('gateway') not in (None, ''))
+                )
+                for block in block_list
+            ):
+                has_block_level_gateway = True
+                break
+
+        if has_block_level_gateway:
+            result['enable_block_level_subnet_config'] = True
+
+    elif module_name == 'intersight_vnic_template':
+        # Module currently accepts a single network-group policy name.
+        ng_policy = result.get('fabric_eth_network_group_policy_name')
+        if isinstance(ng_policy, list):
+            if len(ng_policy) > 0:
+                result['fabric_eth_network_group_policy_name'] = ng_policy[0]
+            else:
+                result.pop('fabric_eth_network_group_policy_name', None)
+
+        sriov_settings = result.get('sriov_settings')
+        if isinstance(sriov_settings, dict):
+            mapped_sriov = {}
+            sriov_key_map = {
+                'completion_queue_count_per_vf': 'comp_count_per_vf',
+                'interrupt_count_per_vf': 'int_count_per_vf',
+                'number_of_vfs': 'vf_count',
+                'receive_queue_count_per_vf': 'rx_count_per_vf',
+                'transmit_queue_count_per_vf': 'tx_count_per_vf',
+                'enabled': 'enabled',
+            }
+            for src_key, dst_key in sriov_key_map.items():
+                if src_key in sriov_settings and sriov_settings[src_key] not in (None, ''):
+                    mapped_sriov[dst_key] = sriov_settings[src_key]
+            result['sriov_settings'] = mapped_sriov
+
+        usnic_settings = result.get('usnic_settings')
+        if isinstance(usnic_settings, dict):
+            mapped_usnic = {}
+            usnic_key_map = {
+                'class_of_service': 'cos',
+                'number_of_usnics': 'count',
+                'usnic_adapter_policy': 'usnic_adapter_policy_name',
+            }
+            for src_key, dst_key in usnic_key_map.items():
+                if src_key in usnic_settings and usnic_settings[src_key] not in (None, ''):
+                    mapped_usnic[dst_key] = usnic_settings[src_key]
+            result['usnic_settings'] = mapped_usnic
+
+        vmq_settings = result.get('vmq_settings')
+        if isinstance(vmq_settings, dict):
+            mapped_vmq = {}
+            vmq_key_map = {
+                'enable_virtual_machine_multi_queue': 'multi_queue_support',
+                'enabled': 'enabled',
+                'number_of_interrupts': 'num_interrupts',
+                'number_of_sub_vnics': 'num_sub_vnics',
+                'number_of_virtual_machine_queues': 'num_vmqs',
+                'vmmq_adapter_policy': 'vmmq_adapter_policy_name',
+            }
+            for src_key, dst_key in vmq_key_map.items():
+                if src_key in vmq_settings and vmq_settings[src_key] not in (None, ''):
+                    mapped_vmq[dst_key] = vmq_settings[src_key]
+            result['vmq_settings'] = mapped_vmq
+
+        # Infer connection type from enabled connection settings if not explicit.
+        if 'connection_type' not in result:
+            if isinstance(result.get('sriov_settings'), dict) and result['sriov_settings'].get('enabled'):
+                result['connection_type'] = 'sriov'
+            elif isinstance(result.get('vmq_settings'), dict) and result['vmq_settings'].get('enabled'):
+                result['connection_type'] = 'vmq'
+            elif isinstance(result.get('usnic_settings'), dict) and (
+                result['usnic_settings'].get('count', 0) not in (None, 0)
+                or result['usnic_settings'].get('usnic_adapter_policy_name') not in (None, '')
+            ):
+                result['connection_type'] = 'usnic'
+            else:
+                result['connection_type'] = 'none'
 
     # ---- Prune modules with strict param sets --------------------------------
     valid = _MODULE_VALID_PARAMS.get(module_name)

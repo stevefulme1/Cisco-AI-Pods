@@ -814,8 +814,8 @@
                     "type": "string"
                 },
                 "description": {
-                    "default": "default",
-                    "description": "The default value is `default`.  Description of the Pool.",
+                    "default": "",
+                    "description": "The default value is ``.  Description of the Pool.",
                     "intersight_api": "Description",
                     "maxLength": 1024,
                     "minLength": 0,
@@ -8856,7 +8856,7 @@
                             "type": "boolean"
                         },
                         "certificates": {
-                            "description": "List of Certificates and their Properties.  Each certificate policy can only have one IMC certificate.  Multiple RootCA certificates are supported for each policy.\n\nIMC Certificate Required Attributes are:\n  * `type`\n  * `variable_id`\n\nNote: The `variable_id` must be equal to `var.cert_mgmt_certificate_<variable_id>` and `var.cert_mgmt_private_key_<variable_id>`\n\nIMC Certificate Optional Attributes:\n  * `cert_type: KMIPClient - Set KMIP certificate on the selected end point`\n  * `enabled`\n\nRootCA Certificate Required Attributes are:\n  * `type`\n  * `name`\n  * `variable_id`\n\nNote: The variable_id must be equal to `var.cert_mgmt_certificate_<variable_id>`\n\nRootCA Certificate Optional Attributes:\n  * `enabled`",
+                            "description": "List of Certificates and their Properties.  Each certificate policy can only have one IMC certificate.  Multiple RootCA certificates are supported for each policy.\n\nIMC Certificate Required Attributes are:\n  * `certificate_file`\n  * `private_key_file`\n  * `type`\n\nIMC Certificate Optional Attributes:\n  * `cert_type: KMIPClient - Set KMIP certificate on the selected end point`\n  * `enabled`\n\nRootCA Certificate Required Attributes are:\n  * `certificate_file`\n  * `name`\n  * `type`\n\nRootCA Certificate Optional Attributes:\n  * `enabled`",
                             "items": {
                                 "$ref": "#/definitions/intersight.certificate_management.certificates"
                             },
@@ -8892,6 +8892,14 @@
             "description": "",
             "object_type": "not_applicable",
             "properties": {
+                "certificate_file": {
+                    "description": "Absolute path to the certificate file on the host. File must be in PEM format. Example: `/etc/pki/certs/server.crt` or `/opt/certs/certificate.pem`. For IMC type, both certificate_file and private_key_file are required. For RootCA type, only certificate_file is required.",
+                    "title": "certificate_file",
+                    "type": "string",
+                    "examples": [
+                        "/etc/pki/certs/server.crt"
+                    ]
+                },
                 "cert_type": {
                     "default": "None",
                     "description": "The default value is `None`.  Certificate Type for the certificate management.\n  * `None` - Set certificate on the selected end point .\n  * `KMIPClient` - Set KMIP certificate on the selected end point.",
@@ -8923,6 +8931,14 @@
                         "true"
                     ]
                 },
+                "private_key_file": {
+                    "description": "Absolute path to the private key file on the host. File must be in PEM format. Example: `/etc/pki/private/server.key` or `/opt/certs/private-key.pem`. Required for IMC type certificates only.",
+                    "title": "private_key_file",
+                    "type": "string",
+                    "examples": [
+                        "/etc/pki/private/server.key"
+                    ]
+                },
                 "type": {
                     "default": "IMC",
                     "description": "The default value is `IMC`.  Certificate Object Type to Assign.\n  * `IMC` - Set the object_type to `certificatemanagement.Imc`.\n  * `RootCA` -  Set the object_type to `certificatemanagement.RootCaCertificate`.",
@@ -8933,31 +8949,6 @@
                     "intersight_api": "not_applicable",
                     "title": "type",
                     "type": "string"
-                },
-                "variable_id": {
-                    "default": 1,
-                    "description": "The default value is `1`.  (Deprecated: Use certificate_file and private_key_file instead) The Sensitive Variable Identifier to be used with this Certificate.  A number Between 1-64 to denote the variables cert_mgmt_certificate_[1-64] and cert_mgmt_private_key_[1-64].",
-                    "intersight_api": "$ref:certificatemanagement.CertificateBase:Certificate",
-                    "maximum": 64,
-                    "minimum": 1,
-                    "title": "variable_id",
-                    "type": "integer"
-                },
-                "certificate_file": {
-                    "description": "Absolute path to the certificate file on the host. File must be in PEM format. Example: `/etc/pki/certs/server.crt` or `/opt/certs/certificate.pem`. For IMC type, both certificate_file and private_key_file are required. For RootCA type, only certificate_file is required.",
-                    "title": "certificate_file",
-                    "type": "string",
-                    "examples": [
-                        "/etc/pki/certs/server.crt"
-                    ]
-                },
-                "private_key_file": {
-                    "description": "Absolute path to the private key file on the host. File must be in PEM format. Example: `/etc/pki/private/server.key` or `/opt/certs/private-key.pem`. Required for IMC type certificates only.",
-                    "title": "private_key_file",
-                    "type": "string",
-                    "examples": [
-                        "/etc/pki/private/server.key"
-                    ]
                 }
             },
             "required": [
@@ -9056,7 +9047,7 @@
             "properties": {
                 "current_security_key_passphrase": {
                     "default": 0,
-                    "description": "The default value is `0`.  Current Security Key Passphrase which is already configured on the server. From the security context, the passphrase should be at least 8 characters long and should include at least one uppercase letter, one lowercase letter, one number, and one special character.  i.e. `var.drive_security_current_security_key_passphrase_1`.",
+                    "description": "The default value is `0`.  Current Security Key Passphrase which is already configured on the server. From the security context, the passphrase should be at least 8 characters long and should include at least one uppercase letter, one lowercase letter, one number, and one special character.  A number Between 1-64 that maps to variable `drive_security_current_security_key_passphrase_[1-64]`.  i.e. `export drive_security_current_security_key_passphrase_1='cisco123'`.",
                     "intersight_api": "ExistingKey",
                     "maximum": 64,
                     "minimum": 0,
@@ -9065,7 +9056,7 @@
                 },
                 "new_security_key_passphrase": {
                     "default": 1,
-                    "description": "The default value is `1`.  New Security Key Passphrase to be configured on the server. From the security context, the passphrase should be at least 8 characters long and should include at least one uppercase letter, one lowercase letter, one number, and one special character.  i.e. `var.drive_security_new_security_key_passphrase_1`.",
+                    "description": "The default value is `1`.  New Security Key Passphrase to be configured on the server. From the security context, the passphrase should be at least 8 characters long and should include at least one uppercase letter, one lowercase letter, one number, and one special character.  A number Between 1-64 that maps to variable `drive_security_new_security_key_passphrase_[1-64]`.  i.e. `export drive_security_new_security_key_passphrase_1='cisco123'`.",
                     "intersight_api": "NewKey",
                     "maximum": 64,
                     "minimum": 1,
@@ -9093,7 +9084,7 @@
                 },
                 "current_security_key_passphrase": {
                     "default": 0,
-                    "description": "The default value is `0`.  Current Security Key Passphrase which is already configured on the server. From the security context, the passphrase should be at least 8 characters long and should include at least one uppercase letter, one lowercase letter, one number, and one special character.  i.e. `var.drive_security_current_security_key_passphrase_1`.",
+                    "description": "The default value is `0`.  Current Security Key Passphrase which is already configured on the server. From the security context, the passphrase should be at least 8 characters long and should include at least one uppercase letter, one lowercase letter, one number, and one special character.  A number Between 1-64 to denote the variables drive_security_current_security_key_passphrase_[1-64].  i.e. `export drive_security_current_security_key_passphrase_1='cisco123'`.",
                     "intersight_api": "ExistingKey",
                     "maximum": 64,
                     "minimum": 0,
@@ -9111,7 +9102,7 @@
                 },
                 "server_public_root_ca_certificate": {
                     "default": 1,
-                    "description": "The default value is `1`.  The Password Sensitive Variable Identifier.  i.e. `var.drive_security_server_ca_certificate`.",
+                    "description": "The default value is `1`.  The server public root ca certificate sensitive variable identifier.  A number Between 1-64 to denote the variables drive_security_server_ca_certificate_[1-64].  i.e. `export drive_security_server_ca_certificate_1='cisco123'`.",
                     "intersight_api": "ServerCertificate",
                     "maximum": 64,
                     "minimum": 1,
@@ -9134,7 +9125,7 @@
             "properties": {
                 "password": {
                     "default": 1,
-                    "description": "The default value is `1`.  The Password Sensitive Variable Identifier.  i.e. `var.drive_security_authentication_password`.",
+                    "description": "The default value is `1`.  The Password Sensitive Variable Identifier.  A number Between 1-64 to denote the variables drive_security_authentication_password_[1-64].  i.e. `export drive_security_authentication_password_1='cisco123'`.",
                     "intersight_api": "Password",
                     "maximum": 64,
                     "minimum": 1,
@@ -11404,7 +11395,7 @@
             "properties": {
                 "cco_password": {
                     "default": 1,
-                    "description": "The default value is `1`.  The Cisco Software Download User Password.  i.e. `var.cco_password`.",
+                    "description": "The default value is `1`.  The Cisco Software Download User Password.  A number Between 1-64 to denote the variables cco_password_[1-64].  i.e. `export cco_password_1='cisco123'`.",
                     "intersight_api": "not_applicable",
                     "maximum": 64,
                     "minimum": 1,
@@ -11413,7 +11404,7 @@
                 },
                 "cco_user": {
                     "default": 1,
-                    "description": "The default value is `1`.  The Cisco Software Download User.  i.e. `var.cco_user`.",
+                    "description": "The default value is `1`.  The Cisco Software Download User.  A number Between 1-64 to denote the variables cco_user_[1-64].  i.e. `export cco_user_1='user@example.com'`.",
                     "intersight_api": "not_applicable",
                     "maximum": 64,
                     "minimum": 1,
@@ -11993,7 +11984,7 @@
                         },
                         "encryption_key": {
                             "default": 1,
-                            "description": "The default value is `1`.  The Encryption Key Sensitive Variable Identifier.  i.e. `var.ipmi_key`.  The encryption key to use for IPMI communication. It should have an even number of hexadecimal characters and not exceed 40 characters. Use \u201c00\u201d to disable encryption key use. This configuration is supported by all standalone rack servers. FI-attached rack servers with firmware at minimum of 4.2.3a support this configuration. FI-attached blade servers with firmware at minimum of 5.1.0.x support this configuration. IPMI commands using this key should append zeroes to the key to achieve a length of 40 characters.",
+                            "description": "The default value is `1`.  The Encryption Key Sensitive Variable Identifier.  The encryption key to use for IPMI communication. It should have an even number of hexadecimal characters and not exceed 40 characters. Use \u201c00\u201d to disable encryption key use. This configuration is supported by all standalone rack servers. FI-attached rack servers with firmware at minimum of 4.2.3a support this configuration. FI-attached blade servers with firmware at minimum of 5.1.0.x support this configuration. IPMI commands using this key should append zeroes to the key to achieve a length of 40 characters.  A number Between 1-64 to denote the variables ipmi_key_[1-64].  i.e. `export ipmi_key_1='cisco123'`.",
                             "intersight_api": "EncryptionKey",
                             "maximum": 64,
                             "minimum": 1,
@@ -14362,7 +14353,7 @@
                 },
                 "secret": {
                     "default": 1,
-                    "description": "The default value is `1`.  The MacSec Key Secret Sensitive Variable Identifier.  i.e. `var.mac_sec_fallback_key_chain_secret_1`.",
+                    "description": "The default value is `1`.  The MacSec Key Secret Sensitive Variable Identifier.  A number Between 1-64 to denote the variables mac_sec_fallback_key_chain_secret_[1-64].  i.e. `export mac_sec_fallback_key_chain_secret_1='cisco123'`.",
                     "intersight_api": "OctetString",
                     "maximum": 64,
                     "minimum": 1,
@@ -14493,7 +14484,7 @@
                 },
                 "secret": {
                     "default": 1,
-                    "description": "The default value is `1`.  The MacSec Key Secret Sensitive Variable Identifier.  i.e. `var.mac_sec_primary_key_chain_secret_1`.",
+                    "description": "The default value is `1`.  The MacSec Key Secret Sensitive Variable Identifier.  A number Between 1-64 to denote the variables mac_sec_primary_key_chain_secret_[1-64].  i.e. `export mac_sec_primary_key_chain_secret_1='cisco123'`.",
                     "intersight_api": "OctetString",
                     "maximum": 64,
                     "minimum": 1,
@@ -14964,7 +14955,7 @@
                         },
                         "passphrase": {
                             "default": 1,
-                            "description": "The default value is `1`.  The Persisentent Memory Passphrase Sensitive Variable Identifier.  i.e. `var.persistent_passphrase`.",
+                            "description": "The default value is `1`.  The Persisentent Memory Passphrase Sensitive Variable Identifier.  A number Between 1-64 to denote the variables persistent_passphrase_[1-64].  i.e. `export persistent_passphrase_1='cisco123'`.",
                             "intersight_api": "$ref:iam.EndPointUserRole:Password",
                             "maximum": 64,
                             "minimum": 1,
@@ -22611,7 +22602,7 @@
                     "properties": {
                         "access_community_string": {
                             "default": 1,
-                            "description": "The default value is `1`.  The Sensitive Variable Identifier for the Access Community String.  i.e. `var.access_community_string_1`.  The SNMP Access Community String for devices performing SNMP Queries against the appliance for SNMPv1/v2c. The value can be 18 characters long.",
+                            "description": "The default value is `1`.  The Sensitive Variable Identifier for the Access Community String.  The SNMP Access Community String for devices performing SNMP Queries against the appliance for SNMPv1/v2c. The value can be 18 characters long.  A number Between 1-64 to denote the variables access_community_string_[1-64].  i.e. `export access_community_string_1='cisco123'`.",
                             "intersight_api": "AccessCommunityString",
                             "maximum": 64,
                             "minimum": 1,
@@ -22713,7 +22704,7 @@
                         },
                         "trap_community_string": {
                             "default": 1,
-                            "description": "The default value is `1`.  The Sensitive Variable Identifier for the Trap Community String.  i.e. `var.snmp_trap_community_1`.  The SNMP Trap Community String will be used for sending Trap notification to devices utilizing SNMPv1/v2c. The value can be 18 characters long.",
+                            "description": "The default value is `1`.  The Sensitive Variable Identifier for the Trap Community String.  The SNMP Trap Community String will be used for sending Trap notification to devices utilizing SNMPv1/v2c. The value can be 18 characters long.  A number Between 1-64 to denote the variables snmp_trap_community_[1-64].  i.e. `export snmp_trap_community_1='cisco123'`.",
                             "intersight_api": "TrapCommunity",
                             "maximum": 64,
                             "minimum": 1,
@@ -22747,7 +22738,7 @@
             "properties": {
                 "community_string": {
                     "default": 1,
-                    "description": "The default value is `1`.  The default value is `0`.  A number Between 1-5 to denote to use one of the variables snmp_auth_password_[1-5].  Any other number means no community string.",
+                    "description": "The default value is `1`.  The default value is `0`.  A number Between 1-5 to denote to use one of the variables snmp_auth_password_[1-5].  Any other number means no community string.  A number Between 1-64 to denote the variables snmp_auth_password_[1-64].",
                     "intersight_api": "Community",
                     "maximum": 64,
                     "minimum": 1,
@@ -22821,7 +22812,7 @@
             "properties": {
                 "auth_password": {
                     "default": 1,
-                    "description": "The default value is `1`.  A number Between to denote to use one of the variables, i.e. `var.snmp_auth_password_[1-5]`.",
+                    "description": "The default value is `1`.  A number Between 1-64 to denote the variables snmp_auth_password_[1-64].  i.e. `export snmp_auth_password_1='cisco123'`.",
                     "intersight_api": "AuthPassword",
                     "maximum": 64,
                     "minimum": 1,
@@ -22858,7 +22849,7 @@
                 },
                 "privacy_password": {
                     "default": 1,
-                    "description": "The default value is `1`.  A number Between to denote to use one of the variables, i.e. `var.snmp_privacy_password_[1-5]`.",
+                    "description": "The default value is `1`.  A number Between 1-64 to denote the variables snmp_privacy_password_[1-64].  i.e. `export snmp_privacy_password_1='cisco123'`.",
                     "intersight_api": "PrivacyPassword",
                     "maximum": 64,
                     "minimum": 1,
@@ -23481,7 +23472,7 @@
                     "properties": {
                         "aes_primary_key": {
                             "default": 1,
-                            "description": "The default value is `1`.  Encrypts MacSec keys in type-6 format. If a MacSec key is already provided in a type-6 format, the primary key decrypts it.  i.e. `var.switch_control_aes_primary_key_1`.",
+                            "description": "The default value is `1`.  Encrypts MacSec keys in type-6 format. If a MacSec key is already provided in a type-6 format, the primary key decrypts it.  A number Between 1-64 to denote the variables switch_control_aes_primary_key_[1-64].  i.e. `export switch_control_aes_primary_key_1='cisco123'`.",
                             "intersight_api": "AesPrimaryKey",
                             "maximum": 64,
                             "minimum": 1,
@@ -25296,7 +25287,7 @@
                 },
                 "password": {
                     "default": 1,
-                    "description": "The default value is `1`.  A number Between to denote to use one of the variables, i.e. `var.vmedia_password_[1-5]`.",
+                    "description": "The default value is `1`.  A number Between to denote to use one of the variables.  A number Between 1-64 to denote the variables vmedia_password_[1-64].  i.e. `export vmedia_password_1='cisco123'`.",
                     "intersight_api": "Password",
                     "maximum": 64,
                     "minimum": 1,
@@ -29621,7 +29612,7 @@
             "properties": {
                 "community": {
                     "default": 1,
-                    "description": "The default value is `1`.  A number Between 1-64 to denote to use one of the variables snmp_community_[1-64].  i.e. `export snmp_community_1='cisco123'`.",
+                    "description": "The default value is `1`.  A number Between 1-64 to denote to use one of the variables snmp_community_[1-64].  A number Between 1-64 to denote the variables snmp_community_[1-64].  i.e. `export snmp_community_1='cisco123'`.",
                     "maximum": 64,
                     "minimum": 1,
                     "title": "Community String Number",
@@ -29684,7 +29675,7 @@
             "properties": {
                 "auth_passphrase": {
                     "default": 1,
-                    "description": "The default value is `1`.  A number Between 1-64 to denote to use one of the variables snmp_auth_passphrase_[1-64].  i.e. `export snmp_auth_passphrase_1='cisco123'`.",
+                    "description": "The default value is `1`.  A number Between 1-64 to denote to use one of the variables snmp_auth_passphrase_[1-64].  A number Between 1-64 to denote the variables snmp_auth_passphrase_[1-64].  i.e. `export snmp_auth_passphrase_1='cisco123'`.",
                     "maximum": 64,
                     "minimum": 1,
                     "title": "Authentication Passphrase number",
@@ -29735,7 +29726,7 @@
                 },
                 "privacy_passphrase": {
                     "default": 1,
-                    "description": "The default value is `1`.  A number Between 1-64 to denote to use one of the variables snmp_privacy_passphrase_[1-64].  i.e. `export snmp_privacy_passphrase_1='cisco123'`.",
+                    "description": "The default value is `1`.  A number Between 1-64 to denote to use one of the variables snmp_privacy_passphrase_[1-64].  A number Between 1-64 to denote the variables snmp_privacy_passphrase_[1-64].  i.e. `export snmp_privacy_passphrase_1='cisco123'`.",
                     "maximum": 64,
                     "minimum": 1,
                     "title": "Privacy Passphrase number",
@@ -29789,7 +29780,7 @@
             "properties": {
                 "auth_passphrase": {
                     "default": 1,
-                    "description": "The default value is `1`.  A number Between 1-64 to denote to use one of the variables snmp_auth_passphrase_[1-64].  i.e. `export snmp_auth_passphrase_1='cisco123'`.",
+                    "description": "The default value is `1`.  A number Between 1-64 to denote to use one of the variables snmp_auth_passphrase_[1-64].  A number Between 1-64 to denote the variables snmp_auth_passphrase_[1-64].  i.e. `export snmp_auth_passphrase_1='cisco123'`.",
                     "maximum": 64,
                     "minimum": 1,
                     "title": "Authentication Passphrase number",
@@ -29808,7 +29799,7 @@
                 },
                 "community": {
                     "default": 1,
-                    "description": "The default value is `1`.  A number Between 1-64 to denote to use one of the variables snmp_community_[1-64].  i.e. `export snmp_community_1='cisco123'`.",
+                    "description": "The default value is `1`.  A number Between 1-64 to denote to use one of the variables snmp_community_[1-64].  A number Between 1-64 to denote the variables snmp_community_[1-64].  i.e. `export snmp_community_1='cisco123'`.",
                     "maximum": 64,
                     "minimum": 1,
                     "title": "Community String Number",
@@ -29816,7 +29807,7 @@
                 },
                 "privacy_passphrase": {
                     "default": 1,
-                    "description": "The default value is `1`.  A number Between 1-64 to denote to use one of the variables snmp_privacy_passphrase_[1-64].  i.e. `export snmp_privacy_passphrase_1='cisco123'`.",
+                    "description": "The default value is `1`.  A number Between 1-64 to denote to use one of the variables snmp_privacy_passphrase_[1-64].  A number Between 1-64 to denote the variables snmp_privacy_passphrase_[1-64].  i.e. `export snmp_privacy_passphrase_1='cisco123'`.",
                     "maximum": 64,
                     "minimum": 1,
                     "title": "Privacy Passphrase number",
