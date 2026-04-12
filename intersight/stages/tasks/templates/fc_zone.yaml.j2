@@ -1,6 +1,6 @@
 ---
-description: "{{ item.1.description | default(omit) }}"
-fc_target_zoning_type: "{{ item.1.fc_target_zoning_type | default(omit) }}"
+description: "{{ item.1.description | default('') }}"
+fc_target_zoning_type: "{{ item.1.fc_target_zoning_type | default('') }}"
 name: "{{ policy_name_prefix.fc_zone | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.fc_zone | default(policy_name_suffix.default | default('')) }}"
 organization: "{{ item.0.key }}"
 {% if item.1.targets is defined %}

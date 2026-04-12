@@ -1,7 +1,7 @@
 ---
-burst: "{{ item.1.burst | default(omit) }}"
-cos: "{{ item.1.class_of_service | default(omit) }}"
-description: "{{ item.1.description | default(omit) }}"
+burst: "{{ item.1.burst | default(10240) }}"
+cos: "{{ item.1.class_of_service | default(0) }}"
+description: "{{ item.1.description | default('') }}"
 mtu: "{{ item.1.mtu | default(omit) }}"
 name: "{{ policy_name_prefix.ethernet_qos | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.ethernet_qos | default(policy_name_suffix.default | default('')) }}"
 organization: "{{ item.0.key }}"

@@ -1,6 +1,6 @@
 ---
 {% set _p = item.1 | merge_schema_defaults(intersight_schema, 'intersight.fibre_channel_adapter') %}
-description: "{{ item.1.description | default(omit) }}"
+description: "{{ item.1.description | default('') }}"
 error_detection_timeout: "{{ _p.error_detection_timeout | default(2000) }}"
 error_recovery_enabled: "{{ _p.error_recovery_enabled | default(False) }}"
 flogi_retries: "{{ _p.flogi_retries | default(8) }}"

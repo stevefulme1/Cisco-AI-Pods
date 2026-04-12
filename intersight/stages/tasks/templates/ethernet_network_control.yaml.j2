@@ -1,6 +1,6 @@
 ---
 cdp_enabled: "{{ item.1.cdp_enable | default(False) }}"
-description: "{{ item.1.description | default(omit) }}"
+description: "{{ item.1.description | default('') }}"
 forge_mac: "{{ item.1.forge_mac | default('allow') }}"
 lldp_receive_enabled: "{{ item.1.lldp_enable_receive | default(False) }}"
 lldp_transmit_enabled: "{{ item.1.lldp_enable_transmit | default(False) }}"

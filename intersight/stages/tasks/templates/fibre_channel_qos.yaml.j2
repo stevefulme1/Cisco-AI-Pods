@@ -1,8 +1,8 @@
 ---
-burst: "{{ item.1.burst | default(omit) }}"
-cos: "{{ item.1.class_of_service | default(omit) }}"
-description: "{{ item.1.description | default(omit) }}"
-max_data_field_size: "{{ item.1.max_data_field_size | default(omit) }}"
+burst: "{{ item.1.burst | default('') }}"
+cos: "{{ item.1.class_of_service | default('') }}"
+description: "{{ item.1.description | default('') }}"
+max_data_field_size: "{{ item.1.max_data_field_size | default('') }}"
 name: "{{ policy_name_prefix.fibre_channel_qos | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.fibre_channel_qos | default(policy_name_suffix.default | default('')) }}"
 organization: "{{ item.0.key }}"
-rate_limit: "{{ item.1.rate_limit | default(omit) }}"
+rate_limit: "{{ item.1.rate_limit | default('') }}"

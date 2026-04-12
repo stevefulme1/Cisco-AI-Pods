@@ -1,5 +1,5 @@
 ---
-description: "{{ item.1.description | default(omit) }}"
+description: "{{ item.1.description | default('') }}"
 enable_local_server_video: "{{ item.1.enable_local_server_video | default(True) }}"
 enable_video_encryption: "{{ item.1.enable_video_encryption | default(True) }}"
 enabled: "{{ item.1.enable_virtual_kvm | default(True) }}"

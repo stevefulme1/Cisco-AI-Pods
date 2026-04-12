@@ -1,7 +1,7 @@
 ---
 {% set _pp = item.1.password_properties | default({}) %}
 always_update_password: "{{ _pp.always_send_user_password | default(False) }}"
-description: "{{ item.1.description | default(omit) }}"
+description: "{{ item.1.description | default('') }}"
 enable_password_expiry: "{{ _pp.enable_password_expiry | default(False) }}"
 enforce_strong_password: "{{ _pp.enforce_strong_password | default(True) }}"
 name: "{{ policy_name_prefix.local_user | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.local_user | default(policy_name_suffix.default | default('')) }}"

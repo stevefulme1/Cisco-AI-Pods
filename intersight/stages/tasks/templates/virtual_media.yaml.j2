@@ -1,5 +1,5 @@
 ---
-description: "{{ item.1.description | default(omit) }}"
+description: "{{ item.1.description | default('') }}"
 enable: "{{ item.1.enable_virtual_media | default(True) }}"
 encryption: "{{ item.1.enable_virtual_media_encryption | default(False) }}"
 low_power_usb: "{{ item.1.enable_low_power_usb | default(True) }}"

@@ -1,5 +1,5 @@
 ---
-description: "{{ item.1.description | default(omit) }}"
+description: "{{ item.1.description | default('') }}"
 {% if ':' in (item.1.ip_address | default('')) %}
 ip_protocol: "IPv6"
 ipv6_address: "{{ item.1.ip_address }}"

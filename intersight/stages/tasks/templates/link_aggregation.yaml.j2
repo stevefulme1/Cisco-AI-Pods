@@ -1,5 +1,5 @@
 ---
-description: "{{ item.1.description | default(omit) }}"
+description: "{{ item.1.description | default('') }}"
 lacp_rate: "{{ item.1.lacp_rate | default('normal') }}"
 name: "{{ policy_name_prefix.link_aggregation | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.link_aggregation | default(policy_name_suffix.default | default('')) }}"
 organization: "{{ item.0.key }}"

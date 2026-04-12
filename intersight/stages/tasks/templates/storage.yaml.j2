@@ -1,5 +1,5 @@
 ---
-description: "{{ item.1.description | default(omit) }}"
+description: "{{ item.1.description | default('') }}"
 default_drive_mode: "{{ item.1.default_drive_state | default('UnconfiguredGood') }}"
 {% if item.1.m2_raid_configuration is defined %}
 m2_virtual_drive_config:

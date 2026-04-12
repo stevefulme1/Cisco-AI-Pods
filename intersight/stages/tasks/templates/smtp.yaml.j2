@@ -1,10 +1,10 @@
 ---
-description: "{{ item.1.description | default(omit) }}"
+description: "{{ item.1.description | default('') }}"
 enabled: "{{ item.1.enabled | default(True) }}"
 min_severity: "{{ item.1.minimum_severity | default('critical') }}"
 name: "{{ policy_name_prefix.smtp | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.smtp | default(policy_name_suffix.default | default('')) }}"
 organization: "{{ item.0.key }}"
-sender_email: "{{ item.1.smtp_alert_sender_address | default(omit) }}"
+sender_email: "{{ item.1.smtp_alert_sender_address | default('') }}"
 smtp_port: "{{ item.1.smtp_port | default(25) }}"
 smtp_recipients: "{{ item.1.mail_alert_recipients | default([]) }}"
-smtp_server: "{{ item.1.smtp_server_address | default(omit) }}"
+smtp_server: "{{ item.1.smtp_server_address | default('') }}"

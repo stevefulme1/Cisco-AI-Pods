@@ -1,5 +1,5 @@
 ---
-description: "{{ item.1.description | default(omit) }}"
+description: "{{ item.1.description | default('') }}"
 initiator_ip_source: "{{ item.1.initiator_ip_source | default('dhcp') | lower }}"
 {% if item.1.initiator_ip_pool is defined %}
 initiator_ip_pool_name: "{{ item.1.initiator_ip_pool }}"

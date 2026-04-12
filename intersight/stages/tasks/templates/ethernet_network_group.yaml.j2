@@ -1,10 +1,12 @@
 ---
-allowed_vlans: "{{ item.1.allowed_vlans | default(omit) }}"
-description: "{{ item.1.description | default(omit) }}"
+{% if not item.1.qinq_vlan is defined or item.1.qinq_vlan == 0 %}
+allowed_vlans: "{{ item.1.allowed_vlans | default('') }}"
+{% endif %}
+description: "{{ item.1.description | default('') }}"
 name: "{{ policy_name_prefix.ethernet_network_group | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.ethernet_network_group | default(policy_name_suffix.default | default('')) }}"
-native_vlan: "{{ item.1.native_vlan | default(omit) }}"
+native_vlan: "{{ item.1.native_vlan | default('') }}"
 organization: "{{ item.0.key }}"
-qinq_enabled: "{{ item.1.qinq_enabled | default(False) }}"
+qinq_enabled: "{% if item.1.qinq_vlan is defined and item.1.qinq_vlan > 0 %}True{% else %}False{% endif %}"
 {% if item.1.qinq_vlan is defined %}
 qinq_vlan: "{{ item.1.qinq_vlan }}"
 {% endif %}

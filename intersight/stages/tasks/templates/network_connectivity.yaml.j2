@@ -1,6 +1,6 @@
 ---
-description: "{{ item.1.description | default(omit) }}"
-dynamic_dns_domain: "{{ item.1.update_domain | default(omit) }}"
+description: "{{ item.1.description | default('') }}"
+dynamic_dns_domain: "{{ item.1.update_domain | default('') }}"
 enable_dynamic_dns: "{{ item.1.enable_dynamic_dns | default(False) }}"
 enable_ipv4_dns_from_dhcp: "{{ item.1.obtain_ipv4_dns_from_dhcp | default(False) }}"
 enable_ipv6: "{{ item.1.enable_ipv6 | default(False) }}"

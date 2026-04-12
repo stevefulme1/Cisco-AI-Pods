@@ -1,5 +1,5 @@
 ---
-description: "{{ item.1.description | default(omit) }}"
+description: "{{ item.1.description | default('') }}"
 name: "{{ policy_name_prefix.adapter_configuration | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.adapter_configuration | default(policy_name_suffix.default | default('')) }}"
 organization: "{{ item.0.key }}"
 settings: |
