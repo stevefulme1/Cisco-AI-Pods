@@ -1,0 +1,14 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+{% if ':' in (item.1.ip_address | default('')) %}
+ip_protocol: "IPv6"
+ipv6_address: "{{ item.1.ip_address }}"
+{% else %}
+ip_protocol: "{{ item.1.ip_protocol | default('IPv4') }}"
+ipv4_address: "{{ item.1.ip_address }}"
+{% endif %}
+lun_id: "{{ item.1.lun_id | default(0) }}"
+name: "{{ policy_name_prefix.iscsi_static_target | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.iscsi_static_target | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+port: "{{ item.1.port | default(3260) }}"
+target_name: "{{ item.1.target_name }}"

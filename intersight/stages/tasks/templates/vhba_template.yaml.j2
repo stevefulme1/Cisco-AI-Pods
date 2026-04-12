@@ -1,0 +1,15 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+enable_override: "{{ item.1.allow_override | default(False) }}"
+fibre_channel_adapter_policy_name: "{{ item.1.fibre_channel_adapter_policy | default(omit) }}"
+fibre_channel_network_policy_name: "{{ item.1.fibre_channel_network_policy | default(omit) }}"
+fibre_channel_qos_policy_name: "{{ item.1.fibre_channel_qos_policy | default(omit) }}"
+{% if item.1.fc_zone_policies is defined %}
+fibre_channel_zone_policy_names: "{{ item.1.fc_zone_policies }}"
+{% endif %}
+name: "{{ policy_name_prefix.vhba_template | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.vhba_template | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+persistent_bindings: "{{ item.1.persistent_lun_bindings | default(False) }}"
+switch_id: "{{ item.1.placement_switch_id | default('A') }}"
+vhba_type: "{{ item.1.vhba_type | default('fc-initiator') }}"
+wwpn_pool_name: "{{ item.1.wwpn_pool | default(omit) }}"

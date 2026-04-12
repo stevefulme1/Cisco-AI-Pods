@@ -1,0 +1,5 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+enable_lockout: "{{ item.1.configuration_from_intersight_only | default(False) }}"
+name: "{{ policy_name_prefix.device_connector | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.device_connector | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"

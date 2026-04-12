@@ -1,0 +1,42 @@
+---
+configured_boot_mode: "{{ item.1.boot_mode | default('Uefi') }}"
+description: "{{ item.1.description | default(omit) }}"
+name: "{{ policy_name_prefix.boot_order | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.boot_order | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+uefi_enable_secure_boot: "{{ item.1.enable_secure_boot | default(False) }}"
+{% set _type_map = {
+  'iscsi': 'iSCSI', 'local_cdd': 'Local CDD', 'local_disk': 'Local Disk',
+  'nvme': 'NVMe', 'pch_storage': 'PCH Storage', 'pxe': 'PXE', 'san': 'SAN',
+  'sd_card': 'SD Card', 'uefi_shell': 'UEFI Shell', 'usb': 'USB',
+  'virtual_media': 'Virtual Media'
+} %}
+{% if item.1.boot_devices is defined %}
+boot_devices:
+{% for device in item.1.boot_devices %}
+{% set _dt = device.device_type | lower | replace('-', '_') | replace(' ', '_') %}
+  - device_name: "{{ device.device_name }}"
+    device_type: "{{ _type_map.get(_dt, device.device_type) }}"
+    enabled: "{{ device.enabled | default(True) }}"
+{% if device.slot is defined %}
+    controller_slot: "{{ device.slot }}"
+{% endif %}
+{% if device.subtype is defined %}
+{% if 'virtual_media' in _dt %}
+    virtual_media_subtype: "{{ device.subtype }}"
+{% elif 'usb' in _dt %}
+    usb_subtype: "{{ device.subtype }}"
+{% elif 'sd_card' in _dt %}
+    sd_card_subtype: "{{ device.subtype }}"
+{% endif %}
+{% endif %}
+{% if device.interface_name is defined %}
+    interface_name: "{{ device.interface_name }}"
+{% endif %}
+{% if device.wwpn is defined %}
+    wwpn: "{{ device.wwpn }}"
+{% endif %}
+{% if device.lun is defined %}
+    lun: "{{ device.lun }}"
+{% endif %}
+{% endfor %}
+{% endif %}

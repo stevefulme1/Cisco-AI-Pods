@@ -1,0 +1,148 @@
+---
+- name: Configure Intersight Pools
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../vars/shared.yaml
+  vars:
+    model_files: >-
+      {{
+        query('ansible.builtin.fileglob', intersight_model_root ~ '/global_settings*.yaml')
+        + query('ansible.builtin.fileglob', intersight_model_root ~ '/organizations/*.yaml')
+        + query('ansible.builtin.fileglob', intersight_model_root ~ '/pools/*.yaml')
+      }}
+  environment:
+    INTERSIGHT_API_KEY_ID: "{{ intersight_api_key_id }}"
+    INTERSIGHT_API_PRIVATE_KEY: "{{ intersight_api_private_key }}"
+    INTERSIGHT_API_URI: "{{ intersight_api_uri }}"
+  tasks:
+    - name: Require top-level orchestration playbook
+      ansible.builtin.assert:
+        that:
+          - run_from_all | default(false) | bool
+        fail_msg: "Run configure_intersight_all.yaml instead of this stage playbook directly."
+
+    - name: Load common authentication and model prelude
+      ansible.builtin.include_tasks: common_prelude.yaml
+
+    - name: Collect pool name prefix/suffix
+      ansible.builtin.set_fact:
+        pool_name_prefix: "{{ merged_model.intersight.pools.name_prefix | default({}) }}"
+        pool_name_suffix: "{{ merged_model.intersight.pools.name_suffix | default({}) }}"
+
+    - name: Configure IP pools
+      # noqa: args[module]
+      cisco.intersight.intersight_ip_pool: >-
+        {{
+          item.1
+          | merge_schema_defaults(intersight_schema, 'intersight.ip')
+          | to_module_params('intersight_ip_pool')
+          | combine({
+              'name': (pool_name_prefix.ip | default(pool_name_prefix.default | default(''))
+                       ~ item.1.name
+                       ~ pool_name_suffix.ip | default(pool_name_suffix.default | default(''))),
+              'organization': item.0.key,
+              'state': 'present'
+            })
+        }}
+      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.pools.ip', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.key }}/{{ item.1.name }}"
+
+    - name: Configure MAC pools
+      # noqa: args[module]
+      cisco.intersight.intersight_mac_pool: >-
+        {{
+          item.1
+          | merge_schema_defaults(intersight_schema, 'intersight.mac')
+          | to_module_params('intersight_mac_pool')
+          | combine({
+              'name': (pool_name_prefix.mac | default(pool_name_prefix.default | default(''))
+                       ~ item.1.name
+                       ~ pool_name_suffix.mac | default(pool_name_suffix.default | default(''))),
+              'organization': item.0.key,
+              'state': 'present'
+            })
+        }}
+      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.pools.mac', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.key }}/{{ item.1.name }}"
+
+    - name: Configure IQN pools
+      # noqa: args[module]
+      cisco.intersight.intersight_iqn_pool: >-
+        {{
+          item.1
+          | merge_schema_defaults(intersight_schema, 'intersight.iqn')
+          | to_module_params('intersight_iqn_pool')
+          | combine({
+              'name': (pool_name_prefix.iqn | default(pool_name_prefix.default | default(''))
+                       ~ item.1.name
+                       ~ pool_name_suffix.iqn | default(pool_name_suffix.default | default(''))),
+              'organization': item.0.key,
+              'state': 'present'
+            })
+        }}
+      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.pools.iqn', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.key }}/{{ item.1.name }}"
+
+    - name: Configure UUID pools
+      # noqa: args[module]
+      cisco.intersight.intersight_uuid_pool: >-
+        {{
+          item.1
+          | merge_schema_defaults(intersight_schema, 'intersight.uuid')
+          | to_module_params('intersight_uuid_pool')
+          | combine({
+              'name': (pool_name_prefix.uuid | default(pool_name_prefix.default | default(''))
+                       ~ item.1.name
+                       ~ pool_name_suffix.uuid | default(pool_name_suffix.default | default(''))),
+              'organization': item.0.key,
+              'state': 'present'
+            })
+        }}
+      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.pools.uuid', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.key }}/{{ item.1.name }}"
+
+    - name: Configure WWNN pools
+      # noqa: args[module]
+      cisco.intersight.intersight_wwn_pool: >-
+        {{
+          item.1
+          | merge_schema_defaults(intersight_schema, 'intersight.wwnn')
+          | to_module_params('intersight_wwn_pool')
+          | combine({
+              'name': (pool_name_prefix.wwnn | default(pool_name_prefix.default | default(''))
+                       ~ item.1.name
+                       ~ pool_name_suffix.wwnn | default(pool_name_suffix.default | default(''))),
+              'organization': item.0.key,
+              'pool_purpose': 'WWNN',
+              'state': 'present'
+            })
+        }}
+      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.pools.wwnn', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.key }}/{{ item.1.name }}"
+
+    - name: Configure WWPN pools
+      # noqa: args[module]
+      cisco.intersight.intersight_wwn_pool: >-
+        {{
+          item.1
+          | merge_schema_defaults(intersight_schema, 'intersight.wwpn')
+          | to_module_params('intersight_wwn_pool')
+          | combine({
+              'name': (pool_name_prefix.wwpn | default(pool_name_prefix.default | default(''))
+                       ~ item.1.name
+                       ~ pool_name_suffix.wwpn | default(pool_name_suffix.default | default(''))),
+              'organization': item.0.key,
+              'pool_purpose': 'WWPN',
+              'state': 'present'
+            })
+        }}
+      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.pools.wwpn', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.key }}/{{ item.1.name }}"

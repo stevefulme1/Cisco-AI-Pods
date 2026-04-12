@@ -1,0 +1,12 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+default_drive_mode: "{{ item.1.default_drive_state | default('UnconfiguredGood') }}"
+{% if item.1.m2_raid_configuration is defined %}
+m2_virtual_drive_config:
+  controller_slot: "{{ item.1.m2_raid_configuration.slot | default('MSTOR-RAID-1') }}"
+  enable: true
+{% endif %}
+name: "{{ policy_name_prefix.storage | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.storage | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+unused_disks_state: "{{ item.1.unused_disks_state | default('NoChange') }}"
+use_jbod_for_vd_creation: "{{ item.1.use_jbod_for_vd_creation | default(False) }}"

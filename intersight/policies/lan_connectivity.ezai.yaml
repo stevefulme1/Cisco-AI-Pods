@@ -1,8 +1,8 @@
 ---
 # yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/Cisco-AI-Pods/schema/cisco-ai-pods.json --- IGNORE ---
-#================================================
+# =========================================================
 #   Policies -> LAN Connectivity - Variables
-#================================================
+# =========================================================
 intersight:
   organizations:
     Asgard:

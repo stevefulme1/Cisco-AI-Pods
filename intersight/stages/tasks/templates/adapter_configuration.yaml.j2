@@ -1,0 +1,16 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+name: "{{ policy_name_prefix.adapter_configuration | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.adapter_configuration | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+settings: |
+{% for setting in item.1.add_vic_adapter_configuration %}
+  - dce_interface_1_fec_mode: "{{ setting.dce_interface_settings.dce_interface_1_fec_mode | default('cl91') }}"
+    dce_interface_2_fec_mode: "{{ setting.dce_interface_settings.dce_interface_2_fec_mode | default('cl91') }}"
+    dce_interface_3_fec_mode: "{{ setting.dce_interface_settings.dce_interface_3_fec_mode | default('cl91') }}"
+    dce_interface_4_fec_mode: "{{ setting.dce_interface_settings.dce_interface_4_fec_mode | default('cl91') }}"
+    enable_fip: "{{ False if setting.enable_physical_nic_mode | default(False) else setting.enable_fip | default(True) }}"
+    enable_lldp: "{{ False if setting.enable_physical_nic_mode | default(False) else setting.enable_lldp | default(True) }}"
+    enable_physical_nic_mode: "{{ setting.enable_physical_nic_mode | default(False) }}"
+    enable_port_channel: "{{ False if setting.enable_physical_nic_mode | default(False) else setting.enable_port_channel | default(True) }}"
+    slot_id: "{{ setting.pci_slot | default('MLOM') }}"
+{% endfor %}

@@ -1,0 +1,14 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+name: "{{ policy_name_prefix.vlan | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.vlan | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+{% if item.1.vlans is defined %}
+vlans:
+{% for vlan in item.1.vlans %}
+  - auto_allow_on_uplinks: "{{ vlan.auto_allow_on_uplinks | default(True) }}"
+    is_native: "{{ vlan.native_vlan | default(False) }}"
+    multicast_policy_name: "{{ vlan.multicast_policy | default(omit) }}"
+    prefix: "{{ vlan.name }}"
+    vlan_id: "{{ vlan.vlan_list }}"
+{% endfor %}
+{% endif %}

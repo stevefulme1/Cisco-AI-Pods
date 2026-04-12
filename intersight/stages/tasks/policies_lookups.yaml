@@ -1,0 +1,129 @@
+---
+# Pre-computed flags for policy availability used throughout dependency modules
+# This allows all when conditions to reference short variable names instead of repeating long query expressions
+- name: Compute consumed dependency flags for all policy families
+  ansible.builtin.set_fact:
+    consumed_port_exists: >-
+      {{ query('ansible.builtin.subelements',
+         merged_model.intersight.organizations | dict2items,
+         'value.policies.port',
+         {'skip_missing': True}) | length > 0 }}
+    consumed_lan_connectivity_exists: >-
+      {{ query('ansible.builtin.subelements',
+         merged_model.intersight.organizations | dict2items,
+         'value.policies.lan_connectivity',
+         {'skip_missing': True}) | length > 0 }}
+    consumed_vnic_template_exists: >-
+      {{ query('ansible.builtin.subelements',
+         merged_model.intersight.organizations | dict2items,
+         'value.policies.vnic_template',
+         {'skip_missing': True}) | length > 0 }}
+    consumed_san_connectivity_exists: >-
+      {{ query('ansible.builtin.subelements',
+         merged_model.intersight.organizations | dict2items,
+         'value.policies.san_connectivity',
+         {'skip_missing': True}) | length > 0 }}
+    consumed_vhba_template_exists: >-
+      {{ query('ansible.builtin.subelements',
+         merged_model.intersight.organizations | dict2items,
+         'value.policies.vhba_template',
+         {'skip_missing': True}) | length > 0 }}
+    consumed_iscsi_boot_exists: >-
+      {{ query('ansible.builtin.subelements',
+         merged_model.intersight.organizations | dict2items,
+         'value.policies.iscsi_boot',
+         {'skip_missing': True}) | length > 0 }}
+    consumed_imc_access_exists: >-
+      {{ query('ansible.builtin.subelements',
+         merged_model.intersight.organizations | dict2items,
+         'value.policies.imc_access',
+         {'skip_missing': True}) | length > 0 }}
+    consumed_vlan_exists: >-
+      {{ query('ansible.builtin.subelements',
+         merged_model.intersight.organizations | dict2items,
+         'value.policies.vlan',
+         {'skip_missing': True}) | length > 0 }}
+
+- name: Dependency org maps
+  ansible.builtin.include_tasks: tasks/policies_dependencies/organizations.yaml
+  when: >-
+    consumed_imc_access_exists
+    or consumed_iscsi_boot_exists
+    or consumed_lan_connectivity_exists
+    or consumed_vnic_template_exists
+    or consumed_port_exists
+    or consumed_san_connectivity_exists
+    or consumed_vhba_template_exists
+    or consumed_vlan_exists
+
+- name: Dependency Ethernet Adapter
+  ansible.builtin.include_tasks: tasks/policies_dependencies/ethernet_adapter.yaml
+  when: consumed_lan_connectivity_exists or consumed_vnic_template_exists
+
+- name: Dependency Ethernet Network Control
+  ansible.builtin.include_tasks: tasks/policies_dependencies/ethernet_network_control.yaml
+  when: consumed_port_exists or consumed_lan_connectivity_exists
+
+- name: Dependency Ethernet QoS
+  ansible.builtin.include_tasks: tasks/policies_dependencies/ethernet_qos.yaml
+  when: consumed_port_exists or consumed_lan_connectivity_exists or consumed_vnic_template_exists
+
+- name: Dependency Fibre Channel Adapter
+  ansible.builtin.include_tasks: tasks/policies_dependencies/fibre_channel_adapter.yaml
+  when: consumed_san_connectivity_exists
+
+- name: Dependency Fibre Channel Network
+  ansible.builtin.include_tasks: tasks/policies_dependencies/fibre_channel_network.yaml
+  when: consumed_san_connectivity_exists
+
+- name: Dependency Fibre Channel QoS
+  ansible.builtin.include_tasks: tasks/policies_dependencies/fibre_channel_qos.yaml
+  when: consumed_san_connectivity_exists
+
+- name: Dependency Fibre Channel Zone
+  ansible.builtin.include_tasks: tasks/policies_dependencies/fibre_channel_zone.yaml
+  when: consumed_san_connectivity_exists
+
+- name: Dependency Flow Control
+  ansible.builtin.include_tasks: tasks/policies_dependencies/flow_control.yaml
+  when: consumed_port_exists
+
+- name: Dependency IP Pool
+  ansible.builtin.include_tasks: tasks/policies_dependencies/ip.yaml
+  when: consumed_imc_access_exists or consumed_iscsi_boot_exists
+
+- name: Dependency iSCSI Adapter
+  ansible.builtin.include_tasks: tasks/policies_dependencies/iscsi_adapter.yaml
+  when: consumed_iscsi_boot_exists
+
+- name: Dependency iSCSI Boot
+  ansible.builtin.include_tasks: tasks/policies_dependencies/iscsi_boot.yaml
+  when: consumed_lan_connectivity_exists or consumed_vnic_template_exists
+
+- name: Dependency iSCSI Static Target
+  ansible.builtin.include_tasks: tasks/policies_dependencies/iscsi_static_target.yaml
+  when: consumed_iscsi_boot_exists
+
+- name: Dependency IQN Pool
+  ansible.builtin.include_tasks: tasks/policies_dependencies/iqn.yaml
+  when: consumed_lan_connectivity_exists or consumed_vnic_template_exists
+
+- name: Dependency Link Aggregation
+  ansible.builtin.include_tasks: tasks/policies_dependencies/link_aggregation.yaml
+  when: consumed_port_exists
+
+- name: Dependency Link Control
+  ansible.builtin.include_tasks: tasks/policies_dependencies/link_control.yaml
+  when: consumed_port_exists
+
+- name: Dependency MAC Pool
+  ansible.builtin.include_tasks: tasks/policies_dependencies/mac.yaml
+  when: consumed_lan_connectivity_exists or consumed_vnic_template_exists
+
+- name: Dependency Multicast
+  ansible.builtin.include_tasks: tasks/policies_dependencies/multicast.yaml
+  when: consumed_vlan_exists
+
+- name: Dependency WWN Pool
+  ansible.builtin.include_tasks: tasks/policies_dependencies/wwn.yaml
+  when: consumed_san_connectivity_exists or consumed_vhba_template_exists

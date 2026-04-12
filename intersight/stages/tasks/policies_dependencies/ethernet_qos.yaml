@@ -1,0 +1,53 @@
+---
+- name: Build Ethernet QoS policies consumed from LAN Connectivity and vNIC Templates
+  ansible.builtin.set_fact:
+    consumed_ethernet_qos_policies: >-
+      {%- set policies = [] -%}
+      {%- set lcps = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.lan_connectivity', {'skip_missing': True}) -%}
+      {%- for org_item, lcp_policy in lcps -%}
+        {%- if lcp_policy.vnics is defined -%}
+          {%- for vnic in lcp_policy.vnics -%}
+            {%- if vnic.ethernet_qos_policy is defined -%}
+              {%- set ref = vnic.ethernet_qos_policy -%}
+              {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set templates = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.vnic_template', {'skip_missing': True}) -%}
+      {%- for org_item, vnic_template in templates -%}
+        {%- if vnic_template.ethernet_qos_policy is defined -%}
+          {%- set ref = vnic_template.ethernet_qos_policy -%}
+          {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ policies }}
+
+- name: Get Ethernet QoS Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_ethernet_qos_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_ethernet_qos_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  register: ethernet_qos_policies_info
+
+- name: Set Ethernet QoS policies dictionary
+  ansible.builtin.set_fact:
+    ethernet_qos_policies_by_org: >-
+      {{
+        ethernet_qos_policies_by_org | default({})
+        | combine({
+            organization_name: (
+              ethernet_qos_policies_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid }, recursive=True)
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ ethernet_qos_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug Ethernet QoS policies dictionary
+  ansible.builtin.debug:
+    var: ethernet_qos_policies_by_org
+  when: debug_module | bool

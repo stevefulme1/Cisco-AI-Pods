@@ -1,0 +1,113 @@
+---
+- name: Configure iSCSI Boot policies
+  # noqa: args[module]
+  cisco.intersight.intersight_iscsi_boot_policy: >-
+    {{
+      (lookup('template', 'templates/iscsi_boot.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.iscsi_boot', {'skip_missing': True}) }}"
+
+- name: Configure LAN Connectivity policies
+  # noqa: args[module]
+  cisco.intersight.intersight_lan_connectivity_policy: >-
+    {{
+      (lookup('template', 'templates/lan_connectivity.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.lan_connectivity', {'skip_missing': True}) }}"
+
+- name: Build Port policy payloads  # noqa jinja[invalid]
+  ansible.builtin.set_fact:
+    expanded_port_policy_payloads: "{{ (expanded_port_policy_payloads | default([])) + _payloads }}"
+  vars:
+    _payloads: >-
+      {{
+        item.1
+        | merge_schema_defaults(intersight_schema, 'intersight.port')
+        | split_port_policies(
+            policy_name_prefix.default | default(''),
+            policy_name_suffix.default | default('')
+          )
+        | map('to_module_params', 'intersight_port_policy')
+        | map('combine', {
+            'organization': item.0.key,
+            'state': 'present',
+            'validate_certs': module_validate_certs
+          })
+        | list
+      }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.port', {'skip_missing': True}) }}"
+
+- name: Configure Port policies
+  # noqa: args[module]
+  cisco.intersight.intersight_port_policy: >-
+    {{
+      item
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ expanded_port_policy_payloads | default([]) }}"
+
+- name: Configure SAN Connectivity policies
+  # noqa: args[module]
+  cisco.intersight.intersight_san_connectivity_policy: >-
+    {{
+      (lookup('template', 'templates/san_connectivity.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.san_connectivity', {'skip_missing': True}) }}"
+
+- name: Configure vHBA Template policies
+  # noqa: args[module]
+  cisco.intersight.intersight_vhba_template: >-
+    {{
+      (lookup('template', 'templates/vhba_template.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.vhba_template', {'skip_missing': True}) }}"
+
+- name: Configure VLAN policies
+  # noqa: args[module]
+  cisco.intersight.intersight_vlan_policy: >-
+    {{
+      (lookup('template', 'templates/vlan.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.vlan', {'skip_missing': True}) }}"
+
+- name: Configure vNIC Template policies
+  # noqa: args[module]
+  cisco.intersight.intersight_vnic_template: >-
+    {{
+      (lookup('template', 'templates/vnic_template.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.vnic_template', {'skip_missing': True}) }}"
+
+- name: Report unsupported policy types in this module set
+  ansible.builtin.debug:
+    msg:
+      - "Skipping unsupported policy type 'scrub' (no dedicated cisco.intersight module)."
+      - "Skipping unsupported policy type 'serial_over_lan' (no dedicated cisco.intersight module)."
+      - "Skipping unsupported policy type 'ethernet_network' (no dedicated cisco.intersight module)."

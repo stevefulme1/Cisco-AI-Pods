@@ -1,11 +1,11 @@
 ---
 # yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/Cisco-AI-Pods/schema/cisco-ai-pods.json --- IGNORE ---
-#======================================
+# =========================================================
 #   Profiles -> Server - Variables
-#======================================
+# =========================================================
 intersight:
   organizations:
-    EXAMPLE:
+    Asgard:
       profiles:
         server:
           - action: No-op
@@ -66,7 +66,7 @@ intersight:
                   chassis_id: 1
                   slot_id: 6
             ucs_server_profile_template: WorkerVirtualizationM8AmdTPM
-    EXAMPLE2:
+    Wakanda:
       profiles:
         server:
           - action: No-op

@@ -1,17 +1,17 @@
 ---
 # yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/Cisco-AI-Pods/schema/cisco-ai-pods.json --- IGNORE ---
-#==========================================
+# =========================================================
 #   Policies -> Management - Variables
-#==========================================
+# =========================================================
 intersight:
   organizations:
     Asgard:
       policies:
         imc_access:
-          - inband_ip_pool: InbandMgmt
+          - inband_ip_pool: common/kvm-inband
             inband_vlan_id: 1502
             name: KVMAccess
-            out_of_band_ip_pool: OobandMgmt
+            out_of_band_ip_pool: common/kvm-ooband
     common:
       policies:
         local_user:
@@ -50,13 +50,13 @@ intersight:
           - local_logging:
               minimum_severity: warning
             name: Syslog
-        imc_access:
-          - description: aci-kvm IMC Access Policy
-            inband_ip_pool: aci-kvm-inband
-            inband_vlan_id: 101
-            ipv4_address_configuration: true
-            name: aci-kvm
-            out_of_band_ip_pool: kvm-ooband
+        # ========================================== imc_access:
+        # ==========================================   - description: aci-kvm IMC Access Policy
+        # ==========================================     inband_ip_pool: kvm-inband
+        # ==========================================     inband_vlan_id: 101
+        # ==========================================     ipv4_address_configuration: true
+        # ==========================================     name: aci-kvm
+        # ==========================================     out_of_band_ip_pool: kvm-ooband
         ipmi_over_lan:
           - description: ipmi IPMI over LAN Policy
             name: ipmi

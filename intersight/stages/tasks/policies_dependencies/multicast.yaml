@@ -1,0 +1,42 @@
+---
+- name: Build Multicast policies consumed from VLAN entries
+  ansible.builtin.set_fact:
+    consumed_multicast_policies: >-
+      {%- set refs = [] -%}
+      {%- set vlan_policies = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.vlan', {'skip_missing': True}) -%}
+      {%- for org_item, vlan_policy in vlan_policies -%}
+        {%- if vlan_policy.vlans is defined -%}
+          {%- for vlan_item in vlan_policy.vlans -%}
+            {%- if vlan_item.multicast_policy is defined -%}
+              {%- set ref = vlan_item.multicast_policy -%}
+              {%- set _ = refs.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ refs }}
+
+- name: Get Multicast Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_multicast_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_multicast_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  register: multicast_policies_info
+
+- name: Set Multicast policies dictionary
+  ansible.builtin.set_fact:
+    multicast_policies_by_org: >-
+      {{
+        multicast_policies_by_org | default({})
+        | combine({ organization_name: (multicast_policies_by_org[organization_name] | default({})) | combine({ item.Name: item.Moid }) }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ multicast_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug Multicast policies dictionary
+  ansible.builtin.debug:
+    var: multicast_policies_by_org
+  when: debug_module | bool

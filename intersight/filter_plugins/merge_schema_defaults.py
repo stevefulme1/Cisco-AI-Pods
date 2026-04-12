@@ -41,13 +41,6 @@ import ipaddress
 # ---------------------------------------------------------------------------
 _MODULE_KEY_RENAMES = {
     # ---- Pools ----------------------------------------------------------------
-    'intersight_mac_pool': {
-        'assignment_order': None,
-    },
-    'intersight_uuid_pool': {
-        'assignment_order': None,
-        'uuid_blocks': 'uuid_suffix_blocks',
-    },
     'intersight_ip_pool': {
         'assignment_order': None,
         'ipv4_configuration': 'ipv4_config',
@@ -57,38 +50,15 @@ _MODULE_KEY_RENAMES = {
         'assignment_order': None,
         'iqn_blocks': 'iqn_suffix_blocks',
     },
-    'intersight_wwn_pool': {
+    'intersight_mac_pool': {
         'assignment_order': None,
     },
-    'intersight_drive_security_policy': {
-        'remote_key_management': 'remote_key',
+    'intersight_uuid_pool': {
+        'assignment_order': None,
+        'uuid_blocks': 'uuid_suffix_blocks',
     },
-    'intersight_fibre_channel_zone_policy': {
-        'targets': 'fc_target_members',
-    },
-    'intersight_vhba_template': {
-        'allow_override': 'enable_override',
-        'fc_zone_policies': 'fibre_channel_zone_policy_names',
-        'fibre_channel_adapter_policy': 'fibre_channel_adapter_policy_name',
-        'fibre_channel_network_policy': 'fibre_channel_network_policy_name',
-        'fibre_channel_qos_policy': 'fibre_channel_qos_policy_name',
-        'persistent_lun_bindings': 'persistent_bindings',
-        'placement_switch_id': 'switch_id',
-        'wwpn_pool': 'wwpn_pool_name',
-    },
-    'intersight_vnic_template': {
-        'allow_override': 'enable_override',
-        'enable_failover': 'failover_enabled',
-        'ethernet_adapter_policy': 'eth_adapter_policy_name',
-        'ethernet_network_control_policy': 'fabric_eth_network_control_policy_name',
-        'ethernet_network_group_policies': 'fabric_eth_network_group_policy_name',
-        'ethernet_qos_policy': 'eth_qos_policy_name',
-        'iscsi_boot_policy': 'iscsi_boot_policy_name',
-        'mac_address_pool': 'mac_pool_name',
-        'placement_switch_id': 'switch_id',
-        'sriov': 'sriov_settings',
-        'usnic': 'usnic_settings',
-        'vmq': 'vmq_settings',
+    'intersight_wwn_pool': {
+        'assignment_order': None,
     },
     # ---- Policies (compute) ---------------------------------------------------
     'intersight_boot_order_policy': {
@@ -202,6 +172,33 @@ _MODULE_KEY_RENAMES = {
         'vhbas': 'vhbas',
         'vhbas_from_template': None,
     },
+    'intersight_drive_security_policy': {
+        'remote_key_management': 'remote_key',
+    },
+    'intersight_vhba_template': {
+        'allow_override': 'enable_override',
+        'fc_zone_policies': 'fibre_channel_zone_policy_names',
+        'fibre_channel_adapter_policy': 'fibre_channel_adapter_policy_name',
+        'fibre_channel_network_policy': 'fibre_channel_network_policy_name',
+        'fibre_channel_qos_policy': 'fibre_channel_qos_policy_name',
+        'persistent_lun_bindings': 'persistent_bindings',
+        'placement_switch_id': 'switch_id',
+        'wwpn_pool': 'wwpn_pool_name',
+    },
+    'intersight_vnic_template': {
+        'allow_override': 'enable_override',
+        'enable_failover': 'failover_enabled',
+        'ethernet_adapter_policy': 'eth_adapter_policy_name',
+        'ethernet_network_control_policy': 'fabric_eth_network_control_policy_name',
+        'ethernet_network_group_policies': 'fabric_eth_network_group_policy_name',
+        'ethernet_qos_policy': 'eth_qos_policy_name',
+        'iscsi_boot_policy': 'iscsi_boot_policy_name',
+        'mac_address_pool': 'mac_pool_name',
+        'placement_switch_id': 'switch_id',
+        'sriov': 'sriov_settings',
+        'usnic': 'usnic_settings',
+        'vmq': 'vmq_settings',
+    },
     # ---- Policies (management) -----------------------------------------------
     'intersight_imc_access_policy': {
         'inband_ip_pool': 'ip_pool',
@@ -285,6 +282,9 @@ _MODULE_KEY_RENAMES = {
     'intersight_fibre_channel_network_policy': {},
     'intersight_fibre_channel_qos_policy': {
         'class_of_service': 'cos',
+    },
+    'intersight_fibre_channel_zone_policy': {
+        'targets': 'fc_target_members',
     },
     # ---- Profiles / Templates ------------------------------------------------
     'intersight_server_profile_template': {

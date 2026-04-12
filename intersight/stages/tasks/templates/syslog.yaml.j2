@@ -1,0 +1,20 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+local_logging_minimum_severity: "{{ item.1.local_logging.minimum_severity | default('warning') }}"
+name: "{{ policy_name_prefix.syslog | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.syslog | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+{% set _rl = item.1.remote_logging | default([]) %}
+{% if _rl | length > 0 %}
+first_remote_logging_enabled: "{{ _rl[0].enable | default(False) }}"
+first_remote_logging_hostname: "{{ _rl[0].hostname | default(omit) }}"
+first_remote_logging_minimum_severity: "{{ _rl[0].minimum_severity | default('warning') }}"
+first_remote_logging_port: "{{ _rl[0].port | default(514) }}"
+first_remote_logging_protocol: "{{ _rl[0].protocol | default('udp') }}"
+{% endif %}
+{% if _rl | length > 1 %}
+second_remote_logging_enabled: "{{ _rl[1].enable | default(False) }}"
+second_remote_logging_hostname: "{{ _rl[1].hostname | default(omit) }}"
+second_remote_logging_minimum_severity: "{{ _rl[1].minimum_severity | default('warning') }}"
+second_remote_logging_port: "{{ _rl[1].port | default(514) }}"
+second_remote_logging_protocol: "{{ _rl[1].protocol | default('udp') }}"
+{% endif %}

@@ -1,0 +1,38 @@
+---
+- name: Build iSCSI Adapter policies consumed from iSCSI Boot
+  ansible.builtin.set_fact:
+    consumed_iscsi_adapter_policies: >-
+      {%- set policies = [] -%}
+      {%- set subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.iscsi_boot', {'skip_missing': True}) -%}
+      {%- for org_item, iscsi_boot in subelems -%}
+        {%- if iscsi_boot.iscsi_adapter_policy is defined -%}
+          {%- set ref = iscsi_boot.iscsi_adapter_policy -%}
+          {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ policies }}
+
+- name: Get iSCSI Adapter Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_iscsi_adapter_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_iscsi_adapter_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  register: iscsi_adapter_policies_info
+
+- name: Build iSCSI Adapter policies dictionary keyed by org / name from the iSCSI Adapter policies info call
+  ansible.builtin.set_fact:
+    iscsi_adapter_policies_by_org: >-
+      {{
+        iscsi_adapter_policies_by_org | default({})
+        | combine({ organization_name: (iscsi_adapter_policies_by_org[organization_name] | default({})) | combine({ item.Name: item.Moid }) }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ iscsi_adapter_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug iSCSI Adapter policies dictionary
+  ansible.builtin.debug:
+    var: iscsi_adapter_policies_by_org
+  when: debug_module | bool

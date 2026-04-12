@@ -11,15 +11,15 @@ c800:
     bios:
       cbs_cmn_apbdis: '1'
       cbs_cmn_cpu_global_cstate_ctrl: Auto
-      # cbs_cmn_determinism_slider 
+      # cbs_cmn_determinism_slider
       cbs_cmn_determinism_enable: Power
       cbs_cmn_gnb_nb_iommu: Enabled
-      # cbs_cmn_gnb_smu_df_cstates 
+      # cbs_cmn_gnb_smu_df_cstates
       cbs_cmn_gnb_smu_df_cstates_rs: Auto
       cbs_cpu_smt_ctrl: Enable
       cbs_df_cmn_dram_nps: NPS4
       cbs_df_cmn_mem_intlv: Auto
-      # cbs_df_cmn4link_max_xgmi_speed 
+      # cbs_df_cmn4link_max_xgmi_speed
       csb_df_cmn_3_link_max_xgmi_speed: 32Gbps
       sha384pcr_bank: Enabled
       terminal_type: VT-UTF8

@@ -1,39 +1,39 @@
 ---
-#======================================
+# =========================================================
 #   Profiles -> Domain - Variables
-#======================================
+# =========================================================
 intersight:
   organizations:
-    EXAMPLE:
+    Asgard:
       profiles:
         domain:
           - action: No-op
             name: ucsai5100
-            network_connectivity_policy: Common/DNS
-            ntp_policy: Common/NTP
+            network_connectivity_policy: common/DNS
+            ntp_policy: common/NTP
             port_policies:
-              - Common/XDirectA
-              - Common/XDirectB
+              - common/XDirectA
+              - common/XDirectB
             serial_numbers:
               - FCH29170000
               - FCH29170001
-            snmp_policy: Common/SNMP
-            switch_control_policy: Common/SwCtrl
-            system_qos_policy: Common/QoS
+            snmp_policy: common/SNMP
+            switch_control_policy: common/SwCtrl
+            system_qos_policy: common/QoS
             vlan_policies:
-              - EXAMPLE:VLANs
+              - common/VLANs
           - action: No-op
             name: ucsai5200
-            network_connectivity_policy: Common/DNS
-            ntp_policy: Common/NTP
+            network_connectivity_policy: common/DNS
+            ntp_policy: common/NTP
             port_policies:
-              - Common/XDirectA
-              - Common/XDirectB
+              - common/XDirectA
+              - common/XDirectB
             serial_numbers:
               - FCH29130000
               - FCH29130001
-            snmp_policy: Common/SNMP
-            switch_control_policy: Common/SwCtrl
-            system_qos_policy: Common/QoS
+            snmp_policy: common/SNMP
+            switch_control_policy: common/SwCtrl
+            system_qos_policy: common/QoS
             vlan_policies:
-              - EXAMPLE:VLANs
+              - common/VLANs

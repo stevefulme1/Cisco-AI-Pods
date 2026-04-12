@@ -1,0 +1,31 @@
+---
+- name: Configure Intersight Policies
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../vars/shared.yaml
+  vars:
+    debug_module: false
+    model_files: >-
+      {{
+        query('ansible.builtin.fileglob', intersight_model_root ~ '/global_settings*.yaml')
+        + query('ansible.builtin.fileglob', intersight_model_root ~ '/organizations/*.yaml')
+        + query('ansible.builtin.fileglob', intersight_model_root ~ '/policies/*.yaml')
+      }}
+  environment:
+    INTERSIGHT_API_KEY_ID: "{{ intersight_api_key_id }}"
+    INTERSIGHT_API_PRIVATE_KEY: "{{ intersight_api_private_key }}"
+    INTERSIGHT_API_URI: "{{ intersight_api_uri }}"
+  tasks:
+    - name: Setup policy stage
+      ansible.builtin.include_tasks: tasks/setup.yaml
+
+    - name: Configure policy resources part A
+      ansible.builtin.include_tasks: tasks/policies_part_a.yaml
+
+    - name: Resolve policy dependencies
+      ansible.builtin.include_tasks: tasks/policies_lookups.yaml
+
+    - name: Configure policy resources part B
+      ansible.builtin.include_tasks: tasks/policies_part_b.yaml

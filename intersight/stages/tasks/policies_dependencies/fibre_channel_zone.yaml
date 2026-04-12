@@ -1,0 +1,55 @@
+---
+- name: Build Fibre Channel Zone policies consumed from SAN Connectivity and vHBA Templates
+  ansible.builtin.set_fact:
+    consumed_fc_zone_policies: >-
+      {%- set refs = [] -%}
+      {%- set scps = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.san_connectivity', {'skip_missing': True}) -%}
+      {%- for org_item, scp_policy in scps -%}
+        {%- if scp_policy.fc_zone_policy is defined -%}
+          {%- set ref = scp_policy.fc_zone_policy -%}
+          {%- set _ = refs.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+        {%- if scp_policy.fc_zone_policies is defined -%}
+          {%- for ref in scp_policy.fc_zone_policies -%}
+            {%- set _ = refs.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set templates = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.vhba_template', {'skip_missing': True}) -%}
+      {%- for org_item, vhba_template in templates -%}
+        {%- if vhba_template.fc_zone_policy is defined -%}
+          {%- set ref = vhba_template.fc_zone_policy -%}
+          {%- set _ = refs.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+        {%- if vhba_template.fc_zone_policies is defined -%}
+          {%- for ref in vhba_template.fc_zone_policies -%}
+            {%- set _ = refs.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ refs }}
+
+- name: Get Fibre Channel Zone Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_fibre_channel_zone_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_fc_zone_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  register: fc_zone_policies_info
+
+- name: Set Fibre Channel Zone policies dictionary
+  ansible.builtin.set_fact:
+    fc_zone_policies_by_org: >-
+      {{
+        fc_zone_policies_by_org | default({})
+        | combine({ organization_name: (fc_zone_policies_by_org[organization_name] | default({})) | combine({ item.Name: item.Moid }) }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ fc_zone_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug Fibre Channel Zone policies dictionary
+  ansible.builtin.debug:
+    var: fc_zone_policies_by_org
+  when: debug_module | bool

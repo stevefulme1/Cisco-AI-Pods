@@ -1,0 +1,13 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+dynamic_dns_domain: "{{ item.1.update_domain | default(omit) }}"
+enable_dynamic_dns: "{{ item.1.enable_dynamic_dns | default(False) }}"
+enable_ipv4_dns_from_dhcp: "{{ item.1.obtain_ipv4_dns_from_dhcp | default(False) }}"
+enable_ipv6: "{{ item.1.enable_ipv6 | default(False) }}"
+enable_ipv6_dns_from_dhcp: "{{ item.1.obtain_ipv6_dns_from_dhcp | default(False) }}"
+name: "{{ policy_name_prefix.network_connectivity | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.network_connectivity | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+preferred_ipv4_dns_server: "{{ item.1.dns_servers_v4[0] if (item.1.dns_servers_v4 is defined and item.1.dns_servers_v4 | length > 0) else '0.0.0.0' }}"
+alternate_ipv4_dns_server: "{{ item.1.dns_servers_v4[1] if (item.1.dns_servers_v4 is defined and item.1.dns_servers_v4 | length > 1) else '0.0.0.0' }}"
+preferred_ipv6_dns_server: "{{ item.1.dns_servers_v6[0] if (item.1.dns_servers_v6 is defined and item.1.dns_servers_v6 | length > 0) else '::' }}"
+alternate_ipv6_dns_server: "{{ item.1.dns_servers_v6[1] if (item.1.dns_servers_v6 is defined and item.1.dns_servers_v6 | length > 1) else '::' }}"

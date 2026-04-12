@@ -1,0 +1,13 @@
+---
+{{
+  item.1
+  | merge_schema_defaults(intersight_schema, 'intersight.san_connectivity')
+  | to_module_params('intersight_san_connectivity_policy')
+  | combine({
+      'description': item.1.description | default(omit),
+      'name': policy_name_prefix.san_connectivity | default(policy_name_prefix.default | default(''))
+               ~ item.1.name
+               ~ policy_name_suffix.san_connectivity | default(policy_name_suffix.default | default('')),
+      'organization': item.0.key
+    })
+}}

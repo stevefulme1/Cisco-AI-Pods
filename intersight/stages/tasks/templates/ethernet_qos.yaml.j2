@@ -1,0 +1,10 @@
+---
+burst: "{{ item.1.burst | default(omit) }}"
+cos: "{{ item.1.class_of_service | default(omit) }}"
+description: "{{ item.1.description | default(omit) }}"
+mtu: "{{ item.1.mtu | default(omit) }}"
+name: "{{ policy_name_prefix.ethernet_qos | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.ethernet_qos | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+priority: "{{ item.1.priority | default(omit) }}"
+rate_limit: "{{ item.1.rate_limit | default(omit) }}"
+trust_host_cos: "{{ item.1.enable_trust_host_cos | default(False) }}"

@@ -1,0 +1,10 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+ethernet_switching_mode: "{{ item.1.switching_mode_ethernet | default('end-host') }}"
+fabric_pc_vhba_reset: "{{ item.1.fabric_port_channel_vhba_reset | default('disabled') }}"
+fc_switching_mode: "{{ item.1.switching_mode_fc | default('end-host') }}"
+mac_aging_option: "{{ item.1.mac_address_table_aging | default('default') }}"
+name: "{{ policy_name_prefix.switch_control | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.switch_control | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+primary_key: "{{ item.1.aes_primary_key | default(omit) }}"
+vlan_port_optimization_enabled: "{{ item.1.vlan_port_count_optimization | default(False) }}"

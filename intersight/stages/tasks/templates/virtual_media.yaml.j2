@@ -1,0 +1,34 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+enable: "{{ item.1.enable_virtual_media | default(True) }}"
+encryption: "{{ item.1.enable_virtual_media_encryption | default(False) }}"
+low_power_usb: "{{ item.1.enable_low_power_usb | default(True) }}"
+name: "{{ policy_name_prefix.virtual_media | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.virtual_media | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+{% for vmdisk in item.1.add_virtual_media | default([]) %}
+{% set _media_type = vmdisk.device_type | default(vmdisk.type | default('cdd')) | lower %}
+{% set _urlparts = vmdisk.file_location | urlsplit %}
+{% if _media_type == 'cdd' %}
+cdd_virtual_media:
+  enable: true
+  mount_type: "{{ vmdisk.protocol | default(_urlparts.scheme) }}"
+  remote_file: "{{ _urlparts.path | basename }}"
+  remote_hostname: "{{ _urlparts.hostname }}"
+  remote_path: "{{ _urlparts.path | dirname }}"
+  volume: "{{ vmdisk.name }}"
+{% if vmdisk.mount_options is defined %}
+  mount_options: "{{ vmdisk.mount_options }}"
+{% endif %}
+{% elif _media_type == 'hdd' %}
+hdd_virtual_media:
+  enable: true
+  mount_type: "{{ vmdisk.protocol | default(_urlparts.scheme) }}"
+  remote_file: "{{ _urlparts.path | basename }}"
+  remote_hostname: "{{ _urlparts.hostname }}"
+  remote_path: "{{ _urlparts.path | dirname }}"
+  volume: "{{ vmdisk.name }}"
+{% if vmdisk.mount_options is defined %}
+  mount_options: "{{ vmdisk.mount_options }}"
+{% endif %}
+{% endif %}
+{% endfor %}

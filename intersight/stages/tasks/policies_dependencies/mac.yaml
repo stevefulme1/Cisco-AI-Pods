@@ -1,0 +1,62 @@
+---
+- name: Build MAC pools consumed from Policies
+  ansible.builtin.set_fact:
+    consumed_mac_pools: >
+      {%- set pools = [] -%}
+      {%- set lcp_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.lan_connectivity', {'skip_missing': True}) -%}
+      {%- for org_item, lcp_policy in lcp_subelems -%}
+        {%- if lcp_policy.vnics is defined -%}
+          {%- for vnic in lcp_policy.vnics -%}
+            {%- if vnic.mac_address_pools is defined -%}
+              {%- for mac_pool_ref in vnic.mac_address_pools -%}
+                {%- set _ = pools.append({
+                  'name': mac_pool_ref.rsplit('/', 1) | last,
+                  'organization': mac_pool_ref.rsplit('/', 1) | first if '/' in mac_pool_ref else org_item.key
+                }) -%}
+              {%- endfor -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set vt_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.vnic_template', {'skip_missing': True}) -%}
+      {%- for org_item, vnic_template in vt_subelems -%}
+        {%- if vnic_template.mac_address_pool is defined -%}
+          {%- set _ = pools.append({
+            'name': vnic_template.mac_address_pool.rsplit('/', 1) | last,
+            'organization': vnic_template.mac_address_pool.rsplit('/', 1) | first if '/' in vnic_template.mac_address_pool else org_item.key
+          }) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ pools }}
+
+- name: Get MAC Pools from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_mac_pool_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_mac_pools | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  register: mac_pools_info
+  when: consumed_lan_connectivity_exists
+
+- name: Set MAC pools dictionary
+  ansible.builtin.set_fact:
+    mac_pools_by_org: >-
+      {{
+        mac_pools_by_org | default({})
+        | combine({
+            organization_name: (
+              mac_pools_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid })
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: >-
+    {{ mac_pools_info.results | map(attribute='api_response') | flatten | list }}
+
+- name: Debug MAC pools dictionary
+  ansible.builtin.debug:
+    var: mac_pools_by_org
+  when: >-
+    debug_module | bool

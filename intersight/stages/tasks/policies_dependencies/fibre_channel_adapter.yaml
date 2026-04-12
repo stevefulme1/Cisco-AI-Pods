@@ -1,0 +1,49 @@
+---
+- name: Build Fibre Channel Adapter policies consumed from SAN Connectivity and vHBA Templates
+  ansible.builtin.set_fact:
+    consumed_fc_adapter_policies: >-
+      {%- set refs = [] -%}
+      {%- set scps = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.san_connectivity', {'skip_missing': True}) -%}
+      {%- for org_item, scp_policy in scps -%}
+        {%- if scp_policy.vhbas is defined -%}
+          {%- for vhba in scp_policy.vhbas -%}
+            {%- if vhba.fibre_channel_adapter_policy is defined -%}
+              {%- set ref = vhba.fibre_channel_adapter_policy -%}
+              {%- set _ = refs.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set templates = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.vhba_template', {'skip_missing': True}) -%}
+      {%- for org_item, vhba_template in templates -%}
+        {%- if vhba_template.fibre_channel_adapter_policy is defined -%}
+          {%- set ref = vhba_template.fibre_channel_adapter_policy -%}
+          {%- set _ = refs.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ refs }}
+
+- name: Get Fibre Channel Adapter Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_fibre_channel_adapter_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_fc_adapter_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  register: fc_adapter_policies_info
+
+- name: Set Fibre Channel Adapter policies dictionary
+  ansible.builtin.set_fact:
+    fibre_channel_adapter_policies_by_org: >-
+      {{
+        fibre_channel_adapter_policies_by_org | default({})
+        | combine({ organization_name: (fibre_channel_adapter_policies_by_org[organization_name] | default({})) | combine({ item.Name: item.Moid }) }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ fc_adapter_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug Fibre Channel Adapter policies dictionary
+  ansible.builtin.debug:
+    var: fibre_channel_adapter_policies_by_org
+  when: debug_module | bool

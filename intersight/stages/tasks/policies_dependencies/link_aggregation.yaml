@@ -1,0 +1,59 @@
+---
+- name: Build Link Aggregation policies consumed from Port
+  ansible.builtin.set_fact:
+    consumed_link_aggregation_policies: >-
+      {%- set policies = [] -%}
+      {%- set ports = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.port', {'skip_missing': True}) -%}
+      {%- for org_item, port_policy in ports -%}
+        {%- if port_policy.port_channel_appliances is defined -%}
+          {%- for appliance in port_policy.port_channel_appliances -%}
+            {%- if appliance.link_aggregation_policy is defined -%}
+              {%- set ref = appliance.link_aggregation_policy -%}
+              {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+        {%- if port_policy.port_channel_ethernet_uplinks is defined -%}
+          {%- for uplink in port_policy.port_channel_ethernet_uplinks -%}
+            {%- if uplink.link_aggregation_policy is defined -%}
+              {%- set ref = uplink.link_aggregation_policy -%}
+              {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+        {%- if port_policy.port_channel_fcoe_uplinks is defined -%}
+          {%- for uplink in port_policy.port_channel_fcoe_uplinks -%}
+            {%- if uplink.link_aggregation_policy is defined -%}
+              {%- set ref = uplink.link_aggregation_policy -%}
+              {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ policies }}
+
+- name: Get Link Aggregation Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_link_aggregation_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_link_aggregation_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  register: link_aggregation_policies_info
+
+- name: Build Link Aggregation policies dictionary keyed by org / name from the Link Aggregation policies info call
+  ansible.builtin.set_fact:
+    link_aggregation_policies_by_org: >-
+      {{
+        link_aggregation_policies_by_org | default({})
+        | combine({ organization_name: (link_aggregation_policies_by_org[organization_name] | default({})) | combine({ item.Name: item.Moid }) }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ link_aggregation_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+
+- name: Debug Link Aggregation policies dictionary
+  ansible.builtin.debug:
+    var: link_aggregation_policies_by_org
+  when: debug_module | bool

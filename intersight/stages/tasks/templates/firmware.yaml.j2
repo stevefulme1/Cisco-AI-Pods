@@ -1,0 +1,14 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+name: "{{ policy_name_prefix.firmware | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.firmware | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+target_platform: "{{ item.1.target_platform }}"
+{% if item.1.model_bundle_version is defined %}
+model_bundle_combo:
+{% for bundle in item.1.model_bundle_version %}
+{% for model in bundle.server_models %}
+  - bundle_version: "{{ bundle.firmware_version }}"
+    model_family: "{{ model }}"
+{% endfor %}
+{% endfor %}
+{% endif %}

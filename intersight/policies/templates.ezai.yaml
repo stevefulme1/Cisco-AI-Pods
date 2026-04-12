@@ -18,7 +18,7 @@ intersight:
           - allow_override: true
             description: vnic0 template
             enable_failover: true
-            ethernet_adapter_policy:  Win-AzureStack
+            ethernet_adapter_policy: Win-AzureStack
             ethernet_network_control_policy: both
             ethernet_network_group_policies:
               - aci-mgmt

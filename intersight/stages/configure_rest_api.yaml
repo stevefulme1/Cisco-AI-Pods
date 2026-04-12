@@ -1,0 +1,159 @@
+---
+- name: Configure Intersight via Rest API
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../vars/shared.yaml
+  vars:
+    model_files: >-
+      {{
+        query('ansible.builtin.fileglob', intersight_model_root ~ '/global_settings*.yaml')
+        + query('ansible.builtin.fileglob', intersight_model_root ~ '/organizations/*.yaml')
+        + query('ansible.builtin.fileglob', intersight_model_root ~ '/policies/*.yaml')
+      }}
+    module_validate_certs: true
+    debug_module: false
+
+  environment:
+    INTERSIGHT_API_KEY_ID: "{{ intersight_api_key_id }}"
+    INTERSIGHT_API_PRIVATE_KEY: "{{ intersight_api_private_key }}"
+    INTERSIGHT_API_URI: "{{ intersight_api_uri }}"
+  tasks:
+    - name: Load common authentication and model prelude
+      ansible.builtin.include_tasks: common_prelude.yaml
+
+    - name: Get Organizations Moids
+      cisco.intersight.intersight_organization_info:
+        api_key_id: "{{ intersight_api_key_id }}"
+        api_private_key: "{{ intersight_api_private_key }}"
+        api_uri: "{{ intersight_api_uri }}"
+        name: "{{ item.key }}"
+        validate_certs: "{{ module_validate_certs }}"
+      loop: "{{ organizations_map | dict2items }}"
+      register: organizations_info
+
+    - name: Set organizations dictionary
+      ansible.builtin.set_fact:
+        org_name_to_moid: >-
+          {{
+            organizations_info.results
+            | map(attribute='api_response')
+            | flatten
+            | rejectattr('ObjectType', 'equalto', 'organization.Organization.List')
+            | items2dict(key_name='Name', value_name='Moid')
+          }}
+        org_moid_to_name: >-
+          {{
+            organizations_info.results
+            | map(attribute='api_response')
+            | flatten
+            | rejectattr('ObjectType', 'equalto', 'organization.Organization.List')
+            | items2dict(key_name='Moid', value_name='Name')
+          }}
+
+    - name: Build IP pools consumed from Policies
+      ansible.builtin.set_fact:
+        consumed_ip_pools: >
+          {%- set pools = [] -%}
+          {%- set subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.imc_access', {'skip_missing': True}) -%}
+          {%- for org_item, imc_policy in subelems -%}
+            {%- if imc_policy.inband_ip_pool is defined -%}
+              {%- set _ = pools.append({
+                'name': imc_policy.inband_ip_pool.rsplit('/', 1) | last,
+                'organization': imc_policy.inband_ip_pool.rsplit('/', 1) | first if '/' in imc_policy.inband_ip_pool else org_item.key
+              }) -%}
+            {%- endif -%}
+            {%- if imc_policy.out_of_band_ip_pool is defined -%}
+              {%- set _ = pools.append({
+                'name': imc_policy.out_of_band_ip_pool.rsplit('/', 1) | last,
+                'organization': imc_policy.out_of_band_ip_pool.rsplit('/', 1) | first if '/' in imc_policy.out_of_band_ip_pool else org_item.key
+              }) -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- set iscsi_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.iscsi_boot', {'skip_missing': True}) -%}
+          {%- for org_item, iscsi_policy in iscsi_subelems -%}
+            {%- if iscsi_policy.initiator_ip_pool is defined -%}
+              {%- set _ = pools.append({
+                'name': iscsi_policy.initiator_ip_pool.rsplit('/', 1) | last,
+                'organization': iscsi_policy.initiator_ip_pool.rsplit('/', 1) | first if '/' in iscsi_policy.initiator_ip_pool else org_item.key
+              }) -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ pools }}
+
+    - name: Get IP Pools from Intersight
+      vars:
+        consumed_ip_pools_by_org: >-
+          {%- set grouped = {} -%}
+          {%- for pool in consumed_ip_pools | default([]) -%}
+            {%- if pool.organization not in grouped -%}
+              {%- set _ = grouped.update({pool.organization: []}) -%}
+            {%- endif -%}
+            {%- if pool.name not in grouped[pool.organization] -%}
+              {%- set _ = grouped[pool.organization].append(pool.name) -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ grouped }}
+        consumed_ip_pool_queries: >-
+          {%- set queries = [] -%}
+          {%- for org_item in consumed_ip_pools_by_org | dict2items -%}
+            {%- set quoted_names = [] -%}
+            {%- for pool_name in org_item.value -%}
+              {%- set _ = quoted_names.append("'" ~ pool_name ~ "'") -%}
+            {%- endfor -%}
+            {%- if quoted_names | length > 0 -%}
+              {%- set _ = queries.append({
+                'organization': org_item.key,
+                'names_filter': quoted_names | join(', ')
+              }) -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ queries }}
+      cisco.intersight.intersight_rest_api:
+        api_key_id: "{{ intersight_api_key_id }}"
+        api_private_key: "{{ intersight_api_private_key }}"
+        api_uri: "{{ intersight_api_uri }}"
+        query_params:
+          $filter: "Name in ({{ item.names_filter }}) and Organization.Moid eq '{{ org_name_to_moid[item.organization] }}'"
+        resource_path: /ipool/IpPools
+        return_list: true
+        validate_certs: "{{ module_validate_certs }}"
+      loop: "{{ consumed_ip_pool_queries }}"
+      register: ip_pools_info
+
+    - name: Set ip pools dictionary
+      ansible.builtin.set_fact:
+        ip_pools_by_org: >-
+          {{
+            ip_pools_by_org | default({})
+            | combine({
+                organization_name: (
+                  ip_pools_by_org[organization_name] | default({})
+                ) | combine({ item.Name: pool_details })
+              }, recursive=True)
+          }}
+      vars:
+        organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+        pool_details:
+          moid: "{{ item.Moid }}"
+          ipv4_blocks: "{{ item.IpV4Blocks }}"
+          ipv6_blocks: "{{ item.IpV6Blocks }}"
+      loop: >
+        {{ ip_pools_info.results | map(attribute='api_response') | flatten | list }}
+
+    - name: Debug IP Pools dictionary
+      ansible.builtin.debug:
+        var: ip_pools_by_org
+
+    # - name: Configure IMC Access Policy
+    #   cisco.intersight.intersight_rest_api:
+    #     <<: *api_info
+    #     resource_path: /access/Policies
+    #     query_params:
+    #       $filter: "Name eq '{{ item.name }}'"
+    #     api_body: "{{ lookup('template', 'imc_access.json.j2') | from_json }}"
+    #     state: present
+    #     validate_certs: "{{ module_validate_certs }}"
+    #   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.imc_access', {'skip_missing': True}) }}"
+    #   register: imc_access

@@ -1,0 +1,79 @@
+---
+- name: Build Ethernet Network Group policies consumed from Port, LAN Connectivity, and vNIC Templates
+  ansible.builtin.set_fact:
+    consumed_ethernet_network_group_policies: >-
+      {%- set policies = [] -%}
+      {%- set policy_path_lcp = 'value.policies.lan_connectivity' -%}
+      {%- set policy_path_port = 'value.policies.port' -%}
+      {%- set policy_path_template = 'value.policies.vnic_template' -%}
+      {%- set lcps = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, policy_path_lcp, {'skip_missing': True}) -%}
+      {%- for org_item, lcp_policy in lcps -%}
+        {%- if lcp_policy.vnics is defined -%}
+          {%- for vnic in lcp_policy.vnics -%}
+            {%- if vnic.ethernet_network_group_policies is defined -%}
+              {%- for policy in vnic.ethernet_network_group_policies -%}
+                {%- set ref = policy -%}
+                {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+              {%- endfor -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set ports = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.port', {'skip_missing': True}) -%}
+      {%- for org_item, port_policy in ports -%}
+        {%- if port_policy.port_channel_ethernet_uplinks is defined -%}
+          {%- for uplink in port_policy.port_channel_ethernet_uplinks -%}
+            {%- if uplink.ethernet_network_group_policies is defined -%}
+              {%- for policy in uplink.ethernet_network_group_policies -%}
+                {%- set ref = policy -%}
+                {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+              {%- endfor -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+        {%- if port_policy.port_role_ethernet_uplinks is defined -%}
+          {%- for uplink in port_policy.port_role_ethernet_uplinks -%}
+            {%- if uplink.ethernet_network_group_policies is defined -%}
+              {%- for policy in uplink.ethernet_network_group_policies -%}
+                {%- set ref = policy -%}
+                {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+              {%- endfor -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set templates = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, policy_path_template, {'skip_missing': True}) -%}
+      {%- for org_item, vnic_template in templates -%}
+        {%- if vnic_template.ethernet_network_group_policies is defined -%}
+          {%- for policy in vnic_template.ethernet_network_group_policies -%}
+            {%- set ref = policy -%}
+            {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ policies }}
+
+- name: Get Ethernet Network Group Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_ethernet_network_group_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_ethernet_network_group_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  register: ethernet_network_group_policies_info
+
+- name: Build Ethernet Network Group policies dictionary keyed by org / name from the Ethernet Network Group policies info call
+  ansible.builtin.set_fact:
+    ethernet_network_group_policies_by_org: >-
+      {{
+        ethernet_network_group_policies_by_org | default({})
+        | combine({ organization_name: (ethernet_network_group_policies_by_org[organization_name] | default({})) | combine({ item.Name: item.Moid }) }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ ethernet_network_group_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug Ethernet Network Group policies dictionary
+  ansible.builtin.debug:
+    var: ethernet_network_group_policies_by_org
+  when: debug_module | bool

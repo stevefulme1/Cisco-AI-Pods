@@ -1,0 +1,21 @@
+---
+- name: Ensure required authentication variables are present
+  ansible.builtin.assert:
+    that:
+      - intersight_api_key_id | length > 0
+      - intersight_api_private_key | length > 0
+    fail_msg: >-
+      Set intersight_api_key_id and intersight_secret_key before running this playbook.
+
+- name: Initialize merged model
+  ansible.builtin.set_fact:
+    merged_model: {}
+
+- name: Merge model files
+  ansible.builtin.set_fact:
+    merged_model: "{{ merged_model | combine((lookup('ansible.builtin.file', item) | from_yaml), recursive=True, list_merge='append') }}"
+  loop: "{{ model_files }}"
+
+- name: Collect organizations map
+  ansible.builtin.set_fact:
+    organizations_map: "{{ merged_model.intersight.organizations | default({}) }}"

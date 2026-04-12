@@ -1,0 +1,14 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+fc_target_zoning_type: "{{ item.1.fc_target_zoning_type | default(omit) }}"
+name: "{{ policy_name_prefix.fc_zone | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.fc_zone | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+{% if item.1.targets is defined %}
+fc_target_members:
+{% for target in item.1.targets %}
+  - name: "{{ target.name }}"
+    switch_id: "{{ target.switch_id | default('A') }}"
+    vsan_id: "{{ target.vsan_id }}"
+    wwpn: "{{ target.wwpn }}"
+{% endfor %}
+{% endif %}

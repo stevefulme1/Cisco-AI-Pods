@@ -1,0 +1,6 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+name: "{{ policy_name_prefix.link_control | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.link_control | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+udld_admin_state: "{{ item.1.admin_state | default('Enabled') }}"
+udld_mode: "{{ item.1.mode | default('normal') }}"

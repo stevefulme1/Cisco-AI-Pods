@@ -1,0 +1,10 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+name: "{{ policy_name_prefix.multicast | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.multicast | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+{% if item.1.querier_ip_address is defined %}
+querier_ip_address: "{{ item.1.querier_ip_address }}"
+{% endif %}
+querier_state: "{{ item.1.querier_state | default('Disabled') }}"
+snooping_state: "{{ item.1.snooping_state | default('Enabled') }}"
+src_ip_proxy: "{{ item.1.source_ip_proxy_state | default('Enabled') }}"

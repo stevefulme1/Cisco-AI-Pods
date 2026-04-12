@@ -1,0 +1,64 @@
+---
+- name: Build IQN pools consumed from Policies
+  ansible.builtin.set_fact:
+    consumed_iqn_pools: >
+      {%- set pools = [] -%}
+      {%- set lcp_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.lan_connectivity', {'skip_missing': True}) -%}
+      {%- for org_item, lcp_policy in lcp_subelems -%}
+        {%- if lcp_policy.iqn_pool is defined -%}
+          {%- set _ = pools.append({
+            'name': lcp_policy.iqn_pool.rsplit('/', 1) | last,
+            'organization': lcp_policy.iqn_pool.rsplit('/', 1) | first if '/' in lcp_policy.iqn_pool else org_item.key
+          }) -%}
+        {%- endif -%}
+        {%- if lcp_policy.vnics is defined -%}
+          {%- for vnic in lcp_policy.vnics -%}
+            {%- if vnic.iqn_pool is defined -%}
+              {%- set _ = pools.append({
+                'name': vnic.iqn_pool.rsplit('/', 1) | last,
+                'organization': vnic.iqn_pool.rsplit('/', 1) | first if '/' in vnic.iqn_pool else org_item.key
+              }) -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set vt_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.vnic_template', {'skip_missing': True}) -%}
+      {%- for org_item, vnic_template in vt_subelems -%}
+        {%- if vnic_template.iqn_pool is defined -%}
+          {%- set _ = pools.append({
+            'name': vnic_template.iqn_pool.rsplit('/', 1) | last,
+            'organization': vnic_template.iqn_pool.rsplit('/', 1) | first if '/' in vnic_template.iqn_pool else org_item.key
+          }) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ pools }}
+
+- name: Get IQN Pools from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_iqn_pool_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_iqn_pools | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  register: iqn_pools_info
+
+- name: Set IQN pools dictionary
+  ansible.builtin.set_fact:
+    iqn_pools_by_org: >-
+      {{
+        iqn_pools_by_org | default({})
+        | combine({
+            organization_name: (
+              iqn_pools_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid })
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: >-
+    {{ iqn_pools_info.results | map(attribute='api_response') | flatten | list }}
+
+- name: Debug IQN pools dictionary
+  ansible.builtin.debug:
+    var: iqn_pools_by_org
+  when: debug_module | bool

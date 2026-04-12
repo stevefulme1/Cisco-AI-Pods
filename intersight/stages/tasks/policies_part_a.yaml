@@ -1,0 +1,456 @@
+---
+- name: Configure Adapter Configuration policies
+  # noqa: args[module]
+  cisco.intersight.intersight_adapter_config_policy: >-
+    {{
+      (lookup('template', 'templates/adapter_configuration.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.adapter_configuration', {'skip_missing': True}) }}"
+
+- name: Configure BIOS policies
+  # noqa: args[module]
+  cisco.intersight.intersight_bios_policy: >-
+    {{
+      (lookup('template', 'templates/bios.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.bios', {'skip_missing': True}) }}"
+
+- name: Configure Boot Order policies
+  # noqa: args[module]
+  cisco.intersight.intersight_boot_order_policy: >-
+    {{
+      (lookup('template', 'templates/boot_order.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.boot_order', {'skip_missing': True}) }}"
+
+- name: Configure Certificate Management policies
+  # noqa: args[module]
+  cisco.intersight.intersight_certificate_management_policy: >-
+    {{
+      (lookup('template', 'templates/certificate_management.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.certificate_management', {'skip_missing': True}) }}"
+
+- name: Configure Device Connector policies
+  # noqa: args[module]
+  cisco.intersight.intersight_device_connector_policy: >-
+    {{
+      (lookup('template', 'templates/device_connector.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.device_connector', {'skip_missing': True}) }}"
+
+- name: Configure Drive Security policies
+  # noqa: args[module]
+  cisco.intersight.intersight_drive_security_policy: >-
+    {{
+      (lookup('template', 'templates/drive_security.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.drive_security', {'skip_missing': True}) }}"
+
+- name: Configure Ethernet Adapter policies
+  # noqa: args[module]
+  cisco.intersight.intersight_ethernet_adapter_policy: >-
+    {{
+      (lookup('template', 'templates/ethernet_adapter.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ethernet_adapter', {'skip_missing': True}) }}"
+
+- name: Configure Ethernet Network Control policies
+  # noqa: args[module]
+  cisco.intersight.intersight_ethernet_network_control_policy: >-
+    {{
+      (lookup('template', 'templates/ethernet_network_control.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ethernet_network_control', {'skip_missing': True}) }}"
+
+- name: Configure Ethernet Network Group policies
+  # noqa: args[module]
+  cisco.intersight.intersight_ethernet_network_group_policy: >-
+    {{
+      (lookup('template', 'templates/ethernet_network_group.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ethernet_network_group', {'skip_missing': True}) }}"
+
+- name: Configure Ethernet QoS policies
+  # noqa: args[module]
+  cisco.intersight.intersight_ethernet_qos_policy: >-
+    {{
+      (lookup('template', 'templates/ethernet_qos.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ethernet_qos', {'skip_missing': True}) }}"
+
+- name: Configure Fibre Channel Adapter policies
+  # noqa: args[module]
+  cisco.intersight.intersight_fibre_channel_adapter_policy: >-
+    {{
+      (lookup('template', 'templates/fibre_channel_adapter.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.fibre_channel_adapter', {'skip_missing': True}) }}"
+
+- name: Configure Fibre Channel Network policies
+  # noqa: args[module]
+  cisco.intersight.intersight_fibre_channel_network_policy: >-
+    {{
+      (lookup('template', 'templates/fibre_channel_network.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.fibre_channel_network', {'skip_missing': True}) }}"
+
+- name: Configure Fibre Channel QoS policies
+  # noqa: args[module]
+  cisco.intersight.intersight_fibre_channel_qos_policy: >-
+    {{
+      (lookup('template', 'templates/fibre_channel_qos.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.fibre_channel_qos', {'skip_missing': True}) }}"
+
+- name: Configure Fibre Channel Zone policies
+  # noqa: args[module]
+  cisco.intersight.intersight_fibre_channel_zone_policy: >-
+    {{
+      (lookup('template', 'templates/fc_zone.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.fc_zone', {'skip_missing': True}) }}"
+
+- name: Configure Firmware policies
+  # noqa: args[module]
+  cisco.intersight.intersight_firmware_policy: >-
+    {{
+      (lookup('template', 'templates/firmware.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.firmware', {'skip_missing': True}) }}"
+
+- name: Configure Flow Control policies
+  # noqa: args[module]
+  cisco.intersight.intersight_flow_control_policy: >-
+    {{
+      (lookup('template', 'templates/flow_control.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.flow_control', {'skip_missing': True}) }}"
+
+- name: Configure IMC Access policies
+  # noqa: args[module]
+  cisco.intersight.intersight_imc_access_policy: >-
+    {{
+      (lookup('template', 'templates/imc_access.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.imc_access', {'skip_missing': True}) }}"
+
+- name: Configure IPMI Over LAN policies
+  # noqa: args[module]
+  cisco.intersight.intersight_ipmi_over_lan_policy: >-
+    {{
+      (lookup('template', 'templates/ipmi_over_lan.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ipmi_over_lan', {'skip_missing': True}) }}"
+
+- name: Configure iSCSI Adapter policies
+  # noqa: args[module]
+  cisco.intersight.intersight_iscsi_adapter_policy: >-
+    {{
+      (lookup('template', 'templates/iscsi_adapter.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.iscsi_adapter', {'skip_missing': True}) }}"
+
+- name: Configure iSCSI Static Target policies
+  # noqa: args[module]
+  cisco.intersight.intersight_iscsi_static_target_policy: >-
+    {{
+      (lookup('template', 'templates/iscsi_static_target.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.iscsi_static_target', {'skip_missing': True}) }}"
+
+- name: Configure LDAP policies
+  # noqa: args[module]
+  cisco.intersight.intersight_ldap_policy: >-
+    {{
+      (lookup('template', 'templates/ldap.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ldap', {'skip_missing': True}) }}"
+
+- name: Configure Link Aggregation policies
+  # noqa: args[module]
+  cisco.intersight.intersight_link_aggregation_policy: >-
+    {{
+      (lookup('template', 'templates/link_aggregation.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.link_aggregation', {'skip_missing': True}) }}"
+
+- name: Configure Link Control policies
+  # noqa: args[module]
+  cisco.intersight.intersight_link_control_policy: >-
+    {{
+      (lookup('template', 'templates/link_control.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.link_control', {'skip_missing': True}) }}"
+
+- name: Configure Local User policies
+  # noqa: args[module]
+  cisco.intersight.intersight_local_user_policy: >-
+    {{
+      (lookup('template', 'templates/local_user.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.local_user', {'skip_missing': True}) }}"
+
+- name: Configure Multicast policies
+  # noqa: args[module]
+  cisco.intersight.intersight_multicast_policy: >-
+    {{
+      (lookup('template', 'templates/multicast.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.multicast', {'skip_missing': True}) }}"
+
+- name: Configure Network Connectivity policies
+  # noqa: args[module]
+  cisco.intersight.intersight_network_connectivity_policy: >-
+    {{
+      (lookup('template', 'templates/network_connectivity.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.network_connectivity', {'skip_missing': True}) }}"
+
+- name: Configure NTP policies
+  # noqa: args[module]
+  cisco.intersight.intersight_ntp_policy: >-
+    {{
+      (lookup('template', 'templates/ntp.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ntp', {'skip_missing': True}) }}"
+
+- name: Configure Power policies
+  # noqa: args[module]
+  cisco.intersight.intersight_power_policy: >-
+    {{
+      (lookup('template', 'templates/power.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.power', {'skip_missing': True}) }}"
+
+- name: Configure SMTP policies
+  # noqa: args[module]
+  cisco.intersight.intersight_smtp_policy: >-
+    {{
+      (lookup('template', 'templates/smtp.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.smtp', {'skip_missing': True}) }}"
+
+- name: Configure SNMP policies
+  # noqa: args[module]
+  cisco.intersight.intersight_snmp_policy: >-
+    {{
+      (lookup('template', 'templates/snmp.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.snmp', {'skip_missing': True}) }}"
+
+- name: Configure SSH policies
+  # noqa: args[module]
+  cisco.intersight.intersight_ssh_policy: >-
+    {{
+      (lookup('template', 'templates/ssh.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ssh', {'skip_missing': True}) }}"
+
+- name: Configure Storage policies
+  # noqa: args[module]
+  cisco.intersight.intersight_storage_policy: >-
+    {{
+      (lookup('template', 'templates/storage.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.storage', {'skip_missing': True}) }}"
+
+- name: Configure Switch Control policies
+  # noqa: args[module]
+  cisco.intersight.intersight_switch_control_policy: >-
+    {{
+      (lookup('template', 'templates/switch_control.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.switch_control', {'skip_missing': True}) }}"
+
+- name: Configure Syslog policies
+  # noqa: args[module]
+  cisco.intersight.intersight_syslog_policy: >-
+    {{
+      (lookup('template', 'templates/syslog.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.syslog', {'skip_missing': True}) }}"
+
+- name: Configure System QoS policies
+  # noqa: args[module]
+  cisco.intersight.intersight_system_qos_policy: >-
+    {{
+      (lookup('template', 'templates/system_qos.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.system_qos', {'skip_missing': True}) }}"
+
+- name: Configure Thermal policies
+  # noqa: args[module]
+  cisco.intersight.intersight_thermal_policy: >-
+    {{
+      (lookup('template', 'templates/thermal.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.thermal', {'skip_missing': True}) }}"
+
+- name: Configure Virtual KVM policies
+  # noqa: args[module]
+  cisco.intersight.intersight_kvm_policy: >-
+    {{
+      (lookup('template', 'templates/virtual_kvm.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.virtual_kvm', {'skip_missing': True}) }}"
+
+- name: Configure Virtual Media policies
+  # noqa: args[module]
+  cisco.intersight.intersight_virtual_media_policy: >-
+    {{
+      (lookup('template', 'templates/virtual_media.yaml.j2') | from_yaml)
+      | combine({
+          'state': 'present',
+          'validate_certs': module_validate_certs
+        })
+    }}
+  loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.virtual_media', {'skip_missing': True}) }}"

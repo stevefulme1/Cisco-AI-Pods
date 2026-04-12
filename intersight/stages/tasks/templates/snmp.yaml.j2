@@ -1,0 +1,35 @@
+---
+community_access: "{{ item.1.snmp_community_access | default('Disabled') }}"
+description: "{{ item.1.description | default(omit) }}"
+enabled: "{{ item.1.enable_snmp | default(True) }}"
+engine_input_id: "{{ item.1.snmp_engine_input_id | default(omit) }}"
+name: "{{ policy_name_prefix.snmp | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.snmp | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+snmp_port: "{{ item.1.snmp_port | default(161) }}"
+sys_contact: "{{ item.1.system_contact | default(omit) }}"
+sys_location: "{{ item.1.system_location | default(omit) }}"
+trap_community: "{{ item.1.trap_community_string | default(omit) }}"
+{% if item.1.snmp_users is defined %}
+snmp_users:
+{% for user in item.1.snmp_users %}
+  - auth_password: "{{ user.auth_password }}"
+    name: "{{ user.name }}"
+    privacy_password: "{{ user.privacy_password | default(omit) }}"
+    security_level: "{{ user.security_level | default('AuthPriv') }}"
+{% endfor %}
+{% endif %}
+{% if item.1.snmp_trap_destinations is defined %}
+snmp_traps:
+{% for trap in item.1.snmp_trap_destinations %}
+  - destination: "{{ trap.destination_address }}"
+    enabled: "{{ trap.enable | default(True) }}"
+    port: "{{ trap.port | default(162) }}"
+    version: "{{ 'V3' if trap.user is defined else 'V2' }}"
+{% if trap.user is defined %}
+    user: "{{ trap.user }}"
+{% endif %}
+{% if trap.type is defined %}
+    type: "{{ trap.type }}"
+{% endif %}
+{% endfor %}
+{% endif %}

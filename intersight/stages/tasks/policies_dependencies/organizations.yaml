@@ -1,0 +1,27 @@
+---
+- name: Get Organizations Moids
+  # noqa: args[module]
+  cisco.intersight.intersight_organization_info:
+    name: "{{ item.key }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ organizations_map | dict2items }}"
+  register: organizations_info
+
+- name: Set organizations dictionary
+  ansible.builtin.set_fact:
+    org_name_to_moid: >-
+      {{
+        organizations_info.results
+        | map(attribute='api_response')
+        | flatten
+        | rejectattr('ObjectType', 'equalto', 'organization.Organization.List')
+        | items2dict(key_name='Name', value_name='Moid')
+      }}
+    org_moid_to_name: >-
+      {{
+        organizations_info.results
+        | map(attribute='api_response')
+        | flatten
+        | rejectattr('ObjectType', 'equalto', 'organization.Organization.List')
+        | items2dict(key_name='Moid', value_name='Name')
+      }}

@@ -1,0 +1,5 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+name: "{{ policy_name_prefix.fibre_channel_network | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.fibre_channel_network | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+vsan_id: "{{ item.1.vsan_id }}"

@@ -1,0 +1,28 @@
+---
+- name: Configure Intersight Organizations
+  import_playbook: stages/configure_intersight_organizations.yaml
+  vars:
+    run_from_all: true
+  tags:
+    - organizations
+
+- name: Configure Intersight Pools
+  import_playbook: stages/configure_intersight_pools.yaml
+  vars:
+    run_from_all: true
+  tags:
+    - pools
+
+- name: Configure Intersight Policies
+  import_playbook: stages/configure_intersight_policies.yaml
+  vars:
+    run_from_all: true
+  tags:
+    - policies
+
+- name: Configure Intersight Profiles
+  import_playbook: stages/configure_intersight_profiles.yaml
+  vars:
+    run_from_all: true
+  tags:
+    - profiles

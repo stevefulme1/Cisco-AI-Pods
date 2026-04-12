@@ -1,0 +1,67 @@
+---
+- name: Build WWN pools consumed from Policies
+  ansible.builtin.set_fact:
+    consumed_wwn_pools: >
+      {%- set pools = [] -%}
+      {%- set scp_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.san_connectivity', {'skip_missing': True}) -%}
+      {%- for org_item, scp_policy in scp_subelems -%}
+        {%- if scp_policy.wwnn_pool is defined -%}
+          {%- set _ = pools.append({
+            'name': scp_policy.wwnn_pool.rsplit('/', 1) | last,
+            'organization': scp_policy.wwnn_pool.rsplit('/', 1) | first if '/' in scp_policy.wwnn_pool else org_item.key
+          }) -%}
+        {%- endif -%}
+        {%- if scp_policy.vhbas is defined -%}
+          {%- for vhba in scp_policy.vhbas -%}
+            {%- if vhba.wwpn_pools is defined -%}
+              {%- for wwpn_pool_ref in vhba.wwpn_pools -%}
+                {%- set _ = pools.append({
+                  'name': wwpn_pool_ref.rsplit('/', 1) | last,
+                  'organization': wwpn_pool_ref.rsplit('/', 1) | first if '/' in wwpn_pool_ref else org_item.key
+                }) -%}
+              {%- endfor -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set vt_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.vhba_template', {'skip_missing': True}) -%}
+      {%- for org_item, vhba_template in vt_subelems -%}
+        {%- if vhba_template.wwpn_pool is defined -%}
+          {%- set _ = pools.append({
+            'name': vhba_template.wwpn_pool.rsplit('/', 1) | last,
+            'organization': vhba_template.wwpn_pool.rsplit('/', 1) | first if '/' in vhba_template.wwpn_pool else org_item.key
+          }) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ pools }}
+
+- name: Get WWN Pools from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_wwn_pool_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_wwn_pools | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  register: wwn_pools_info
+
+- name: Set WWN pools dictionary
+  ansible.builtin.set_fact:
+    wwn_pools_by_org: >-
+      {{
+        wwn_pools_by_org | default({})
+        | combine({
+            organization_name: (
+              wwn_pools_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid })
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: >-
+    {{ wwn_pools_info.results | map(attribute='api_response') | flatten | list }}
+
+- name: Debug WWN pools dictionary
+  ansible.builtin.debug:
+    var: wwn_pools_by_org
+  when: >-
+    debug_module | bool

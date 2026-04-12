@@ -1,0 +1,63 @@
+---
+- name: Build Ethernet Adapter policies consumed from LAN Connectivity and vNIC Templates
+  ansible.builtin.set_fact:
+    consumed_ethernet_adapter_policies: >-
+      {%- set policies = [] -%}
+      {%- set policy_path_lcp = 'value.policies.lan_connectivity' -%}
+      {%- set policy_path_template = 'value.policies.vnic_template' -%}
+      {%- set lcps = query('ansible.builtin.subelements',
+         merged_model.intersight.organizations | dict2items,
+         policy_path_lcp, {'skip_missing': True}) -%}
+      {%- for org_item, lcp_policy in lcps -%}
+        {%- if lcp_policy.vnics is defined -%}
+          {%- for vnic in lcp_policy.vnics -%}
+            {%- if vnic.ethernet_adapter_policy is defined -%}
+              {%- set ref = vnic.ethernet_adapter_policy -%}
+              {%- set ref_name = ref.rsplit('/', 1) | last -%}
+              {%- set ref_org = ref.rsplit('/', 1) | first if '/' in ref else org_item.key -%}
+              {%- set _ = policies.append({'name': ref_name, 'organization': ref_org}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set templates = query('ansible.builtin.subelements',
+         merged_model.intersight.organizations | dict2items,
+         policy_path_template, {'skip_missing': True}) -%}
+      {%- for org_item, vnic_template in templates -%}
+        {%- if vnic_template.ethernet_adapter_policy is defined -%}
+          {%- set ref = vnic_template.ethernet_adapter_policy -%}
+          {%- set ref_name = ref.rsplit('/', 1) | last -%}
+          {%- set ref_org = ref.rsplit('/', 1) | first if '/' in ref else org_item.key -%}
+          {%- set _ = policies.append({'name': ref_name, 'organization': ref_org}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ policies }}
+
+- name: Get Ethernet Adapter Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_ethernet_adapter_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_ethernet_adapter_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  register: ethernet_adapter_policies_info
+
+- name: Set Ethernet Adapter policies dictionary
+  ansible.builtin.set_fact:
+    ethernet_adapter_policies_by_org: >-
+      {{
+        ethernet_adapter_policies_by_org | default({})
+        | combine({
+            organization_name: (
+              ethernet_adapter_policies_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid }, recursive=True)
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ ethernet_adapter_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug Ethernet Adapter policies dictionary
+  ansible.builtin.debug:
+    var: ethernet_adapter_policies_by_org
+  when: debug_module | bool

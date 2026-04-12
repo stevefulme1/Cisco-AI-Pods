@@ -1,0 +1,10 @@
+---
+description: "{{ item.1.description | default(omit) }}"
+enable_local_server_video: "{{ item.1.enable_local_server_video | default(True) }}"
+enable_video_encryption: "{{ item.1.enable_video_encryption | default(True) }}"
+enabled: "{{ item.1.enable_virtual_kvm | default(True) }}"
+maximum_sessions: "{{ item.1.maximum_sessions | default(4) }}"
+name: "{{ policy_name_prefix.virtual_kvm | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.virtual_kvm | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+remote_port: "{{ item.1.remote_port | default(2068) }}"
+tunneled_kvm_enabled: "{{ item.1.allow_tunneled_vkvm | default(False) }}"
