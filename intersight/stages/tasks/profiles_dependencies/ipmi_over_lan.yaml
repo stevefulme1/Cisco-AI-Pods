@@ -1,0 +1,51 @@
+---
+- name: Build IPMI over LAN policies consumed from Server Profiles and Profile Templates
+  ansible.builtin.set_fact:
+    consumed_ipmi_over_lan_policies: >-
+      {%- set policies = [] -%}
+      {%- set sp_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.server', {'skip_missing': True}) -%}
+      {%- for org_item, server_profile in sp_subelems -%}
+        {%- if server_profile.ipmi_over_lan_policy is defined and server_profile.ipmi_over_lan_policy != '' -%}
+          {%- set ref = server_profile.ipmi_over_lan_policy -%}
+          {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set spt_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.server', {'skip_missing': True}) -%}
+      {%- for org_item, server_profile_template in spt_subelems -%}
+        {%- if server_profile_template.ipmi_over_lan_policy is defined and server_profile_template.ipmi_over_lan_policy != '' -%}
+          {%- set ref = server_profile_template.ipmi_over_lan_policy -%}
+          {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ policies }}
+
+- name: Get IPMI over LAN Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_ipmi_over_lan_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_ipmi_over_lan_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
+  register: ipmi_over_lan_policies_info
+
+- name: Set IPMI over LAN policies dictionary
+  ansible.builtin.set_fact:
+    ipmi_over_lan_policies_by_org: >-
+      {{
+        ipmi_over_lan_policies_by_org | default({})
+        | combine({
+            organization_name: (
+              ipmi_over_lan_policies_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid }, recursive=True)
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ ipmi_over_lan_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug IPMI over LAN policies dictionary
+  ansible.builtin.debug:
+    var: ipmi_over_lan_policies_by_org
+  when: debug_module | bool

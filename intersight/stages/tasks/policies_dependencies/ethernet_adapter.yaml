@@ -17,6 +17,40 @@
               {%- set ref_org = ref.rsplit('/', 1) | first if '/' in ref else org_item.key -%}
               {%- set _ = policies.append({'name': ref_name, 'organization': ref_org}) -%}
             {%- endif -%}
+            {%- if vnic.usnic is defined and vnic.usnic.usnic_adapter_policy is defined -%}
+              {%- set ref = vnic.usnic.usnic_adapter_policy -%}
+              {%- set ref_name = ref.rsplit('/', 1) | last -%}
+              {%- set ref_org = ref.rsplit('/', 1) | first if '/' in ref else org_item.key -%}
+              {%- set _ = policies.append({'name': ref_name, 'organization': ref_org}) -%}
+            {%- endif -%}
+            {%- if vnic.vmq is defined and vnic.vmq.vmmq_adapter_policy is defined -%}
+              {%- set ref = vnic.vmq.vmmq_adapter_policy -%}
+              {%- set ref_name = ref.rsplit('/', 1) | last -%}
+              {%- set ref_org = ref.rsplit('/', 1) | first if '/' in ref else org_item.key -%}
+              {%- set _ = policies.append({'name': ref_name, 'organization': ref_org}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+        {%- if lcp_policy.vnics_from_template is defined -%}
+          {%- for vnic in lcp_policy.vnics_from_template -%}
+            {%- if vnic.ethernet_adapter_policy is defined -%}
+              {%- set ref = vnic.ethernet_adapter_policy -%}
+              {%- set ref_name = ref.rsplit('/', 1) | last -%}
+              {%- set ref_org = ref.rsplit('/', 1) | first if '/' in ref else org_item.key -%}
+              {%- set _ = policies.append({'name': ref_name, 'organization': ref_org}) -%}
+            {%- endif -%}
+            {%- if vnic.usnic is defined and vnic.usnic.usnic_adapter_policy is defined -%}
+              {%- set ref = vnic.usnic.usnic_adapter_policy -%}
+              {%- set ref_name = ref.rsplit('/', 1) | last -%}
+              {%- set ref_org = ref.rsplit('/', 1) | first if '/' in ref else org_item.key -%}
+              {%- set _ = policies.append({'name': ref_name, 'organization': ref_org}) -%}
+            {%- endif -%}
+            {%- if vnic.vmq is defined and vnic.vmq.vmmq_adapter_policy is defined -%}
+              {%- set ref = vnic.vmq.vmmq_adapter_policy -%}
+              {%- set ref_name = ref.rsplit('/', 1) | last -%}
+              {%- set ref_org = ref.rsplit('/', 1) | first if '/' in ref else org_item.key -%}
+              {%- set _ = policies.append({'name': ref_name, 'organization': ref_org}) -%}
+            {%- endif -%}
           {%- endfor -%}
         {%- endif -%}
       {%- endfor -%}
@@ -26,6 +60,18 @@
       {%- for org_item, vnic_template in templates -%}
         {%- if vnic_template.ethernet_adapter_policy is defined -%}
           {%- set ref = vnic_template.ethernet_adapter_policy -%}
+          {%- set ref_name = ref.rsplit('/', 1) | last -%}
+          {%- set ref_org = ref.rsplit('/', 1) | first if '/' in ref else org_item.key -%}
+          {%- set _ = policies.append({'name': ref_name, 'organization': ref_org}) -%}
+        {%- endif -%}
+        {%- if vnic_template.usnic_adapter_policy is defined -%}
+          {%- set ref = vnic_template.usnic_adapter_policy -%}
+          {%- set ref_name = ref.rsplit('/', 1) | last -%}
+          {%- set ref_org = ref.rsplit('/', 1) | first if '/' in ref else org_item.key -%}
+          {%- set _ = policies.append({'name': ref_name, 'organization': ref_org}) -%}
+        {%- endif -%}
+        {%- if vnic_template.vmmq_adapter_policy is defined -%}
+          {%- set ref = vnic_template.vmmq_adapter_policy -%}
           {%- set ref_name = ref.rsplit('/', 1) | last -%}
           {%- set ref_org = ref.rsplit('/', 1) | first if '/' in ref else org_item.key -%}
           {%- set _ = policies.append({'name': ref_name, 'organization': ref_org}) -%}
@@ -40,6 +86,8 @@
     organization: "{{ item.organization }}"
     validate_certs: "{{ module_validate_certs }}"
   loop: "{{ consumed_ethernet_adapter_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
   register: ethernet_adapter_policies_info
 
 - name: Set Ethernet Adapter policies dictionary

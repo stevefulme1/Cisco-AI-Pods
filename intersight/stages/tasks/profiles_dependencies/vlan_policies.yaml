@@ -1,0 +1,55 @@
+---
+- name: Build VLAN policies consumed from Domain Profiles and Profile Templates
+  ansible.builtin.set_fact:
+    consumed_vlan_policies: >-
+      {%- set policies = [] -%}
+      {%- set dp_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.domain', {'skip_missing': True}) -%}
+      {%- for org_item, domain_profile in dp_subelems -%}
+        {%- if domain_profile.vlan_policies is defined -%}
+          {%- for policy in domain_profile.vlan_policies -%}
+            {%- set ref = policy -%}
+            {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set dpt_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.domain', {'skip_missing': True}) -%}
+      {%- for org_item, domain_profile_template in dpt_subelems -%}
+        {%- if domain_profile_template.vlan_policies is defined -%}
+          {%- for policy in domain_profile_template.vlan_policies -%}
+            {%- set ref = policy -%}
+            {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ policies }}
+
+- name: Get VLAN Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_vlan_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_vlan_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
+  register: vlan_policies_info
+
+- name: Set VLAN policies dictionary
+  ansible.builtin.set_fact:
+    vlan_policies_by_org: >-
+      {{
+        vlan_policies_by_org | default({})
+        | combine({
+            organization_name: (
+              vlan_policies_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid }, recursive=True)
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ vlan_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug VLAN policies dictionary
+  ansible.builtin.debug:
+    var: vlan_policies_by_org
+  when: debug_module | bool

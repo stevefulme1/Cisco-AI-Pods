@@ -1,0 +1,82 @@
+---
+- name: Build Memory policies consumed from Server Profiles and Profile Templates
+  ansible.builtin.set_fact:
+    consumed_memory_policies: >-
+      {%- set policies = [] -%}
+      {%- set sp_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.server', {'skip_missing': True}) -%}
+      {%- for org_item, server_profile in sp_subelems -%}
+        {%- if server_profile.memory_policy is defined and server_profile.memory_policy != '' -%}
+          {%- set ref = server_profile.memory_policy -%}
+          {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set spt_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.server', {'skip_missing': True}) -%}
+      {%- for org_item, server_profile_template in spt_subelems -%}
+        {%- if server_profile_template.memory_policy is defined and server_profile_template.memory_policy != '' -%}
+          {%- set ref = server_profile_template.memory_policy -%}
+          {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ policies }}
+
+- name: Get Memory Policies from Intersight
+  vars:
+    consumed_memory_policies_by_org: >-
+      {%- set grouped = {} -%}
+      {%- for policy in consumed_memory_policies | default([]) -%}
+        {%- if policy.organization not in grouped -%}
+          {%- set _ = grouped.update({policy.organization: []}) -%}
+        {%- endif -%}
+        {%- if policy.name not in grouped[policy.organization] -%}
+          {%- set _ = grouped[policy.organization].append(policy.name) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ grouped }}
+    consumed_memory_policy_queries: >-
+      {%- set queries = [] -%}
+      {%- for org_item in consumed_memory_policies_by_org | dict2items -%}
+        {%- set quoted_names = [] -%}
+        {%- for policy_name in org_item.value -%}
+          {%- set _ = quoted_names.append("'" ~ policy_name ~ "'") -%}
+        {%- endfor -%}
+        {%- if quoted_names | length > 0 -%}
+          {%- set _ = queries.append({
+            'organization': org_item.key,
+            'names_filter': quoted_names | join(', ')
+          }) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ queries }}
+  cisco.intersight.intersight_rest_api:
+    # noqa: args[module]
+    query_params:
+      $filter: "Name in ({{ item.names_filter }}) and Organization.Moid eq '{{ org_name_to_moid[item.organization] }}'"
+    resource_path: /memory/Policies
+    return_list: true
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_memory_policy_queries }}"
+  loop_control:
+    label: "{{ item.organization }}"
+  register: memory_policies_info
+  when: consumed_memory_policies | default([]) | length > 0
+
+- name: Set Memory policies dictionary
+  ansible.builtin.set_fact:
+    memory_policies_by_org: >-
+      {{
+        memory_policies_by_org | default({})
+        | combine({
+            organization_name: (
+              memory_policies_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid }, recursive=True)
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ memory_policies_info.results | map(attribute='api_response') | flatten | list }}"
+  when: memory_policies_info.results | default([]) | length > 0
+
+- name: Debug Memory policies dictionary
+  ansible.builtin.debug:
+    var: memory_policies_by_org
+  when: debug_module | bool

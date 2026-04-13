@@ -1,0 +1,51 @@
+---
+- name: Build Switch Control policies consumed from Domain Profiles and Profile Templates
+  ansible.builtin.set_fact:
+    consumed_switch_control_policies: >-
+      {%- set policies = [] -%}
+      {%- set dp_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.domain', {'skip_missing': True}) -%}
+      {%- for org_item, domain_profile in dp_subelems -%}
+        {%- if domain_profile.switch_control_policy is defined and domain_profile.switch_control_policy != '' -%}
+          {%- set ref = domain_profile.switch_control_policy -%}
+          {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set dpt_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.domain', {'skip_missing': True}) -%}
+      {%- for org_item, domain_profile_template in dpt_subelems -%}
+        {%- if domain_profile_template.switch_control_policy is defined and domain_profile_template.switch_control_policy != '' -%}
+          {%- set ref = domain_profile_template.switch_control_policy -%}
+          {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ policies }}
+
+- name: Get Switch Control Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_switch_control_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_switch_control_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
+  register: switch_control_policies_info
+
+- name: Set Switch Control policies dictionary
+  ansible.builtin.set_fact:
+    switch_control_policies_by_org: >-
+      {{
+        switch_control_policies_by_org | default({})
+        | combine({
+            organization_name: (
+              switch_control_policies_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid }, recursive=True)
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ switch_control_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug Switch Control policies dictionary
+  ansible.builtin.debug:
+    var: switch_control_policies_by_org
+  when: debug_module | bool

@@ -1,0 +1,61 @@
+{
+{% set inband_ip_pool_org = item.1.inband_ip_pool.rsplit('/', 1) | first if (item.1.inband_ip_pool is defined and '/' in item.1.inband_ip_pool) else item.0.key %}
+{% set inband_ip_pool_name = item.1.inband_ip_pool.rsplit('/', 1) | last if item.1.inband_ip_pool is defined else '' %}
+{% set out_of_band_ip_pool_org = item.1.out_of_band_ip_pool.rsplit('/', 1) | first if (item.1.out_of_band_ip_pool is defined and '/' in item.1.out_of_band_ip_pool) else item.0.key %}
+{% set out_of_band_ip_pool_name = item.1.out_of_band_ip_pool.rsplit('/', 1) | last if item.1.out_of_band_ip_pool is defined else '' %}
+    "AddressType": {
+{% if item.1.ipv4_address_configuration | default(false) %}
+        "EnableIpV4": true,
+{% elif item.1.inband_ip_pool is defined and ip_pools_by_org[inband_ip_pool_org][inband_ip_pool_name].ipv4_blocks | length > 0 %}
+        "EnableIpV4": true,
+{% elif item.1.out_of_band_ip_pool is defined and ip_pools_by_org[out_of_band_ip_pool_org][out_of_band_ip_pool_name].ipv4_blocks | length > 0 %}
+        "EnableIpV4": true,
+{% else %}
+        "EnableIpV4": false,
+{% endif%}
+{% if item.1.inband_ip_pool is defined and ip_pools_by_org[inband_ip_pool_org][inband_ip_pool_name].ipv6_blocks | length > 0 and item.1.ipv6_address_configuration | default(false) %}
+        "EnableIpV6": true,
+{% else %}
+        "EnableIpV6": false,
+{% endif%}
+        "ObjectType": "access.AddressType"
+    },
+    "ConfigurationType": {
+        "ConfigureInband": {% if item.1.inband_ip_pool is defined %}true{% else %}false{% endif %},
+        "ConfigureOutOfBand": {% if item.1.out_of_band_ip_pool is defined %}true{% else %}false{% endif %},
+        "ObjectType": "access.ConfigurationType"
+    },
+    "Description": "{{ item.1.description | default('') }}",
+{% if item.1.inband_ip_pool is defined %}
+    "InbandIpPool": {
+        "Moid": "{{ ip_pools_by_org[inband_ip_pool_org][inband_ip_pool_name].moid }}",
+        "ObjectType": "ippool.Pool"
+    },
+    "InbandVlan": {{ item.1.inband_vlan_id | default(4) }},
+{% else %}
+    "InbandIpPool": null,
+    "InbandVlan": 0,
+{% endif %}
+    "InbandVrf": null,
+    "Name": "{{ policy_name_prefix.imc_access | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.imc_access | default(policy_name_suffix.default | default('')) }}",
+    "ObjectType": "access.Policy",
+    "Organization": {
+        "Moid": "{{ org_name_to_moid[item.0.key] }}",
+        "ObjectType": "organization.Organization"
+    },
+{% if item.1.out_of_band_ip_pool is defined %}
+    "OutOfBandIpPool": {
+        "Moid": "{{ ip_pools_by_org[out_of_band_ip_pool_org][out_of_band_ip_pool_name].moid }}",
+        "ObjectType": "ippool.Pool"
+    },
+{% else %}
+    "OutOfBandIpPool": null,
+{% endif %}
+    "OutOfBandVrf": null,
+    "Tags": [
+        {
+            "Key": "ezci",
+            "Value": "3.1.2"
+        }
+    ]
+}

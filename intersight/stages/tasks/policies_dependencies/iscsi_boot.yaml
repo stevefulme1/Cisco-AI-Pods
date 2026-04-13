@@ -13,6 +13,14 @@
             {%- endif -%}
           {%- endfor -%}
         {%- endif -%}
+        {%- if lcp_policy.vnics_from_template is defined -%}
+          {%- for vnic in lcp_policy.vnics_from_template -%}
+            {%- if vnic.iscsi_boot_policy is defined -%}
+              {%- set ref = vnic.iscsi_boot_policy -%}
+              {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
       {%- endfor -%}
       {%- set templates = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.vnic_template', {'skip_missing': True}) -%}
       {%- for org_item, vnic_template in templates -%}
@@ -30,6 +38,8 @@
     organization: "{{ item.organization }}"
     validate_certs: "{{ module_validate_certs }}"
   loop: "{{ consumed_iscsi_boot_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
   register: iscsi_boot_policies_info
 
 - name: Set iSCSI Boot policies dictionary

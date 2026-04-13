@@ -33,6 +33,8 @@
         state: present
         validate_certs: "{{ module_validate_certs }}"
       loop: "{{ organizations_map | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
 
     - name: Ensure resource groups exist
       cisco.intersight.intersight_resource_group:
@@ -45,6 +47,8 @@
         state: present
         validate_certs: "{{ module_validate_certs }}"
       loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.resource_groups', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
     - name: Attach resource groups to organizations
       cisco.intersight.intersight_organization:
@@ -58,3 +62,5 @@
         validate_certs: "{{ module_validate_certs }}"
       when: (item.value.resource_groups | default([]) | length) > 0
       loop: "{{ organizations_map | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"

@@ -1,0 +1,219 @@
+---
+- name: Compute consumed dependency flags for profile families
+  ansible.builtin.set_fact:
+    consumed_chassis_profiles_exists: >-
+      {{ query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.chassis', {'skip_missing': True}) | length > 0 }}
+    consumed_chassis_templates_exists: >-
+      {{ query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.chassis', {'skip_missing': True}) | length > 0 }}
+    consumed_domain_profiles_exists: >-
+      {{ query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.domain', {'skip_missing': True}) | length > 0 }}
+    consumed_domain_templates_exists: >-
+      {{ query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.domain', {'skip_missing': True}) | length > 0 }}
+    consumed_server_profiles_exists: >-
+      {{ query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.server', {'skip_missing': True}) | length > 0 }}
+    consumed_server_templates_exists: >-
+      {{ query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.server', {'skip_missing': True}) | length > 0 }}
+
+- name: Dependency org maps
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/organizations.yaml
+  when: >-
+    (
+      consumed_server_profiles_exists
+      or consumed_server_templates_exists
+      or consumed_domain_profiles_exists
+      or consumed_domain_templates_exists
+      or consumed_chassis_profiles_exists
+      or consumed_chassis_templates_exists
+    )
+    and
+    (
+      (org_name_to_moid | default({}) | length == 0)
+      or
+      (org_moid_to_name | default({}) | length == 0)
+    )
+
+- name: Profile dependency LAN Connectivity
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/lan_connectivity.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency SAN Connectivity
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/san_connectivity.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency UUID Pool
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/uuid_pool.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency Resource Pool
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/resource_pool.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency Port Policies
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/port_policies.yaml
+  when: consumed_domain_profiles_exists or consumed_domain_templates_exists
+
+- name: Profile dependency VLAN Policies
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/vlan_policies.yaml
+  when: consumed_domain_profiles_exists or consumed_domain_templates_exists
+
+- name: Profile dependency VSAN Policies
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/vsan_policies.yaml
+  when: consumed_domain_profiles_exists or consumed_domain_templates_exists
+
+- name: Profile dependency SNMP
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/snmp.yaml
+  when: >-
+    consumed_server_profiles_exists
+    or consumed_server_templates_exists
+    or consumed_domain_profiles_exists
+    or consumed_domain_templates_exists
+    or consumed_chassis_profiles_exists
+    or consumed_chassis_templates_exists
+
+- name: Profile dependency IMC Access
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/imc_access.yaml
+  when: >-
+    consumed_server_profiles_exists
+    or consumed_server_templates_exists
+    or consumed_chassis_profiles_exists
+    or consumed_chassis_templates_exists
+
+- name: Profile dependency Power
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/power.yaml
+  when: >-
+    consumed_server_profiles_exists
+    or consumed_server_templates_exists
+    or consumed_chassis_profiles_exists
+    or consumed_chassis_templates_exists
+
+- name: Profile dependency Thermal
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/thermal.yaml
+  when: >-
+    consumed_server_profiles_exists
+    or consumed_server_templates_exists
+    or consumed_chassis_profiles_exists
+    or consumed_chassis_templates_exists
+
+- name: Profile dependency Certificate Management
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/certificate_management.yaml
+  when: >-
+    consumed_server_profiles_exists
+    or consumed_server_templates_exists
+    or consumed_domain_profiles_exists
+    or consumed_domain_templates_exists
+
+- name: Profile dependency LDAP
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/ldap.yaml
+  when: >-
+    consumed_server_profiles_exists
+    or consumed_server_templates_exists
+    or consumed_domain_profiles_exists
+    or consumed_domain_templates_exists
+
+- name: Profile dependency Network Connectivity
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/network_connectivity.yaml
+  when: >-
+    consumed_server_profiles_exists
+    or consumed_server_templates_exists
+    or consumed_domain_profiles_exists
+    or consumed_domain_templates_exists
+
+- name: Profile dependency NTP
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/ntp.yaml
+  when: >-
+    consumed_server_profiles_exists
+    or consumed_server_templates_exists
+    or consumed_domain_profiles_exists
+    or consumed_domain_templates_exists
+
+- name: Profile dependency Syslog
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/syslog.yaml
+  when: >-
+    consumed_server_profiles_exists
+    or consumed_server_templates_exists
+    or consumed_domain_profiles_exists
+    or consumed_domain_templates_exists
+
+- name: Profile dependency Switch Control
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/switch_control.yaml
+  when: consumed_domain_profiles_exists or consumed_domain_templates_exists
+
+- name: Profile dependency System QoS
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/system_qos.yaml
+  when: consumed_domain_profiles_exists or consumed_domain_templates_exists
+
+- name: Profile dependency Adapter Config
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/adapter_config.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency BIOS
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/bios.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency Boot Order
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/boot_order.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency Firmware
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/firmware.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency IPMI over LAN
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/ipmi_over_lan.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency iSCSI Boot
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/iscsi_boot.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency KVM
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/kvm.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency Storage
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/storage.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency Drive Security
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/drive_security.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency Memory
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/memory.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency Scrub
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/scrub.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency Serial over LAN
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/serial_over_lan.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency SMTP
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/smtp.yaml
+  when: >-
+    consumed_server_profiles_exists
+    or consumed_server_templates_exists
+    or consumed_domain_profiles_exists
+    or consumed_domain_templates_exists
+
+- name: Profile dependency SSH
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/ssh.yaml
+  when: >-
+    consumed_server_profiles_exists
+    or consumed_server_templates_exists
+    or consumed_domain_profiles_exists
+    or consumed_domain_templates_exists
+
+- name: Profile dependency Virtual Media
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/virtual_media.yaml
+  when: consumed_server_profiles_exists or consumed_server_templates_exists
+
+- name: Profile dependency Local User
+  ansible.builtin.include_tasks: tasks/profiles_dependencies/local_user.yaml
+  when: >-
+    consumed_server_profiles_exists
+    or consumed_server_templates_exists
+    or consumed_chassis_profiles_exists
+    or consumed_chassis_templates_exists

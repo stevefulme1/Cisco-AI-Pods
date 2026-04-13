@@ -10,6 +10,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.adapter_configuration', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure BIOS policies
   # noqa: args[module]
@@ -22,6 +24,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.bios', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Boot Order policies
   # noqa: args[module]
@@ -34,6 +38,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.boot_order', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Certificate Management policies
   # noqa: args[module]
@@ -46,6 +52,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.certificate_management', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Device Connector policies
   # noqa: args[module]
@@ -58,6 +66,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.device_connector', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Drive Security policies
   # noqa: args[module]
@@ -70,6 +80,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.drive_security', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Ethernet Adapter policies
   # noqa: args[module]
@@ -82,6 +94,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ethernet_adapter', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Ethernet Network Control policies
   # noqa: args[module]
@@ -94,6 +108,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ethernet_network_control', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Ethernet Network Group policies
   # noqa: args[module]
@@ -106,6 +122,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ethernet_network_group', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Ethernet QoS policies
   # noqa: args[module]
@@ -118,6 +136,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ethernet_qos', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Fibre Channel Adapter policies
   # noqa: args[module]
@@ -130,6 +150,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.fibre_channel_adapter', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Fibre Channel Network policies
   # noqa: args[module]
@@ -142,6 +164,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.fibre_channel_network', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Fibre Channel QoS policies
   # noqa: args[module]
@@ -154,6 +178,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.fibre_channel_qos', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Fibre Channel Zone policies
   # noqa: args[module]
@@ -166,6 +192,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.fc_zone', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Firmware policies
   # noqa: args[module]
@@ -178,6 +206,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.firmware', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Flow Control policies
   # noqa: args[module]
@@ -190,18 +220,21 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.flow_control', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure IMC Access policies
   # noqa: args[module]
-  cisco.intersight.intersight_imc_access_policy: >-
-    {{
-      (lookup('template', 'templates/imc_access.yaml.j2') | from_yaml)
-      | combine({
-          'state': 'present',
-          'validate_certs': module_validate_certs
-        })
-    }}
+  cisco.intersight.intersight_rest_api:
+    api_body: "{{ lookup('template', 'templates/imc_access.json.j2') }}"
+    resource_path: /access/Policies
+    query_params:
+      $filter: "Name eq '{{ item.1.name }}' and Organization.Moid eq '{{ org_name_to_moid[item.0.key] }}'"
+    state: absent
+    validate_certs: "{{ module_validate_certs }}"
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.imc_access', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure IPMI Over LAN policies
   # noqa: args[module]
@@ -214,6 +247,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ipmi_over_lan', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure iSCSI Adapter policies
   # noqa: args[module]
@@ -226,6 +261,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.iscsi_adapter', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure iSCSI Static Target policies
   # noqa: args[module]
@@ -238,6 +275,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.iscsi_static_target', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure LDAP policies
   # noqa: args[module]
@@ -250,6 +289,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ldap', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Link Aggregation policies
   # noqa: args[module]
@@ -262,6 +303,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.link_aggregation', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Link Control policies
   # noqa: args[module]
@@ -274,6 +317,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.link_control', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Local User policies
   # noqa: args[module]
@@ -286,6 +331,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.local_user', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Multicast policies
   # noqa: args[module]
@@ -298,6 +345,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.multicast', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Network Connectivity policies
   # noqa: args[module]
@@ -310,6 +359,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.network_connectivity', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure NTP policies
   # noqa: args[module]
@@ -322,6 +373,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ntp', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Power policies
   # noqa: args[module]
@@ -334,6 +387,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.power', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure SMTP policies
   # noqa: args[module]
@@ -346,6 +401,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.smtp', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure SNMP policies
   # noqa: args[module]
@@ -358,6 +415,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.snmp', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure SSH policies
   # noqa: args[module]
@@ -370,6 +429,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.ssh', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Storage policies
   # noqa: args[module]
@@ -382,6 +443,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.storage', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Switch Control policies
   # noqa: args[module]
@@ -394,6 +457,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.switch_control', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Syslog policies
   # noqa: args[module]
@@ -406,6 +471,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.syslog', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure System QoS policies
   # noqa: args[module]
@@ -418,6 +485,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.system_qos', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Thermal policies
   # noqa: args[module]
@@ -430,6 +499,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.thermal', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Virtual KVM policies
   # noqa: args[module]
@@ -442,6 +513,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.virtual_kvm', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure Virtual Media policies
   # noqa: args[module]
@@ -454,3 +527,5 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.virtual_media', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"

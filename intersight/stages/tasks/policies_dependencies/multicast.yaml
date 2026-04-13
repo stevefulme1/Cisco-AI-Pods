@@ -23,6 +23,8 @@
     organization: "{{ item.organization }}"
     validate_certs: "{{ module_validate_certs }}"
   loop: "{{ consumed_multicast_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
   register: multicast_policies_info
 
 - name: Set Multicast policies dictionary

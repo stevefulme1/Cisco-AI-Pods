@@ -36,6 +36,8 @@
     organization: "{{ item.organization }}"
     validate_certs: "{{ module_validate_certs }}"
   loop: "{{ consumed_ip_pools | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
   register: ip_pools_info
 
 - name: Set ip pools dictionary

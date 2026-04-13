@@ -1,0 +1,51 @@
+---
+- name: Build Resource pools consumed from Server Profiles and Profile Templates
+  ansible.builtin.set_fact:
+    consumed_resource_pools: >-
+      {%- set pools = [] -%}
+      {%- set sp_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.server', {'skip_missing': True}) -%}
+      {%- for org_item, server_profile in sp_subelems -%}
+        {%- if server_profile.resource_pool is defined and server_profile.resource_pool != '' -%}
+          {%- set ref = server_profile.resource_pool -%}
+          {%- set _ = pools.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set spt_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.server', {'skip_missing': True}) -%}
+      {%- for org_item, server_profile_template in spt_subelems -%}
+        {%- if server_profile_template.resource_pool is defined and server_profile_template.resource_pool != '' -%}
+          {%- set ref = server_profile_template.resource_pool -%}
+          {%- set _ = pools.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ pools }}
+
+- name: Get Resource Pools from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_resource_group:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_resource_pools | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
+  register: resource_pools_info
+
+- name: Set Resource pools dictionary
+  ansible.builtin.set_fact:
+    resource_pools_by_org: >-
+      {{
+        resource_pools_by_org | default({})
+        | combine({
+            organization_name: (
+              resource_pools_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid }, recursive=True)
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ resource_pools_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug Resource pools dictionary
+  ansible.builtin.debug:
+    var: resource_pools_by_org
+  when: debug_module | bool

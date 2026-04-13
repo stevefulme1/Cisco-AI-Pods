@@ -127,3 +127,7 @@
 - name: Dependency WWN Pool
   ansible.builtin.include_tasks: tasks/policies_dependencies/wwn.yaml
   when: consumed_san_connectivity_exists or consumed_vhba_template_exists
+
+- name: Dependency MAC Sec
+  ansible.builtin.include_tasks: tasks/policies_dependencies/mac_sec.yaml
+  when: consumed_port_exists

@@ -1,0 +1,69 @@
+---
+- name: Build Thermal policies consumed from Chassis and Server Profiles and Profile Templates
+  ansible.builtin.set_fact:
+    consumed_thermal_policies: >
+      {%- set thermal_policies = [] -%}
+      {%- set chassis_profiles = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.chassis', {'skip_missing': True}) -%}
+      {%- for org_item, profile in chassis_profiles -%}
+        {%- if profile.thermal_policy is defined and profile.thermal_policy != '' -%}
+          {%- set ref = profile.thermal_policy -%}
+          {%- set _ = thermal_policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set chassis_templates = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.chassis', {'skip_missing': True}) -%}
+      {%- for org_item, template in chassis_templates -%}
+        {%- if template.thermal_policy is defined and template.thermal_policy != '' -%}
+          {%- set ref = template.thermal_policy -%}
+          {%- set _ = thermal_policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set server_profiles = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.server', {'skip_missing': True}) -%}
+      {%- for org_item, profile in server_profiles -%}
+        {%- if profile.thermal_policy is defined and profile.thermal_policy != '' -%}
+          {%- set ref = profile.thermal_policy -%}
+          {%- set _ = thermal_policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set server_templates = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.server', {'skip_missing': True}) -%}
+      {%- for org_item, template in server_templates -%}
+        {%- if template.thermal_policy is defined and template.thermal_policy != '' -%}
+          {%- set ref = template.thermal_policy -%}
+          {%- set _ = thermal_policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ thermal_policies | unique }}
+
+- name: Build list of unique Thermal policies
+  ansible.builtin.set_fact:
+    unique_thermal_policies: "{{ consumed_thermal_policies | map('to_json') | unique | map('from_json') | list }}"
+
+- name: Get Thermal Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_thermal_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ unique_thermal_policies | default([]) }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
+  register: thermal_policies_info
+
+- name: Set Thermal policies dictionary
+  ansible.builtin.set_fact:
+    thermal_policies_by_org: >-
+      {{
+        thermal_policies_by_org | default({})
+        | combine({
+            organization_name: (
+              thermal_policies_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid }, recursive=True)
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ thermal_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug Thermal policies dictionary
+  ansible.builtin.debug:
+    var: thermal_policies_by_org
+  when: debug_module | bool

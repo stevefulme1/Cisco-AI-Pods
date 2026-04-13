@@ -1,0 +1,69 @@
+---
+- name: Build Syslog policies consumed from Domain and Server Profiles and Profile Templates
+  ansible.builtin.set_fact:
+    consumed_syslog_policies: >
+      {%- set syslog_policies = [] -%}
+      {%- set domain_profiles = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.domain', {'skip_missing': True}) -%}
+      {%- for org_item, profile in domain_profiles -%}
+        {%- if profile.syslog_policy is defined and profile.syslog_policy != '' -%}
+          {%- set ref = profile.syslog_policy -%}
+          {%- set _ = syslog_policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set domain_templates = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.domain', {'skip_missing': True}) -%}
+      {%- for org_item, template in domain_templates -%}
+        {%- if template.syslog_policy is defined and template.syslog_policy != '' -%}
+          {%- set ref = template.syslog_policy -%}
+          {%- set _ = syslog_policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set server_profiles = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.server', {'skip_missing': True}) -%}
+      {%- for org_item, profile in server_profiles -%}
+        {%- if profile.syslog_policy is defined and profile.syslog_policy != '' -%}
+          {%- set ref = profile.syslog_policy -%}
+          {%- set _ = syslog_policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set server_templates = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.server', {'skip_missing': True}) -%}
+      {%- for org_item, template in server_templates -%}
+        {%- if template.syslog_policy is defined and template.syslog_policy != '' -%}
+          {%- set ref = template.syslog_policy -%}
+          {%- set _ = syslog_policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ syslog_policies | unique }}
+
+- name: Build list of unique Syslog policies
+  ansible.builtin.set_fact:
+    unique_syslog_policies: "{{ consumed_syslog_policies | map('to_json') | unique | map('from_json') | list }}"
+
+- name: Get Syslog Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_syslog_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ unique_syslog_policies | default([]) }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
+  register: syslog_policies_info
+
+- name: Set Syslog policies dictionary
+  ansible.builtin.set_fact:
+    syslog_policies_by_org: >-
+      {{
+        syslog_policies_by_org | default({})
+        | combine({
+            organization_name: (
+              syslog_policies_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid }, recursive=True)
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ syslog_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug Syslog policies dictionary
+  ansible.builtin.debug:
+    var: syslog_policies_by_org
+  when: debug_module | bool

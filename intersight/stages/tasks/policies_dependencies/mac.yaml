@@ -17,6 +17,16 @@
             {%- endif -%}
           {%- endfor -%}
         {%- endif -%}
+        {%- if lcp_policy.vnics_from_template is defined -%}
+          {%- for vnic in lcp_policy.vnics_from_template -%}
+            {%- if vnic.mac_address_pool is defined -%}
+              {%- set _ = pools.append({
+                'name': vnic.mac_address_pool.rsplit('/', 1) | last,
+                'organization': vnic.mac_address_pool.rsplit('/', 1) | first if '/' in vnic.mac_address_pool else org_item.key
+              }) -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
       {%- endfor -%}
       {%- set vt_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.policies.vnic_template', {'skip_missing': True}) -%}
       {%- for org_item, vnic_template in vt_subelems -%}
@@ -36,6 +46,8 @@
     organization: "{{ item.organization }}"
     validate_certs: "{{ module_validate_certs }}"
   loop: "{{ consumed_mac_pools | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
   register: mac_pools_info
   when: consumed_lan_connectivity_exists
 

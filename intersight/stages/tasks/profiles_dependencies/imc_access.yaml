@@ -1,0 +1,100 @@
+---
+- name: Build IMC Access policies consumed from Chassis and Server Profiles and Profile Templates
+  ansible.builtin.set_fact:
+    consumed_imc_access_policies: >
+      {%- set imc_access_policies = [] -%}
+      {%- set chassis_profiles = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.chassis', {'skip_missing': True}) -%}
+      {%- for org_item, profile in chassis_profiles -%}
+        {%- if profile.imc_access_policy is defined and profile.imc_access_policy != '' -%}
+          {%- set ref = profile.imc_access_policy -%}
+          {%- set _ = imc_access_policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set chassis_templates = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.chassis', {'skip_missing': True}) -%}
+      {%- for org_item, template in chassis_templates -%}
+        {%- if template.imc_access_policy is defined and template.imc_access_policy != '' -%}
+          {%- set ref = template.imc_access_policy -%}
+          {%- set _ = imc_access_policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set server_profiles = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.server', {'skip_missing': True}) -%}
+      {%- for org_item, profile in server_profiles -%}
+        {%- if profile.imc_access_policy is defined and profile.imc_access_policy != '' -%}
+          {%- set ref = profile.imc_access_policy -%}
+          {%- set _ = imc_access_policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set server_templates = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.server', {'skip_missing': True}) -%}
+      {%- for org_item, template in server_templates -%}
+        {%- if template.imc_access_policy is defined and template.imc_access_policy != '' -%}
+          {%- set ref = template.imc_access_policy -%}
+          {%- set _ = imc_access_policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ imc_access_policies | unique }}
+
+- name: Get IMC Access Policies from Intersight
+  vars:
+    consumed_imc_access_policies_by_org: >-
+      {%- set grouped = {} -%}
+      {%- for policy in consumed_imc_access_policies | default([]) -%}
+        {%- if policy.organization not in grouped -%}
+          {%- set _ = grouped.update({policy.organization: []}) -%}
+        {%- endif -%}
+        {%- if policy.name not in grouped[policy.organization] -%}
+          {%- set _ = grouped[policy.organization].append(policy.name) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ grouped }}
+    consumed_imc_access_policy_queries: >-
+      {%- set queries = [] -%}
+      {%- for org_item in consumed_imc_access_policies_by_org | dict2items -%}
+        {%- set quoted_names = [] -%}
+        {%- for policy_name in org_item.value -%}
+          {%- set _ = quoted_names.append("'" ~ policy_name ~ "'") -%}
+        {%- endfor -%}
+        {%- if quoted_names | length > 0 -%}
+          {%- set _ = queries.append({
+            'organization': org_item.key,
+            'names_filter': quoted_names | join(', ')
+          }) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ queries }}
+  cisco.intersight.intersight_rest_api:
+    # noqa: args[module]
+    query_params:
+      $filter: "Name in ({{ item.names_filter }}) and Organization.Moid eq '{{ org_name_to_moid[item.organization] }}'"
+    resource_path: /access/Policies
+    return_list: true
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_imc_access_policy_queries }}"
+  loop_control:
+    label: "{{ item.organization }}"
+  register: imc_access_policies_info
+  when: consumed_imc_access_policies | default([]) | length > 0
+
+- name: Set IMC Access policies dictionary
+  ansible.builtin.set_fact:
+    imc_access_policies_by_org: >-
+      {{
+        imc_access_policies_by_org | default({})
+        | combine({
+            organization_name: (
+              imc_access_policies_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid }, recursive=True)
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ imc_access_policies_info.results | map(attribute='api_response') | flatten | list }}"
+  when: imc_access_policies_info.results | default([]) | length > 0
+
+- name: Build list of unique IMC Access policies
+  ansible.builtin.set_fact:
+    unique_imc_access_policies: "{{ consumed_imc_access_policies | map('to_json') | unique | map('from_json') | list }}"
+
+- name: Debug all IMC Access policies
+  ansible.builtin.debug:
+    msg: "Unique IMC Access policies collected across chassis and server profile types"
+  when: debug_module | bool

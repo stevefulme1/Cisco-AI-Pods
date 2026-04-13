@@ -60,6 +60,8 @@
     organization: "{{ item.organization }}"
     validate_certs: "{{ module_validate_certs }}"
   loop: "{{ consumed_ethernet_network_group_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
   register: ethernet_network_group_policies_info
 
 - name: Build Ethernet Network Group policies dictionary keyed by org / name from the Ethernet Network Group policies info call

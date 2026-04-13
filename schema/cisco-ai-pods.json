@@ -8397,7 +8397,7 @@
                             "items": {
                                 "$ref": "#/definitions/intersight.boot_order.boot_devices"
                             },
-                            "maxItems": 255,
+                            "maxItems": 25,
                             "minItems": 1,
                             "object_type": "boot.DeviceBase",
                             "title": "boot_devices - Boot Devices - object_type: boot.DeviceBase",
@@ -8443,6 +8443,478 @@
             "unevaluatedProperties": false
         },
         "intersight.boot_order.boot_devices": {
+            "allOf": [
+                {
+                    "anyOf": [
+                        {
+                            "properties": {
+                                "device_type": {
+                                    "const": "flex_mmc"
+                                }
+                            }
+                        },
+                        {
+                            "properties": {
+                                "device_type": {
+                                    "const": "http_boot"
+                                }
+                            },
+                            "required": [
+                                "interface_source"
+                            ],
+                            "allOf": [
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "interface_source": {
+                                                "const": "name"
+                                            }
+                                        },
+                                        "required": [
+                                            "interface_source"
+                                        ]
+                                    },
+                                    "then": {
+                                        "required": [
+                                            "interface_name"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "interface_source": {
+                                                "const": "mac"
+                                            }
+                                        },
+                                        "required": [
+                                            "interface_source"
+                                        ]
+                                    },
+                                    "then": {
+                                        "required": [
+                                            "mac_address"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "interface_source": {
+                                                "const": "port"
+                                            }
+                                        },
+                                        "required": [
+                                            "interface_source"
+                                        ]
+                                    },
+                                    "then": {
+                                        "required": [
+                                            "port"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "ip_config_type": {
+                                                "const": "Static"
+                                            }
+                                        },
+                                        "required": [
+                                            "ip_config_type"
+                                        ]
+                                    },
+                                    "then": {
+                                        "required": [
+                                            "uri"
+                                        ],
+                                        "allOf": [
+                                            {
+                                                "if": {
+                                                    "properties": {
+                                                        "ip_type": {
+                                                            "const": "IPv4"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "ip_type"
+                                                    ]
+                                                },
+                                                "then": {
+                                                    "required": [
+                                                        "ipv4_config"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "if": {
+                                                    "properties": {
+                                                        "ip_type": {
+                                                            "const": "IPv6"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "ip_type"
+                                                    ]
+                                                },
+                                                "then": {
+                                                    "required": [
+                                                        "ipv6_config"
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "device_type": {
+                                    "const": "iscsi_boot"
+                                }
+                            },
+                            "required": [
+                                "interface_name"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "device_type": {
+                                    "const": "local_cdd"
+                                }
+                            }
+                        },
+                        {
+                            "properties": {
+                                "device_type": {
+                                    "const": "local_disk"
+                                }
+                            }
+                        },
+                        {
+                            "properties": {
+                                "device_type": {
+                                    "const": "nvme"
+                                }
+                            }
+                        },
+                        {
+                            "properties": {
+                                "device_type": {
+                                    "const": "pch_storage"
+                                }
+                            }
+                        },
+                        {
+                            "properties": {
+                                "device_type": {
+                                    "const": "pxe_boot"
+                                }
+                            },
+                            "required": [
+                                "interface_source"
+                            ],
+                            "allOf": [
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "interface_source": {
+                                                "const": "name"
+                                            }
+                                        },
+                                        "required": [
+                                            "interface_source"
+                                        ]
+                                    },
+                                    "then": {
+                                        "required": [
+                                            "interface_name"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "interface_source": {
+                                                "const": "mac"
+                                            }
+                                        },
+                                        "required": [
+                                            "interface_source"
+                                        ]
+                                    },
+                                    "then": {
+                                        "required": [
+                                            "mac_address"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "interface_source": {
+                                                "const": "port"
+                                            }
+                                        },
+                                        "required": [
+                                            "interface_source"
+                                        ]
+                                    },
+                                    "then": {
+                                        "required": [
+                                            "port"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "device_type": {
+                                    "const": "san_boot"
+                                }
+                            },
+                            "required": [
+                                "interface_name",
+                                "target_wwpn"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "device_type": {
+                                    "const": "sd_card"
+                                }
+                            },
+                            "required": [
+                                "subtype"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "device_type": {
+                                    "const": "uefi_shell"
+                                }
+                            }
+                        },
+                        {
+                            "properties": {
+                                "device_type": {
+                                    "const": "usb"
+                                }
+                            },
+                            "required": [
+                                "subtype"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "device_type": {
+                                    "const": "virtual_media"
+                                }
+                            },
+                            "required": [
+                                "subtype"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": ["http_boot", "pxe_boot"]
+                                }
+                            }
+                        },
+                        "required": ["device_type"]
+                    },
+                    "then": {
+                        "not": {
+                            "required": ["interface_source"]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": ["http_boot", "pxe_boot", "iscsi_boot", "san_boot"]
+                                }
+                            }
+                        },
+                        "required": ["device_type"]
+                    },
+                    "then": {
+                        "not": {
+                            "required": ["interface_name"]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": ["http_boot", "pxe_boot"]
+                                }
+                            }
+                        },
+                        "required": ["device_type"]
+                    },
+                    "then": {
+                        "not": {
+                            "required": ["mac_address"]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": ["http_boot", "pxe_boot", "iscsi_boot"]
+                                }
+                            }
+                        },
+                        "required": ["device_type"]
+                    },
+                    "then": {
+                        "not": {
+                            "required": ["port"]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": ["http_boot"]
+                                }
+                            }
+                        },
+                        "required": ["device_type"]
+                    },
+                    "then": {
+                        "not": {
+                            "anyOf": [
+                                {"required": ["ip_config_type"]},
+                                {"required": ["ipv4_config"]},
+                                {"required": ["ipv6_config"]},
+                                {"required": ["protocol"]},
+                                {"required": ["uri"]}
+                            ]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": ["http_boot", "pxe_boot"]
+                                }
+                            }
+                        },
+                        "required": ["device_type"]
+                    },
+                    "then": {
+                        "not": {
+                            "required": ["ip_type"]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": ["local_disk", "pch_storage", "san_boot", "sd_card"]
+                                }
+                            }
+                        },
+                        "required": ["device_type"]
+                    },
+                    "then": {
+                        "not": {
+                            "required": ["lun"]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": ["http_boot", "iscsi_boot", "local_disk", "pxe_boot", "san_boot"]
+                                }
+                            }
+                        },
+                        "required": ["device_type"]
+                    },
+                    "then": {
+                        "not": {
+                            "required": ["slot"]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": ["flex_mmc", "sd_card", "usb", "virtual_media"]
+                                }
+                            }
+                        },
+                        "required": ["device_type"]
+                    },
+                    "then": {
+                        "not": {
+                            "required": ["subtype"]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": ["san_boot"]
+                                }
+                            }
+                        },
+                        "required": ["device_type"]
+                    },
+                    "then": {
+                        "not": {
+                            "required": ["target_wwpn"]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": ["iscsi_boot", "local_disk", "nvme", "pch_storage", "pxe_boot", "san_boot", "sd_card"]
+                                }
+                            }
+                        },
+                        "required": ["device_type"]
+                    },
+                    "then": {
+                        "not": {
+                            "required": ["bootloader"]
+                        }
+                    }
+                }
+            ],
+            "additionalProperties": false,
             "description": "Lists properties that are common to all device types. It serves as base class for other device types.",
             "intersight_api": "BootDevices",
             "object_type": "boot.DeviceBase",
@@ -8452,11 +8924,11 @@
                 },
                 "device_name": {
                     "default": "default",
-                    "description": "The default value is `default`.  A name that helps identify a boot device. It can be any string that adheres to the following constraints. It should start and end with an alphanumeric character. It can have underscores and hyphens. It cannot be more than 30 characters.",
+                    "description": "The default value is `default`. A name that helps identify a boot device. It must start and end with an alphanumeric character, may include underscores and hyphens, and can be 1-30 characters long. The name cannot be a reserved keyword by itself (`all`, `ALL`, `CDROM`, `EFI`, `EOD`, `FDD`, `HDD`, `HDDANY`, `HTTP`, `ISCSI`, `ISCSIANY`, `LOCALCDD`, `LOCALHDD`, `NULL`, `NVME`, `NVMEANY`, `PCHSTORAGE`, `CHSTORANY`, `PXE`, `SAN`, `SANANY`, `SDANY`, `SDCARD`, `UEFISHELL`, `USB`, `USBCD`, `USBFDD`, `USBHDD`, `VMCIMCCD`, `VMCIMCHDD`, `VMEDIA`, `VMFDD`, `VMKVMCD`, `VMKVMHDD`). Reserved words can be used when combined with other characters (for example, `EU_CDROM-3`).",
                     "intersight_api": "Name",
                     "maxLength": 30,
                     "minLength": 1,
-                    "pattern": "((^[a-zA-Z0-9]$){1,30}|(^(([a-zA-Z0-9])([a-zA-Z0-9_\\-]{0,28})([a-zA-Z0-9]))$))",
+                    "pattern": "^(?!(?:all|ALL|CDROM|EFI|EOD|FDD|HDD|HDDANY|HTTP|ISCSI|ISCSIANY|LOCALCDD|LOCALHDD|NULL|NVME|NVMEANY|PCHSTORAGE|CHSTORANY|PXE|SAN|SANANY|SDANY|SDCARD|UEFISHELL|USB|USBCD|USBFDD|USBHDD|VMCIMCCD|VMCIMCHDD|VMEDIA|VMFDD|VMKVMCD|VMKVMHDD)$)[a-zA-Z0-9](?:[a-zA-Z0-9_\\-]{0,28}[a-zA-Z0-9])?$",
                     "title": "device_name",
                     "type": "string",
                     "examples": [
@@ -12584,7 +13056,7 @@
                             "uniqueItems": true
                         },
                         "vnics_from_template": {
-                            "description": "List of VNICs to add to the LAN Connectivity Policy that will use a vNIC template.\n\nRequired Attributes:\n  * `name`\n  * `placement`\n  * `vnic_template`\n\nOptional Attributes:\n  * `ethernet_adapter_policy` - If Allow Override Enabled on the template`\n  * `cdn_value` - Only if Consistency Device Naming has been configured as User at the Template Level.\n  * `iscsi_boot_policy` - If Allow Override Enabled on the template`\n  * `mac_address_pool` - If Allow Override Enabled on the template`\n  * `pin_group_name` - If Allow Override Enabled on the template`\n  * `sriov`\n  * `usnic`\n  * `vmq`",
+                            "description": "List of VNICs to add to the LAN Connectivity Policy that will use a vNIC template.\n\nRequired Attributes:\n  * `name`\n  * `placement`\n  * `vnic_template`\n\nOptional Attributes:\n  * `ethernet_adapter_policy` - If Allow Override Enabled on the template\n  * `cdn_value` - Only if Consistency Device Naming has been configured as User at the Template Level.\n  * `iscsi_boot_policy` - If Allow Override Enabled on the template\n  * `mac_address_pool` - If Allow Override Enabled on the template\n  * `pin_group_name` - If Allow Override Enabled on the template\n  * `sriov`\n  * `usnic`\n  * `vmq`",
                             "intersight_uri": "vnic/EthIfs",
                             "items": {
                                 "$ref": "#/definitions/intersight.lan_connectivity.vnics_from_template"

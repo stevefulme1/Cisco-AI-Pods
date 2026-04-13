@@ -1,0 +1,51 @@
+---
+- name: Build Boot Order policies consumed from Server Profiles and Profile Templates
+  ansible.builtin.set_fact:
+    consumed_boot_order_policies: >-
+      {%- set policies = [] -%}
+      {%- set sp_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.profiles.server', {'skip_missing': True}) -%}
+      {%- for org_item, server_profile in sp_subelems -%}
+        {%- if server_profile.boot_order_policy is defined and server_profile.boot_order_policy != '' -%}
+          {%- set ref = server_profile.boot_order_policy -%}
+          {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- set spt_subelems = query('ansible.builtin.subelements', merged_model.intersight.organizations | dict2items, 'value.templates.server', {'skip_missing': True}) -%}
+      {%- for org_item, server_profile_template in spt_subelems -%}
+        {%- if server_profile_template.boot_order_policy is defined and server_profile_template.boot_order_policy != '' -%}
+          {%- set ref = server_profile_template.boot_order_policy -%}
+          {%- set _ = policies.append({'name': ref.rsplit('/', 1) | last, 'organization': ref.rsplit('/', 1) | first if '/' in ref else org_item.key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ policies }}
+
+- name: Get Boot Order Policies from Intersight
+  # noqa: args[module]
+  cisco.intersight.intersight_boot_order_policy_info:
+    name: "{{ item.name }}"
+    organization: "{{ item.organization }}"
+    validate_certs: "{{ module_validate_certs }}"
+  loop: "{{ consumed_boot_order_policies | default([]) | map('to_json') | unique | map('from_json') | list }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
+  register: boot_order_policies_info
+
+- name: Set Boot Order policies dictionary
+  ansible.builtin.set_fact:
+    boot_order_policies_by_org: >-
+      {{
+        boot_order_policies_by_org | default({})
+        | combine({
+            organization_name: (
+              boot_order_policies_by_org[organization_name] | default({})
+            ) | combine({ item.Name: item.Moid }, recursive=True)
+          }, recursive=True)
+      }}
+  vars:
+    organization_name: "{{ org_moid_to_name[item.Organization.Moid] }}"
+  loop: "{{ boot_order_policies_info.results | map(attribute='api_response') | flatten | list }}"
+
+- name: Debug Boot Order policies dictionary
+  ansible.builtin.debug:
+    var: boot_order_policies_by_org
+  when: debug_module | bool

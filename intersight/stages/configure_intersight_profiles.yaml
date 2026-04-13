@@ -34,6 +34,9 @@
         template_name_prefix: "{{ merged_model.intersight.templates.name_prefix | default({}) }}"
         template_name_suffix: "{{ merged_model.intersight.templates.name_suffix | default({}) }}"
 
+    - name: Resolve profile dependencies
+      ansible.builtin.include_tasks: tasks/profiles_lookups.yaml
+
     - name: Configure Domain profiles
       cisco.intersight.intersight_domain:
         api_key_id: "{{ intersight_api_key_id }}"
@@ -65,6 +68,8 @@
           query('ansible.builtin.subelements', organizations_map | dict2items,
                 'value.profiles.domain', {'skip_missing': True})
         }}
+      loop_control:
+        label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
     - name: Configure Chassis profiles (one profile per target)
       cisco.intersight.intersight_chassis_profile:
@@ -93,6 +98,8 @@
                   'value.profiles.chassis', {'skip_missing': True}),
             '1.targets', {'skip_missing': True})
         }}
+      loop_control:
+        label: "{{ item.0.0.key ~ '/' ~ item.1.name }}"
 
     - name: Configure Server profile templates
       cisco.intersight.intersight_server_profile_template:
@@ -131,6 +138,8 @@
           query('ansible.builtin.subelements', organizations_map | dict2items,
                 'value.templates.server', {'skip_missing': True})
         }}
+      loop_control:
+        label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
     - name: Build server template lookup per organization
       ansible.builtin.set_fact:
@@ -200,6 +209,8 @@
                   'value.profiles.server', {'skip_missing': True}),
             '1.targets', {'skip_missing': True})
         }}
+      loop_control:
+        label: "{{ item.0.0.key ~ '/' ~ item.1.name }}"
 
     - name: Report profile module gaps compared to Terraform model
       ansible.builtin.debug:

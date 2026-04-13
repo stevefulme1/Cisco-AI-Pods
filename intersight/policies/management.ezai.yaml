@@ -12,6 +12,10 @@ intersight:
             inband_vlan_id: 1502
             name: KVMAccess
             out_of_band_ip_pool: common/kvm-ooband
+          - inband_ip_pool: common/kvm-inband
+            inband_vlan_id: 1502
+            name: KVMAccessv2
+            out_of_band_ip_pool: common/kvm-ooband
     common:
       policies:
         local_user:

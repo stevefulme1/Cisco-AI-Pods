@@ -31,6 +31,8 @@
         name: "{{ item.key }}"
         validate_certs: "{{ module_validate_certs }}"
       loop: "{{ organizations_map | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
       register: organizations_info
 
     - name: Set organizations dictionary
@@ -111,12 +113,10 @@
           {%- endfor -%}
           {{ queries }}
       cisco.intersight.intersight_rest_api:
-        api_key_id: "{{ intersight_api_key_id }}"
-        api_private_key: "{{ intersight_api_private_key }}"
-        api_uri: "{{ intersight_api_uri }}"
+        # noqa: args[module]
         query_params:
           $filter: "Name in ({{ item.names_filter }}) and Organization.Moid eq '{{ org_name_to_moid[item.organization] }}'"
-        resource_path: /ipool/IpPools
+        resource_path: /ippool/Pools
         return_list: true
         validate_certs: "{{ module_validate_certs }}"
       loop: "{{ consumed_ip_pool_queries }}"
@@ -141,19 +141,33 @@
           ipv6_blocks: "{{ item.IpV6Blocks }}"
       loop: >
         {{ ip_pools_info.results | map(attribute='api_response') | flatten | list }}
+      loop_control:
+        label: "{{ organization_name }} / {{ item.Name }}"
 
-    - name: Debug IP Pools dictionary
-      ansible.builtin.debug:
-        var: ip_pools_by_org
 
-    # - name: Configure IMC Access Policy
-    #   cisco.intersight.intersight_rest_api:
-    #     <<: *api_info
-    #     resource_path: /access/Policies
-    #     query_params:
-    #       $filter: "Name eq '{{ item.name }}'"
-    #     api_body: "{{ lookup('template', 'imc_access.json.j2') | from_json }}"
-    #     state: present
-    #     validate_certs: "{{ module_validate_certs }}"
-    #   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.imc_access', {'skip_missing': True}) }}"
+    # - name: Debug IP Pools dictionary
+    #   ansible.builtin.debug:
+    #     var: ip_pools_by_org
+
+    - name: Configure IMC Access policies
+      # noqa: args[module]
+      cisco.intersight.intersight_rest_api:
+        api_body: "{{ lookup('template', 'tasks/templates/imc_access.json.j2') }}"
+        resource_path: /access/Policies
+        query_params:
+          $filter: "Name eq '{{ item.1.name }}' and Organization.Moid eq '{{ org_name_to_moid[item.0.key] }}'"
+        state: absent
+        validate_certs: "{{ module_validate_certs }}"
+      loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.imc_access', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.key ~ '/' ~ item.1.name }}"
+
+    # - name: Configure IMC Access Policy JSON files
+    #   ansible.builtin.copy:
+    #     content: "{{ lookup('template', 'tasks/templates/imc_access.json.j2') | to_nice_json }}"
+    #     dest: "imc_access_{{ item.1.name }}.json"
+    #     mode: '0644'
     #   register: imc_access
+    #   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.imc_access', {'skip_missing': True}) }}"
+    #   loop_control:
+    #     label: "{{ item.0.key ~ '/' ~ item.1.name }}"

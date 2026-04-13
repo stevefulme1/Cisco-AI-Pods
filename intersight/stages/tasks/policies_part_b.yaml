@@ -10,6 +10,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.iscsi_boot', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure LAN Connectivity policies
   # noqa: args[module]
@@ -22,6 +24,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.lan_connectivity', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Build Port policy payloads  # noqa jinja[invalid]
   ansible.builtin.set_fact:
@@ -56,6 +60,8 @@
         })
     }}
   loop: "{{ expanded_port_policy_payloads | default([]) }}"
+  loop_control:
+    label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
 
 - name: Configure SAN Connectivity policies
   # noqa: args[module]
@@ -68,6 +74,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.san_connectivity', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure vHBA Template policies
   # noqa: args[module]
@@ -80,6 +88,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.vhba_template', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure VLAN policies
   # noqa: args[module]
@@ -92,6 +102,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.vlan', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Configure vNIC Template policies
   # noqa: args[module]
@@ -104,6 +116,8 @@
         })
     }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.vnic_template', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key ~ '/' ~ item.1.name }}"
 
 - name: Report unsupported policy types in this module set
   ansible.builtin.debug:
