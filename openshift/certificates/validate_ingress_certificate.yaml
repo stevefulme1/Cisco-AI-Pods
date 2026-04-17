@@ -57,8 +57,3 @@
         oc wait --for=condition=Ready pod --all -n openshift-ingress --timeout=300s
       changed_when: false
 
-    # - name: Log out of OpenShift
-    #   ansible.builtin.command:
-    #     cmd: oc logout
-    #   register: logout_result
-    #   no_log: true # Prevent sensitive info in logs

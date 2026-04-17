@@ -149,20 +149,6 @@
         validate_certs: "{{ validate_certificates }}"
       when: splunk_observability.nexus is defined
 
-    # - name: Create Nexus Exporter Secret for Device Password
-    #   kubernetes.core.k8s:
-    #     state: present
-    #     definition:
-    #       apiVersion: v1
-    #       kind: Secret
-    #       metadata:
-    #         name: nexus-device-credentials
-    #         namespace: cisco-exporter
-    #       data:
-    #         username: "{{ splunk_observability.nexus.username | b64encode }}"
-    #         password: "{{ lookup('ansible.builtin.env', 'nexus_device_password') | b64encode }}"
-    #     validate_certs: "{{ validate_certificates }}"
-    #   when: splunk_observability.nexus is defined
 
     - name: Set Nexus Device Password Fact
       ansible.builtin.set_fact:

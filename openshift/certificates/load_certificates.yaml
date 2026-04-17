@@ -314,8 +314,3 @@
       retries: 30
       delay: 60
 
-    # - name: Log out of OpenShift
-    #   ansible.builtin.command:
-    #     cmd: oc logout
-    #   register: logout_result
-    #   no_log: true # Prevent sensitive info in logs

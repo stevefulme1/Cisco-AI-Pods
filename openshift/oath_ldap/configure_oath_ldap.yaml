@@ -53,9 +53,6 @@
           - openshift.ldap.group_uid_mappings is defined
         fail_msg: "Required LDAP configuration missing or incomplete"
 
-    # - name: Print variable as pretty JSON
-    #   ansible.builtin.debug:
-    #     msg: "{{ openshift | ansible.builtin.to_nice_json }}"
 
     - name: Verify LDAP certificate file exists (for secure LDAP)
       ansible.builtin.stat:

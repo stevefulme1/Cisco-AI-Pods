@@ -37,9 +37,6 @@
           - openshift.install.bare_metal.ssh_public_key is defined
         fail_msg: "Required values missing under openshift.install.bare_metal (including ssh_public_key suffix)"
 
-    # - name: Print variable as pretty JSON
-    #   ansible.builtin.debug:
-    #     msg: "{{ openshift | ansible.builtin.to_nice_json }}"
 
     - name: Set Facts for assisted installer manifests
       ansible.builtin.set_fact:

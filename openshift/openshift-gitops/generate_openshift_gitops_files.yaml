@@ -51,9 +51,6 @@
       ansible.builtin.set_fact:
         mac_vlan_list: "{{ openshift.operators.nvidia_network_operator.mac_vlan | default([]) }}"
 
-    # - name: Print variable as pretty JSON
-    #   ansible.builtin.debug:
-    #     msg: "{{ openshift | ansible.builtin.to_nice_json }}"
 
     - name: Ensure the Destination Directory exists
       ansible.builtin.file:
