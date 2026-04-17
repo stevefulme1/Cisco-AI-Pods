@@ -15,7 +15,8 @@
       ansible.builtin.command:
         cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
       register: login_result
-      no_log: true # Prevent sensitive info in logs
+      no_log: true
+      changed_when: false
     
     - name: Create Otel Operator namespace
       kubernetes.core.k8s:

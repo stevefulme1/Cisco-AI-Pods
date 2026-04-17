@@ -62,6 +62,7 @@
         cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
       register: login_result
       no_log: true
+      changed_when: false
       retries: 3
       delay: 5
       until: login_result is succeeded
