@@ -88,7 +88,7 @@
           clusterName: "{{ splunk_observability.cluster.name }}"
           environment: "{{ splunk_observability.cluster.environment }}"
           splunkObservability:
-            acccessToken: "{{ lookup('ansible.builtin.env', 'splunk_observability_token') }}"
+            accessToken: "{{ lookup('ansible.builtin.env', 'splunk_observability_token') }}"
             realm: "{{ splunk_realm }}"
           splunkPlatform:
             endpoint: "{{ splunk_observability.splunk_platform.endpoint }}"
