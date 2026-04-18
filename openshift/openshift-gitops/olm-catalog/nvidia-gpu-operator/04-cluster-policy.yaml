@@ -1,3 +1,4 @@
+---
 apiVersion: nvidia.com/v1
 kind: ClusterPolicy
 metadata:
@@ -38,7 +39,7 @@ spec:
     imagePullSecrets: []
     kernelModuleConfig:
       name: ''
-    kernelModuleType: proprietary 
+    kernelModuleType: proprietary
     licensingConfig:
       configMapName: ''
       nlsEnabled: true

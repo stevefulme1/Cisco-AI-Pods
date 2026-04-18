@@ -2,7 +2,7 @@
 - name: Load Cluster Certificates - User, Ingress, and API
   connection: local
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   vars:
     validate_certificates: false
 
@@ -60,12 +60,13 @@
     - name: Log in to OpenShift (requires oc binary on host)
       ansible.builtin.command:
         cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
-      register: login_result
-      no_log: true
-      retries: 3
+      changed_when: false
       delay: 5
+      no_log: true
+      register: login_result
+      retries: 3
       until: login_result is succeeded
-    
+
     - name: Read lines of User CA Bundle Certificate File into List
       ansible.builtin.set_fact:
         cert_file_lines_list: "{{ lookup('file', lookup('ansible.builtin.env', 'user_ca_bundle_file')).splitlines() }}"
@@ -109,8 +110,8 @@
       ansible.builtin.debug:
         msg: "Cluster Proxy trustedCA is set to user-ca-bundle"
       failed_when: proxy_patch_result.resources[0].spec.trustedCA.name | default('') != 'user-ca-bundle'
-    
-    - name: Pause for 1 minutes
+
+    - name: Pause for 1 minute - Allow Machine Config Pool to update with new proxy certificate
       ansible.builtin.pause:
         minutes: 1
 
@@ -210,8 +211,8 @@
       ansible.builtin.debug:
         msg: "Ingress Controller default certificate is set to ingress-tls-secret"
       failed_when: ingress_controller_patch_result.resources[0].spec.defaultCertificate.name | default('') != 'ingress-tls-secret'
-    
-    - name: Pause for 1 minutes
+
+    - name: Pause for 1 minute - Allow Ingress Controller to restart with new certificate
       ansible.builtin.pause:
         minutes: 1
 

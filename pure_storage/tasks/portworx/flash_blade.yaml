@@ -1,29 +1,29 @@
 ---
-  - name: Flash Blade | Portworx | Ensure user is missing
-    purestorage.flashblade.purefb_user:
-      api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token_{{ item.api_token_id }}') }}"
-      disable_warnings: true
-      fb_url: "{{ item.array_url }}"
-      state: absent
-      name: "{{ pure_storage.portworx.array_user }}"
-    loop: "{{ flash_blades }}"
-    delegate_to: localhost
+- name: Flash Blade | Portworx | Ensure user is missing
+  purestorage.flashblade.purefb_user:
+    api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token_{{ item.api_token_id }}') }}"
+    disable_warnings: true
+    fb_url: "{{ item.array_url }}"
+    state: absent
+    name: "{{ pure_storage.portworx.array_user }}"
+  loop: "{{ flash_blades }}"
+  delegate_to: localhost
 
-  - name: Flash Blade | Portworx | Create Storage Admin user for each Array
-    purestorage.flashblade.purefb_user:
-      api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token_{{ item.api_token_id }}') }}"
-      disable_warnings: true
-      fb_url: "{{ item.array_url }}"
-      api: true
-      name: "{{ pure_storage.portworx.array_user }}"
-      password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_lowercase', 'ascii_uppercase', 'digits'], length=20) }}"
-      public_key: ""
-      role: storage_admin
-      state: present
-    loop: "{{ flash_blades }}"
-    delegate_to: localhost
-    register: fb_results
+- name: Flash Blade | Portworx | Create Storage Admin user for each Array
+  purestorage.flashblade.purefb_user:
+    api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token_{{ item.api_token_id }}') }}"
+    disable_warnings: true
+    fb_url: "{{ item.array_url }}"
+    api: true
+    name: "{{ pure_storage.portworx.array_user }}"
+    password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_lowercase', 'ascii_uppercase', 'digits'], length=20) }}"
+    public_key: ""
+    role: storage_admin
+    state: present
+  loop: "{{ flash_blades }}"
+  delegate_to: localhost
+  register: fb_results
 
-  # - name: Print all fb variables
-  #   debug:
-  #     var: fb_results.results
+# - name: Print all fb variables
+#   debug:
+#     var: fb_results.results

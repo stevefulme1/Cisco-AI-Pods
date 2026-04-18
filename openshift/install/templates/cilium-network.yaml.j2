@@ -1,3 +1,4 @@
+---
 apiVersion: operator.openshift.io/v1
 kind: Network
 metadata:
@@ -5,10 +6,10 @@ metadata:
 spec:
   deployKubeProxy: false
   clusterNetwork:
-  - cidr: {{ openshift_install.cluster_networking.cluster_network.v4_cidr }}
-    hostPrefix: {{ openshift_install.cluster_networking.cluster_network.v4_host_prefix }}
+    - cidr: {{ openshift_install.cluster_networking.cluster_network.v4_cidr }}
+      hostPrefix: {{ openshift_install.cluster_networking.cluster_network.v4_host_prefix }}
   externalIP:
     policy: {}
   networkType: Cilium
   serviceNetwork:
-  - {{ openshift_install.cluster_networking.service_network.v4_cidr }}
+    - {{ openshift_install.cluster_networking.service_network.v4_cidr }}

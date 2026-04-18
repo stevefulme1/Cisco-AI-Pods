@@ -1,16 +1,13 @@
+---
 installPlanApproval: Manual
-
 rhoaiChannel: "stable-3.3"
 rhoaiVersion: "rhods-operator.3.3.0"
 kueue: &kueue "Unmanaged"
 trainer: &trainer "Managed"
-
 operatorReplicas: 1
 dashboardReplicas: 1
-
 dataScienceCluster:
   create: true
-
   components:
     kserve:
       modelsAsService:
@@ -49,18 +46,14 @@ dataScienceCluster:
       managementState: Removed
     llamastackoperator:
       managementState: Managed
-
 userGroups:
   - system:authenticated
-
 dashboardConfig:
   genAiStudio: true
   modelAsService: true
   mlflow: true
-
 defaultWorkbenchPvcSize: 20Gi
 showJupyterInEnabledApplications: true
-
 modelServerSizes:
   - name: Small
     resources:
@@ -86,7 +79,6 @@ modelServerSizes:
       requests:
         cpu: "6"
         memory: 16Gi
-
 notebookSizes:
   - name: Small
     resources:

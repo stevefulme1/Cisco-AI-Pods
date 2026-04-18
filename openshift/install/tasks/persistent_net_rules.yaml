@@ -1,7 +1,9 @@
-- name: udev rules for NVIDIA Network Operator
+---
+- name: Udev rules for NVIDIA Network Operator
   ansible.builtin.copy:
     content: "{{ lookup('template', '70-persistent-net.rules.j2') }}"
     dest: "{{ playbook_dir }}/70-persistent-net.rules"
+    mode: '0644'
   when: >-
     openshift.operators | json_query('nvidia_network_operator.persistent_net_rules') is defined
 
@@ -16,6 +18,7 @@
   ansible.builtin.copy:
     content: "{{ lookup('template', '70-machine-config-udev-network.yaml.j2') }}"
     dest: "{{ assisted_installer_directory }}/manifests/70-machine-config-udev-network.yaml"
+    mode: '0644'
   when: >-
     openshift.operators | json_query('nvidia_network_operator.persistent_net_rules') is defined
 
@@ -23,4 +26,4 @@
   ansible.builtin.file:
     path: "{{ playbook_dir }}/70-persistent-net.rules"
     state: absent
-
+    mode: '0644'

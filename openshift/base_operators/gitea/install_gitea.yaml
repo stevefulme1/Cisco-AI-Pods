@@ -2,7 +2,7 @@
 - name: Install Red Hat Gitea Operator
   connection: local
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   vars:
     operator_namespace: gitea-operator
     validate_certificates: false
@@ -25,12 +25,13 @@
     - name: Log in to OpenShift (requires oc binary on host)
       ansible.builtin.command:
         cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
-      register: login_result
-      no_log: true
-      retries: 3
+      changed_when: false
       delay: 5
+      no_log: true
+      register: login_result
+      retries: 3
       until: login_result is succeeded
-    
+
     - name: Create Gitea Operator namespace
       kubernetes.core.k8s:
         api_version: v1

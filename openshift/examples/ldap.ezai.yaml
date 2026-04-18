@@ -5,7 +5,7 @@ openshift:
     bind_dn: CN=Service Account,OU=Service Accounts,DC=example,DC=com
     certificate_file_path: ca.crt
     cluster_admins:
-    - lab-admins
+      - lab-admins
     group_uid_mappings:
       "CN=Lab Admin,OU=Cisco Employees,DC=example,DC=com": lab-admins
     secure_ldap: true

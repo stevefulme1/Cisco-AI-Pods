@@ -61,11 +61,13 @@
       ansible.builtin.file:
         path: "{{ assisted_installer_directory }}"
         state: directory
+        mode: '0755'
 
     - name: Ensure the Assisted Installer Manifests Folder Exists
       ansible.builtin.file:
         path: "{{ assisted_installer_directory }}/manifests"
         state: directory
+        mode: '0755'
 
     ##########################################################
     # Machine Configuration Tasks
@@ -74,11 +76,13 @@
       ansible.builtin.copy:
         content: "{{ lookup('template', '99-node-disruption-policy.j2') }}"
         dest: "{{ assisted_installer_directory }}/manifests/99-node-disruption-policy.yaml"
+        mode: '0644'
 
     - name: Manifests for Assisted Installer - Kernel Arguments, Kubelet Config, and NVMe Multipath Config
       ansible.builtin.copy:
         content: "{{ lookup('template', item.file + '.yaml.j2') }}"
         dest: "{{ assisted_installer_directory }}/manifests/{{ item.file + '-' + item.name + '.yaml' }}"
+        mode: '0644'
       loop:
         - file: 99-kernel-arguments
           name: master
@@ -100,6 +104,7 @@
       ansible.builtin.copy:
         content: "{{ lookup('template', item.file + '.yaml.j2') }}"
         dest: "{{ assisted_installer_directory }}/manifests/{{ item.file + '-' + item.name + '.yaml' }}"
+        mode: '0644'
       loop:
         - file: 99-portworx-multipathd-config
           name: master
@@ -111,7 +116,7 @@
     # Machine Configuration Tasks - NVIDIA Network Operator
     ##########################################################
     - name: Run Persistent Net Rule tasks for NVIDIA Network Operator if enabled
-      import_tasks: "tasks/persistent_net_rules.yaml"
+      ansible.builtin.import_tasks: "tasks/persistent_net_rules.yaml"
       when: >-
         openshift.operators is defined and openshift.operators | json_query('nvidia_network_operator.persistent_net_rules') is defined
 
@@ -119,7 +124,7 @@
     # Machine Configuration Tasks - Cilium CNI
     ##########################################################
     - name: Run Cilium tasks if Cilium is enabled as the network CNI
-      import_tasks: "tasks/cilium.yaml"
+      ansible.builtin.import_tasks: "tasks/cilium.yaml"
       when: >-
         openshift.operators is defined and openshift.operators | json_query('cilium.download_url') is defined
 
@@ -130,11 +135,13 @@
       ansible.builtin.copy:
         content: "{{ lookup('template', 'iserver-cluster.json.j2') | to_nice_json(indent=4) }}"
         dest: "{{ assisted_installer_directory }}/cluster.json"
+        mode: '0644'
 
     - name: Create SSH Public Key File for Cluster Deployment
       ansible.builtin.copy:
         content: "{{ ssh_public_key_value.rstrip() }}\n"
         dest: "{{ assisted_installer_directory }}/ssh.pub"
+        mode: '0644'
 
     - name: Set Fact for ISO Web Server SSH Public Key if provided
       ansible.builtin.set_fact:
@@ -157,7 +164,8 @@
       ansible.builtin.copy:
         content: "{{ lookup('template', 'iserver-web.json.j2') | to_nice_json(indent=4) }}"
         dest: "{{ assisted_installer_directory }}/web_server.json"
+        mode: '0644'
 
     - name: Import Proxy Tasks if Proxy is enabled
-      import_tasks: "tasks/proxy.yaml"
+      ansible.builtin.import_tasks: "tasks/proxy.yaml"
       when: openshift_install.proxy is defined

@@ -1,0 +1,3 @@
+# .ansible-lint
+exclude_paths:
+ - ./openshift/install/assisted-installer/

@@ -2,7 +2,7 @@
 - name: Add Ingress Certificate to OpenShift cluster
   connection: local
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   vars:
     validate_certificates: false
 
@@ -27,12 +27,13 @@
     - name: Log in to OpenShift (requires oc binary on host)
       ansible.builtin.command:
         cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
-      register: login_result
-      no_log: true
-      retries: 3
+      changed_when: false
       delay: 5
+      no_log: true
+      register: login_result
+      retries: 3
       until: login_result is succeeded
-    
+
     - name: Verify Ingress Controller Patch
       kubernetes.core.k8s_info:
         api_version: operator.openshift.io/v1
@@ -46,7 +47,7 @@
       ansible.builtin.debug:
         msg: "Ingress Controller default certificate is set to ingress-tls-secret"
       failed_when: ingress_controller_patch_result.resources[0].spec.defaultCertificate.name | default('') != 'ingress-tls-secret'
-    
+
     - name: Wait for OpenShift OAuth Pods to be Running
       ansible.builtin.shell: |
         oc wait --for=condition=Ready pod --all -n openshift-authentication --timeout=300s

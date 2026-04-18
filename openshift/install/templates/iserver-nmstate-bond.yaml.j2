@@ -1,3 +1,4 @@
+---
 interfaces:
 {% for i in physical_interfaces %}
   - name: ${{ '{' }}GROUP_{{ i.group }}_BOND_MEMBER_{{ i.member }}{{ '}' }}
@@ -17,12 +18,12 @@ interfaces:
         lacp_rate: ${{ '{' }}GROUP_{{ i.group }}_LACP_RATE{{ '}' }}
       port:
 {% for member in i.member_indices %}
-      - ${{ '{' }}GROUP_{{ i.group }}_BOND_MEMBER_{{ member }}{{ '}' }}
+        - ${{ '{' }}GROUP_{{ i.group }}_BOND_MEMBER_{{ member }}{{ '}' }}
 {% endfor %}
     ipv4:
       address:
-      - ip: ${{ '{' }}GROUP_{{ i.group }}_IP{{ '}' }}
-        prefix-length: ${{ '{' }}GROUP_{{ i.group }}_PREFIX{{ '}' }}
+        - ip: ${{ '{' }}GROUP_{{ i.group }}_IP{{ '}' }}
+          prefix-length: ${{ '{' }}GROUP_{{ i.group }}_PREFIX{{ '}' }}
       dhcp: false
       enabled: true
 {% endfor %}
@@ -37,5 +38,5 @@ dns-resolver:
   config:
     server:
 {% for i in range(dns_servers | length) %}
-    - ${{ '{' }}DNS_IP_{{ i + 1 }}{{ '}' }}
+      - ${{ '{' }}DNS_IP_{{ i + 1 }}{{ '}' }}
 {% endfor %}

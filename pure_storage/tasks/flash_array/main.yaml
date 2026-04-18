@@ -1,33 +1,33 @@
 ---
-  - name: Day0 Provisioning | FlashArray | Get facts for {{ array_fqdn }}
-    purestorage.flasharray.purefa_info:
-      api_token: "{{ api_token }}"
-      disable_warnings: true
-      fa_url: "{{ array_url }}"
-      gather_subset:
+- name: Day0 Provisioning | FlashArray | Get facts for {{ array_fqdn }}
+  purestorage.flasharray.purefa_info:
+    api_token: "{{ api_token }}"
+    disable_warnings: true
+    fa_url: "{{ array_url }}"
+    gather_subset:
       - config
       - minimum
-    register: array_info
+  register: array_info
 
-  - name: Day0 Provisioning | FlashArray | Set facts for {{ array_fqdn }}
-    set_fact:
-      array_name: "{{ array_fqdn.split('.')[0] }}"
-      array_version: "{{ array_info.purefa_info.default.purity_version }}"
-      network: "{{ pure_storage.settings.network | default({}) }}"
-      security: "{{ pure_storage.settings.security | default({}) }}"
-      system: "{{ pure_storage.settings.system | default({}) }}"
+- name: Day0 Provisioning | FlashArray | Set facts for {{ array_fqdn }}
+  ansible.builtin.set_fact:
+    array_name: "{{ array_fqdn.split('.')[0] }}"
+    array_version: "{{ array_info.purefa_info.default.purity_version }}"
+    network: "{{ pure_storage.settings.network | default({}) }}"
+    security: "{{ pure_storage.settings.security | default({}) }}"
+    system: "{{ pure_storage.settings.system | default({}) }}"
 
-  - name: Day0 Provisioning | FlashArray > Settings > Network | for {{ array_fqdn }}
-    include_tasks:
-      file: "{{ playbook_dir }}/tasks/flash_array/settings_network.yaml"
-    when: pure_storage.settings.network is defined
+- name: Day0 Provisioning | FlashArray > Settings > Network | for {{ array_fqdn }}
+  ansible.builtin.include_tasks:
+    file: "settings_network.yaml"
+  when: pure_storage.settings.network is defined
 
-  - name: Day0 Provisioning | FlashArray > Settings > Access | for {{ array_fqdn }}
-    include_tasks:
-      file: "{{ playbook_dir }}/tasks/flash_array/settings_access.yaml"
-    when: pure_storage.settings.security is defined
+- name: Day0 Provisioning | FlashArray > Settings > Access | for {{ array_fqdn }}
+  ansible.builtin.include_tasks:
+    file: "settings_access.yaml"
+  when: pure_storage.settings.security is defined
 
-  - name: Day0 Provisioning | FlashArray > Settings > System | for {{ array_fqdn }}
-    include_tasks:
-      file: "{{ playbook_dir }}/tasks/flash_array/settings_system.yaml"
-    when: pure_storage.settings.system is defined
+- name: Day0 Provisioning | FlashArray > Settings > System | for {{ array_fqdn }}
+  ansible.builtin.include_tasks:
+    file: "settings_system.yaml"
+  when: pure_storage.settings.system is defined

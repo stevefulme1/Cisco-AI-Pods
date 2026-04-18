@@ -2,7 +2,7 @@
 - name: Configure OATH LDAP Authentication for OpenShift
   connection: local
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   vars:
     validate_certificates: false
 
@@ -72,26 +72,25 @@
 
     - name: Parse the LDAP Certificate Chain File as PEM
       ansible.builtin.set_fact:
-        is_pem_cert: "{{ ldap_cert_chain_file['content'] | b64decode | community.crypto.x509_certificate_info is success }}"
-      ignore_errors: true # Ignore errors if parsing fails
-      register: ldap_cert_chain_cert_info
+        is_pem_cert: "{{ '-----BEGIN CERTIFICATE-----' in (ldap_cert_chain_file['content'] | b64decode) }}"
       when: openshift.ldap.secure_ldap | bool
 
     - name: Report LDAP Certificate Chain File Type
       ansible.builtin.debug:
         msg: "LDAP Certificate Chain File is a valid PEM certificate."
-      when: not ldap_cert_chain_cert_info.failed and openshift.ldap.secure_ldap | bool
-      failed_when: ldap_cert_chain_cert_info.failed
+      when: openshift.ldap.secure_ldap | bool
+      failed_when: not is_pem_cert | default(false)
 
     - name: Log in to OpenShift (requires oc binary on host)
       ansible.builtin.command:
         cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
-      register: login_result
-      no_log: true
-      retries: 3
+      changed_when: false
       delay: 5
+      no_log: true
+      register: login_result
+      retries: 3
       until: login_result is succeeded
-    
+
     - name: Create LDAP BindPassword Secret (idempotent)
       kubernetes.core.k8s:
         state: present
@@ -159,11 +158,13 @@
       ansible.builtin.template:
         src: templates/ldap-sync.yaml.j2
         dest: "{{ playbook_dir }}/ldap-sync.yaml"
+        mode: '0644'
 
     - name: Create whitelist.txt
       ansible.builtin.template:
         src: templates/whitelist.txt.j2
         dest: "{{ playbook_dir }}/whitelist.txt"
+        mode: '0644'
 
     - name: Read ldap-sync.yaml and whitelist.txt for secret data
       ansible.builtin.set_fact:
@@ -235,7 +236,7 @@
       delay: 5
       until: sa_result is succeeded
       register: sa_result
-    
+
     - name: Add ldap-sync Service Account Cluster Role Binding (idempotent)
       kubernetes.core.k8s:
         state: present
@@ -257,7 +258,7 @@
       delay: 5
       until: crb_result is succeeded
       register: crb_result
-    
+
     - name: Create LDAP Synchronization CRON Job
       kubernetes.core.k8s:
         state: present
@@ -275,4 +276,4 @@
         state: absent
       loop: ["ldap-sync.yaml", "whitelist.txt"]
       when: cronjob_result is succeeded or ansible_failed_task is undefined
-      ignore_errors: true
+      failed_when: false

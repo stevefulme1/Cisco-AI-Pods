@@ -2,7 +2,7 @@
 - name: Configure OATH LDAP Authentication for OpenShift
   connection: local
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   vars:
     validate_certificates: false
 
@@ -14,9 +14,13 @@
     - name: Log in to OpenShift (requires oc binary on host)
       ansible.builtin.command:
         cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
+      changed_when: false
+      delay: 5
+      no_log: true
       register: login_result
-      no_log: true # Prevent sensitive info in logs
-    
+      retries: 3
+      until: login_result is succeeded
+
     - name: Create Otel Operator namespace
       kubernetes.core.k8s:
         api_version: v1
@@ -29,13 +33,15 @@
       ansible.builtin.file:
         path: "{{ playbook_dir }}/{{ item }}"
         state: directory
+        mode: '0755'
       loop:
         - client
         - signer
 
     - name: Download Etcd Metric Certificates
-      ansible.builtin.shell:
+      ansible.builtin.command:
         cmd: "oc extract secret/etcd-metric-{{ item }} -n openshift-etcd --to={{ playbook_dir }}/{{ item }}"
+        creates: "{{ playbook_dir }}/{{ item }}/tls.crt"
       loop:
         - client
         - signer
@@ -71,6 +77,7 @@
       ansible.builtin.template:
         src: otel-values.yaml.j2
         dest: "{{ playbook_dir }}/values.yaml"
+        mode: '0644'
 
     - name: Deploy Splunk Otel Collector Chart
       kubernetes.core.helm:
@@ -79,11 +86,11 @@
         release_namespace: otel
         state: present
         validate_certs: "{{ validate_certificates }}"
-        disable_hook: True
-        force: True
-        replace: True
-        update_repo_cache: True
-        wait: True
+        disable_hook: true
+        force: true
+        replace: true
+        update_repo_cache: true
+        wait: true
         release_values:
           clusterName: "{{ splunk_observability.cluster.name }}"
           environment: "{{ splunk_observability.cluster.environment }}"
@@ -179,4 +186,3 @@
         - nexus-deployment.yaml.j2
         - nexus-service.yaml.j2
       when: splunk_observability.nexus is defined
-

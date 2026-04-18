@@ -1,3 +1,4 @@
+---
 splunk_observability:
   cluster:
     name: my_cluster_name

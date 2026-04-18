@@ -1,3 +1,4 @@
+---
 interfaces:
 {% for i in interface %}
   - mtu: 9000
@@ -8,8 +9,8 @@ interfaces:
     type: ethernet
     ipv4:
       address:
-      - ip: ${{ '{' }}GROUP_{{ i.group }}_IP{{ '}' }}
-        prefix-length: ${{ '{' }}GROUP_{{ i.group }}_PREFIX{{ '}' }}
+        - ip: ${{ '{' }}GROUP_{{ i.group }}_IP{{ '}' }}
+          prefix-length: ${{ '{' }}GROUP_{{ i.group }}_PREFIX{{ '}' }}
       dhcp: false
       enabled: true
 {% endfor %}
@@ -24,5 +25,5 @@ dns-resolver:
   config:
     server:
 {% for i in range(dns_servers | length) %}
-    - ${{ '{' }}DNS_IP_{{ i + 1 }}{{ '}' }}
+      - ${{ '{' }}DNS_IP_{{ i + 1 }}{{ '}' }}
 {% endfor %}

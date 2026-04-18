@@ -2,7 +2,7 @@
 - name: Generate OpenShift GitOps Application YAML files for OpenShift GitOps
   connection: local
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   vars:
     validate_certificates: false
     openshift_defaults:
@@ -59,12 +59,14 @@
       ansible.builtin.file:
         path: "{{ openshift.destination_directory }}"
         state: directory
+        mode: '0755'
 
     - name: Copy helm and olm-catalog directories to destination directory
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/{{ item }}"
         dest: "{{ openshift.destination_directory }}"
-        remote_src: yes
+        mode: '0755'
+        remote_src: true
       loop:
         - helm
         - olm-catalog
@@ -73,23 +75,27 @@
       ansible.builtin.file:
         path: "{{ openshift.destination_directory }}/olm-catalog/operators"
         state: directory
+        mode: '0755'
 
-    - name: create the Ansible Automation Platform - AnsibleAutomationPlatform from template
+    - name: Create the Ansible Automation Platform - AnsibleAutomationPlatform from template
       ansible.builtin.copy:
         content: "{{ lookup('template', 'ansible_automation_platform.yaml.j2') }}"
         dest: "{{ openshift.destination_directory }}/olm-catalog/ansible-automation-platform/04-ansible-automation-platform.yaml"
+        mode: '0755'
       when: "'ansible-automation-platform' in operator_list"
 
-    - name: create the Ansible Automation Platform - ConsoleLink from template
+    - name: Create the Ansible Automation Platform - ConsoleLink from template
       ansible.builtin.copy:
         content: "{{ lookup('template', 'console-link-aap.yaml.j2') }}"
         dest: "{{ openshift.destination_directory }}/olm-catalog/ansible-automation-platform/04-console-link-aap.yaml"
+        mode: '0755'
       when: "'ansible-automation-platform' in operator_list"
 
-    - name: create the OpenShift GitOps (ArgoCD) Application YAML files for LLDP DaemonSet from template
+    - name: Create the OpenShift GitOps (ArgoCD) Application YAML files for LLDP DaemonSet from template
       ansible.builtin.copy:
         content: "{{ lookup('template', 'lldp-daemonset.yaml.j2') }}"
         dest: "{{ openshift.destination_directory }}/olm-catalog/operators/lldp-daemonset.yaml"
+        mode: '0755'
 
     - name: Remove standalone operators from operator list if Red Hat OpenShift AI is present
       ansible.builtin.set_fact:
@@ -100,28 +106,32 @@
       ansible.builtin.copy:
         content: "{{ lookup('template', item + '.yaml.j2') }}"
         dest: "{{ openshift.destination_directory }}/olm-catalog/operators/{{ item }}.yaml"
+        mode: '0755'
       loop: "{{ operator_list }}"
 
     - name: Create the Red Hat OpenShift AI - RHOAI OpenShift GitOps (ArgoCD) Application YAML files from templates
       ansible.builtin.copy:
         content: "{{ lookup('template', item + '.yaml.j2') }}"
         dest: "{{ openshift.destination_directory }}/olm-catalog/operators/{{ item }}.yaml"
+        mode: '0755'
       loop: ['gpu-operator', 'infrastructure-operators', 'observability-operators', 'scaling-operators']
       when: "'rhoai-application' in operator_list"
 
-    - name: create the NVIDIA Network Operator - MAC VLAN YAML files from template for RHOAI Application
+    - name: Create the NVIDIA Network Operator - MAC VLAN YAML files from template for RHOAI Application
       ansible.builtin.copy:
         content: "{{ lookup('template', 'mac-vlan.yaml.j2') }}"
         dest: "{{ openshift.destination_directory }}/helm/gpu-operator-installation/templates/configs/05-mac-vlan-policy-{{ item.master_interface }}.yaml"
+        mode: '0755'
       loop: "{{ mac_vlan_list }}"
       loop_control:
         index_var: item_index
       when: "'rhoai-application' in operator_list and (mac_vlan_list | length > 0)"
 
-    - name: create the NVIDIA Network Operator - MAC VLAN YAML files from template for non-RHOAI Application
+    - name: Create the NVIDIA Network Operator - MAC VLAN YAML files from template for non-RHOAI Application
       ansible.builtin.copy:
         content: "{{ lookup('template', 'mac-vlan.yaml.j2') }}"
         dest: "{{ openshift.destination_directory }}/olm-catalog/nvidia-network-operator/05-mac-vlan-policy-{{ item.master_interface }}.yaml"
+        mode: '0755'
       loop: "{{ mac_vlan_list }}"
       loop_control:
         index_var: item_index
