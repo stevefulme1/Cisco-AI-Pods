@@ -1,5 +1,5 @@
 ---
-- name: Configure OATH LDAP Authentication for OpenShift
+- name: Deploy Splunk Observability Stack on OpenShift
   connection: local
   hosts: localhost
   gather_facts: false
