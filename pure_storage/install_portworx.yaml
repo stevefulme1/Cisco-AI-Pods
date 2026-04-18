@@ -1,5 +1,5 @@
 ---
-- name: Deploy Portworx 3.5.2 on OpenShift 4.21
+- name: Deploy Portworx on OpenShift
   connection: local
   hosts: localhost
   gather_facts: false
