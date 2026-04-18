@@ -1,5 +1,6 @@
 # Centralized Python dependencies for Cisco-AI-Pods automation
 distro
+jmespath
 kubernetes
 netaddr
 openshift

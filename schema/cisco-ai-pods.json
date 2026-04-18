@@ -27544,6 +27544,9 @@
                 "openshift_gitops": {
                     "$ref": "#/definitions/openshift.operators.openshift_gitops"
                 },
+                "portworx": {
+                    "$ref": "#/definitions/openshift.operators.portworx"
+                },
                 "operators_to_install": {
                     "description": "List of operators to install on the OpenShift cluster.",
                     "items": {
@@ -27791,6 +27794,23 @@
                 "gitops_repo_url"
             ],
             "title": "OpenShift GitOps Configuration",
+            "type": "object"
+        },
+        "openshift.operators.portworx": {
+            "additionalProperties": false,
+            "description": "This dictionary defines Portworx operator settings.",
+            "properties": {
+                "enabled": {
+                    "default": true,
+                    "description": "The default value is `True`.  Whether to enable Portworx deployment.",
+                    "title": "Enable Portworx",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "enabled"
+            ],
+            "title": "Portworx Operator Configuration",
             "type": "object"
         },
         "pure_storage": {
