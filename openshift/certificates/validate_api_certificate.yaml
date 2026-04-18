@@ -46,4 +46,3 @@
         - kube_apiserver.resources[0].status.conditions | selectattr('type', 'equalto', 'NodeInstallerProgressing') | map(attribute='status') | first == 'False'
       retries: 30
       delay: 60
-

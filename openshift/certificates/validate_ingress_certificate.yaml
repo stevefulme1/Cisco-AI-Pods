@@ -57,4 +57,3 @@
       ansible.builtin.shell: |
         oc wait --for=condition=Ready pod --all -n openshift-ingress --timeout=300s
       changed_when: false
-
