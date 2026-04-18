@@ -17,7 +17,7 @@ spec:
   enterprise:
     featureGate:
       approved:
-      - CNIChainingMode
+        - CNIChainingMode
   hubble:
     enabled: true
 {% if openshift.operators.cilium.enable_hubble_metrics | default(false) %}
