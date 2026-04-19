@@ -21,6 +21,40 @@
           - (pure_storage.flash_arrays is defined) or (pure_storage.flash_blades is defined)
         fail_msg: "pure_storage data was not loaded or has no flash_arrays/flash_blades entries."
 
+    - name: Day0 Provisioning | Validate Pure Storage environment variables
+      block:
+        - name: Create temporary directory for validation
+          ansible.builtin.tempfile:
+            state: directory
+            prefix: pure_storage_validation_
+          register: temp_dir
+
+        - name: Save pure_storage dict to temporary file
+          ansible.builtin.copy:
+            content: "{{ pure_storage | to_nice_json }}"
+            dest: "{{ temp_dir.path }}/pure_storage.json"
+            mode: '0644'
+          changed_when: false
+
+        - name: Run Pure Storage environment variables validator
+          ansible.builtin.command:
+            cmd: "python3 {{ playbook_dir }}/validate_pure_storage_env_vars.py --config {{ temp_dir.path }}/pure_storage.json"
+          register: validation_result
+          failed_when: validation_result.rc != 0
+          changed_when: false
+
+        - name: Display validation results
+          ansible.builtin.debug:
+            msg: "{{ validation_result.stdout }}"
+          when: validation_result.stdout is defined and validation_result.stdout | length > 0
+
+      always:
+        - name: Clean up temporary directory
+          ansible.builtin.file:
+            path: "{{ temp_dir.path }}"
+            state: absent
+          when: temp_dir.path is defined
+
   tasks:
     - name: Day0 Provisioning | FlashArray
       ansible.builtin.include_tasks:

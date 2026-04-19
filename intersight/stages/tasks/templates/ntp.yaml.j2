@@ -1,7 +1,7 @@
 ---
 description: "{{ item.1.description | default('') }}"
-enable: "{{ item.1.enabled | default(True) }}"
+enable: {{ item.1.enabled | default(true) }}
 name: "{{ policy_name_prefix.ntp | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.ntp | default(policy_name_suffix.default | default('')) }}"
 ntp_servers: "{{ item.1.ntp_servers | default([]) }}"
 organization: "{{ item.0.key }}"
-timezone: "{{ item.1.timezone | default('') }}"
+timezone: "{{ item.1.timezone | default('UTC') }}"

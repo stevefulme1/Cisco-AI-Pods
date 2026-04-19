@@ -1,4 +1,5 @@
 ---
+{% set _ip_protocol = item.1.ip_protocol | default('IPv4') %}
 description: "{{ item.1.description | default('') }}"
 {% if ':' in (item.1.ip_address | default('')) %}
 ip_protocol: "IPv6"

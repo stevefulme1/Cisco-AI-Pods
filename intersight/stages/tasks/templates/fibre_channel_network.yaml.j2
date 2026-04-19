@@ -1,4 +1,5 @@
 ---
+default_vlan: "{{ item.1.default_vlan | default(0) }}"
 description: "{{ item.1.description | default('') }}"
 name: "{{ policy_name_prefix.fibre_channel_network | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.fibre_channel_network | default(policy_name_suffix.default | default('')) }}"
 organization: "{{ item.0.key }}"

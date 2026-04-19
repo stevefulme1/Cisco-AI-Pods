@@ -1,13 +1,51 @@
 ---
-{{
-  item.1
-  | merge_schema_defaults(intersight_schema, 'intersight.ldap')
-  | to_module_params('intersight_ldap_policy')
-  | combine({
-      'description': item.1.description | default(omit),
-      'name': policy_name_prefix.ldap | default(policy_name_prefix.default | default(''))
-               ~ item.1.name
-               ~ policy_name_suffix.ldap | default(policy_name_suffix.default | default('')),
-      'organization': item.0.key
-    })
-}}
+{% set _ldap = item.1 | merge_schema_defaults(intersight_schema, 'intersight.ldap') %}
+{% set ldap_vars = vars | combine(_ldap._resolved_sensitive_vars | default({})) %}
+{% set _bs = item.1.base_settings | default({}) %}
+{% set _bp = item.1.binding_parameters | default({}) %}
+{% set _fds = item.1.ldap_from_dns | default({}) %}
+{% set _sp = item.1.search_parameters | default({}) %}
+{% set bind_method = _bp.bind_method | tolower | default('logincredentials') %}
+attribute: "{{ _sp.attribute | default('CiscoAvPair') }}"
+base_dn: "{{ _bs.base_dn | default('') }}"
+bind_dn: "{{ _bp.bind_dn | default('') }}"
+bind_method: "{{ bind_method }}"
+description: "{{ item.1.description | default('') }}"
+dns_source: "{{ _fds.source | tolower | default('extracted') }}"
+domain: "{{ _bs.domain | default('example.com') }}"
+enable_dns: {% if item.1.ldap_from_dns is defined %}true{% else %}false{% endif %}
+enable_encryption: "{{ item.1.enable_encryption | default(False) }}"
+enable_ldap: "{{ item.1.enable_ldap | default(True) }}"
+filter: {% if _sp.filter is defined %}"{{ _sp.filter }}"{% else %}"sAMAccountName"{% endif %}
+group_attribute: "{{ _sp.group_attribute | default('memberOf') }}"
+group_authorization: "{{ item.1.group_authorization | default('false') | boolean }}"
+{% if item.1.ldap_groups is defined %}
+ldap_groups:
+{% for group in item.1.ldap_groups %}
+  - domain: "{{ group.domain | default('example.com') }}"
+    group_dn: "{{ group.group_dn | default('') }}"
+    name: "{{ group.name }}"
+    role: "{{ group.end_point_role | default('readonly') }}"
+    state: "present"
+{% endfor %}
+{% endif %}
+{% if item.1.ldap_servers is defined %}
+ldap_providers:
+{% for server in item.1.ldap_servers %}
+  - port: "{{ server.port | default(389) }}"
+    server: "{{ server.server }}"
+    state: "present"
+    vendor: "{{ server.vendor | tolower | default('openldap') }}"
+{% endfor %}
+{% endif %}
+name: "{{ policy_name_prefix.ldap | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.ldap | default(policy_name_suffix.default | default('')) }}"
+nested_group_search: {% if item.1.nested_group_search is defined %}true{% else %}false{% endif %}
+nested_group_search_depth: "{{ item.1.nested_group_search_depth | default(128) }}"
+organization: "{{ item.0.key }}"
+{% if bind_method == 'configuredcredentials' %}
+password: "{{ ldap_vars['binding_parameters_password_' ~ item.1.password] if item.1.password | default(0) | int > 0 else '' }}"
+{% endif %}
+search_domain: "{{ _fds.search_domain | default('example.com') }}"
+search_forest: "{{ _fds.search_forest | default('example.com') }}"
+timeout: "{{ _bs.timeout | default(0) }}"
+user_search_precedence: "{{ item.1.user_search_precedence | tolower | default('localuserdb') }}"

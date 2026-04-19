@@ -1,4 +1,6 @@
 ---
+{% set _local_user = item.1 | merge_schema_defaults(intersight_schema, 'intersight.local_user') %}
+{% set local_user_vars = vars | combine(_local_user._resolved_sensitive_vars | default({})) %}
 {% set _pp = item.1.password_properties | default({}) %}
 always_update_password: "{{ _pp.always_send_user_password | default(False) }}"
 description: "{{ item.1.description | default('') }}"
@@ -11,8 +13,8 @@ password_history: "{{ _pp.password_history | default(5) }}"
 local_users:
 {% for user in item.1.users %}
   - enable: "{{ user.enabled | default(True) }}"
-    password: "{{ user.password }}"
-    role: "{{ user.role | default('admin') }}"
+    password: "{{ local_user_vars['local_user_password_' ~ user.password] }}"
+    role: "{{ user.role | default('readonly') }}"
     username: "{{ user.username }}"
 {% endfor %}
 {% endif %}

@@ -1,5 +1,25 @@
----
-community_access: "{{ item.1.snmp_community_access | default('Disabled') }}"
+{% set _snmp = item.1 | merge_schema_defaults(intersight_schema, 'intersight.snmp') %}
+{% set snmp_vars = vars | combine(_snmp._resolved_sensitive_vars | default({})) %}
+{% set has_trap_destination_community =
+    item.1.snmp_trap_destinations is defined and
+    (item.1.snmp_trap_destinations | selectattr('community_string', 'defined') | list | length > 0)
+%}
+{% set v2 = true if (item.1.snmp_access_community_string is defined or item.1.trap_community is defined or has_trap_destination_community) else false %}
+{% set v3 = true if (item.1.snmp_users is defined and item.1.snmp_users | length > 0) else false %}
+{% set access_community_string =
+    snmp_vars['snmp_access_community_string_' ~ item.1.snmp_access_community_string]
+    if item.1.snmp_access_community_string is defined else ''
+%}
+{% set trap_community =
+    snmp_vars['snmp_trap_community_' ~ item.1.trap_community_string]
+    if item.1.trap_community_string is defined else ''
+%}
+{% set community_access =
+    item.1.snmp_community_access
+    if v2 == true and item.1.snmp_community_access is defined else 'Disabled'
+%}
+access_community_string: "{{ access_community_string }}"
+community_access: "{{ community_access }}"
 description: "{{ item.1.description | default('') }}"
 enabled: "{{ item.1.enable_snmp | default(True) }}"
 engine_input_id: "{{ item.1.snmp_engine_input_id | default('') }}"
@@ -8,13 +28,13 @@ organization: "{{ item.0.key }}"
 snmp_port: "{{ item.1.snmp_port | default(161) }}"
 sys_contact: "{{ item.1.system_contact | default('') }}"
 sys_location: "{{ item.1.system_location | default('') }}"
-trap_community: "{{ item.1.trap_community_string | default('') }}"
+trap_community: "{{ trap_community }}"
 {% if item.1.snmp_users is defined %}
 snmp_users:
 {% for user in item.1.snmp_users %}
-  - auth_password: "{{ user.auth_password }}"
+  - auth_password: "{{ snmp_vars['snmp_user_auth_password_' ~ user.auth_password] }}"
     name: "{{ user.name }}"
-    privacy_password: "{{ user.privacy_password | default('') }}"
+    privacy_password: {% if user.privacy_password is defined %}"{{ snmp_vars['snmp_user_privacy_password_' ~ user.privacy_password] | default('') }}"{% else %}""{% endif %}
     security_level: "{{ user.security_level | default('AuthPriv') }}"
 {% endfor %}
 {% endif %}
@@ -22,6 +42,9 @@ snmp_users:
 snmp_traps:
 {% for trap in item.1.snmp_trap_destinations %}
   - destination: "{{ trap.destination_address }}"
+{% if trap.community_string is defined %}
+    community: "{{ snmp_vars['snmp_trap_community_' ~ trap.community_string] }}"
+{% endif %}
     enabled: "{{ trap.enable | default(True) }}"
     port: "{{ trap.port | default(162) }}"
     version: "{{ 'V3' if trap.user is defined else 'V2' }}"
@@ -29,7 +52,9 @@ snmp_traps:
     user: "{{ trap.user }}"
 {% endif %}
 {% if trap.type is defined %}
-    type: "{{ trap.type }}"
+    type: "{{ trap.type | default('Trap')}}"
 {% endif %}
 {% endfor %}
 {% endif %}
+v2c_enabled: {{ v2 }}
+v3_enabled: {{ v3 }}

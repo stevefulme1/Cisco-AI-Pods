@@ -1,6 +1,20 @@
 ---
+{% set target_platform = item.1.target_platform | default('All') %}
 description: "{{ item.1.description | default('') }}"
 name: "{{ policy_name_prefix.power | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.power | default(policy_name_suffix.default | default('')) }}"
 organization: "{{ item.0.key }}"
+{% if target_platform == 'All' or target_platform == 'Chassis' %}
+dynamic_power_rebalancing: "{{ item.1.dynamic_power | default('Enabled') }}"
+extended_power_capacity: "{{ item.1.extended_power_capacity | default('Enabled') }}"
+power_allocation: {{ item.1.power_allocation | default(0) }}
 power_redundancy: "{{ item.1.power_redundancy | default('Grid') }}"
-power_restore: "{{ item.1.power_restore | default('AlwaysOff') }}"
+power_save_mode: "{{ item.1.power_save_mode | default('Disabled') }}"
+{% endif %}
+{% if target_platform == 'All' or target_platform == 'FIAttached' %}
+power_priority: "{{ item.1.power_priority | default('Low') }}"
+power_profiling: "{{ item.1.power_profiling | default('Enabled') }}"
+{% elif target_platform == 'All' or target_platform in ['FIAttached', 'Standalone'] %}
+power_restore: {% if target_platform in ['FIAttached', 'Standalone'] %}"LastState"{% else %}{{ item.1.power_restore | default('AlwaysOff') }}{% endif %}
+processor_package_power_limit: "{{ item.1.processor_package_power_limit | default('Default') }}"
+{% endif %}
+target_platform: "{{ item.1.target_platform | default('All') }}"

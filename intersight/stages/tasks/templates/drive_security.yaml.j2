@@ -1,13 +1,53 @@
 ---
-{{
-  item.1
-  | merge_schema_defaults(intersight_schema, 'intersight.drive_security')
-  | to_module_params('intersight_drive_security_policy')
-  | combine({
-      'description': item.1.description | default(omit),
-      'name': policy_name_prefix.drive_security | default(policy_name_prefix.default | default(''))
-               ~ item.1.name
-               ~ policy_name_suffix.drive_security | default(policy_name_suffix.default | default('')),
-      'organization': item.0.key
-    })
-}}
+{% set _prefix = policy_name_prefix.drive_security | default(policy_name_prefix.default | default('')) %}
+{% set _suffix = policy_name_suffix.drive_security | default(policy_name_suffix.default | default('')) %}
+description: "{{ item.1.description | default('') }}"
+name: "{{ _prefix ~ item.1.name ~ _suffix }}"
+organization: "{{ item.0.key }}"
+{% if item.1.manual_key is defined %}
+{% set _manual_current_id = item.1.manual_key.current_security_key_passphrase %}
+{% set _manual_key_name = 'drive_security_current_security_key_passphrase_' ~ _manual_current_id %}
+{% set _manual_existing = vars[_manual_key_name] if _manual_current_id is defined and _manual_current_id > 0 else omit %}
+{% set _manual_new_id = item.1.manual_key.new_security_key_passphrase %}
+{% set _manual_new_key_name = 'drive_security_new_security_key_passphrase_' ~ _manual_new_id %}
+{% set _manual_new = vars[_manual_new_key_name] %}
+manual_key:
+  existing_key: "{{ _manual_existing }}"
+  new_key: "{{ _manual_new }}"
+{% endif %}
+{% if item.1.remote_key_management is defined %}
+{% set _remote_current_id = item.1.remote_key_management.current_security_key_passphrase %}
+{% set _remote_key_name = 'drive_security_current_security_key_passphrase_' ~ _remote_current_id %}
+{% set _remote_existing = vars[_remote_key_name] if _remote_current_id is defined and _remote_current_id > 0 else omit %}
+{% set _remote_cert_id = item.1.remote_key_management.server_public_root_ca_certificate %}
+{% set _remote_cert_name = 'drive_security_server_ca_certificate_' ~ _remote_cert_id %}
+{% set _remote_cert = vars[_remote_cert_name] %}
+remote_key:
+  existing_key: "{{ _remote_existing }}"
+  server_certificate: "{{ _remote_cert }}"
+{% if item.1.remote_key_management.enable_authentication is defined %}
+{% set _auth = item.1.remote_key_management.enable_authentication %}
+{% set _auth_pwd_id = _auth.password %}
+{% set _auth_pwd_name = 'drive_security_authentication_password_' ~ _auth_pwd_id %}
+{% set _auth_pwd = vars[_auth_pwd_name] %}
+  use_authentication: true
+  username: "{{ _auth.username | default('kmip_user') }}"
+  password: "{{ _auth_pwd }}"
+{% endif %}
+{% if item.1.remote_key_management.primary_server is defined %}
+{% set _primary = item.1.remote_key_management.primary_server %}
+  primary_server:
+    ip_address: "{{ _primary.hostname_ip_address }}"
+    port: "{{ _primary.port | default(5696) }}"
+    timeout: "{{ _primary.timeout | default(60) }}"
+    enable_drive_security: true
+{% endif %}
+{% if item.1.remote_key_management.secondary_server is defined %}
+{% set _secondary = item.1.remote_key_management.secondary_server %}
+  secondary_server:
+    ip_address: "{{ _secondary.hostname_ip_address }}"
+    port: "{{ _secondary.port | default(5696) }}"
+    timeout: "{{ _secondary.timeout | default(60) }}"
+    enable_drive_security: true
+{% endif %}
+{% endif %}

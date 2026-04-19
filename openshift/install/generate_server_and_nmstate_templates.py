@@ -9,6 +9,7 @@ import sys
 import argparse
 import re
 import tarfile
+import textwrap
 from urllib.error import URLError, HTTPError
 from urllib.request import Request, urlopen
 from ipaddress import ip_address, ip_interface
@@ -20,6 +21,183 @@ from jinja2 import Environment, FileSystemLoader
 
 
 SSH_PUBLIC_KEY_TYPE_PATTERN = re.compile(r"^(ssh-|ecdsa-|sk-)")
+
+# Module-level sensitive schema properties, populated once by load_schema().
+_SENSITIVE_SCHEMA_PROPS: Dict[str, Any] = {}
+
+# Relative path from this file to the JSON schema.
+_SCHEMA_PATH = Path(__file__).parent.parent.parent / "schema" / "cisco-ai-pods.json"
+
+
+def load_schema() -> None:
+    """Load abstract.sensitive_variables properties from the JSON schema into _SENSITIVE_SCHEMA_PROPS."""
+    global _SENSITIVE_SCHEMA_PROPS  # noqa: PLW0603
+    try:
+        with open(_SCHEMA_PATH, encoding="utf-8") as schema_file:
+            schema = json.load(schema_file)
+        definitions = schema.get("definitions", {})
+        sensitive_def = definitions.get("abstract.sensitive_variables", {})
+        _SENSITIVE_SCHEMA_PROPS = (
+            sensitive_def.get("properties", {})
+            if isinstance(sensitive_def, dict)
+            else {}
+        )
+    except (FileNotFoundError, json.JSONDecodeError) as exc:
+        print(f"Warning: Could not load schema for sensitive variable validation: {exc}")
+        _SENSITIVE_SCHEMA_PROPS = {}
+
+
+def _wrap_cli_text(text: Any, indent: str = "  ", width: int = 100) -> str:
+    """Wrap long text blocks to keep CLI error output readable."""
+    rendered = str(text) if text not in (None, "") else "N/A"
+    return textwrap.fill(
+        rendered,
+        width=width,
+        initial_indent=indent,
+        subsequent_indent=indent,
+        break_long_words=False,
+        break_on_hyphens=False,
+    )
+
+
+def _format_sensitive_constraints(context_label: str, schema_rule: Any) -> str:
+    """Build a wrapped, human-readable constraint block for error messages."""
+    if not isinstance(schema_rule, dict):
+        return ""
+    description = schema_rule.get("description", "N/A")
+    pattern = schema_rule.get("pattern", "N/A")
+    min_length = schema_rule.get("minLength", "N/A")
+    max_length = schema_rule.get("maxLength", "N/A")
+    return (
+        f"\n\nSensitive Variable Constraints for '{context_label}':\n"
+        f"Description:\n{_wrap_cli_text(description)}\n"
+        f"Pattern:\n{_wrap_cli_text(pattern)}\n"
+        f"Min Length: {min_length}\n"
+        f"Max Length: {max_length}"
+    )
+
+
+def _validate_sensitive_value(
+    value: Any,
+    schema_rule: Any,
+    env_var_name: str,
+    context: str,
+    schema_key: Optional[str] = None,
+    sensitive_properties: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Validate a resolved sensitive value against schema minLength/maxLength/pattern."""
+    if value in (None, ""):
+        error_msg = (
+            f"Missing required environment variable '{env_var_name}' for {context}.\n"
+            f"\n  To fix this, run:\n"
+            f"    export {env_var_name}='<your_value_here>'"
+        )
+        if schema_key and sensitive_properties and schema_key in sensitive_properties:
+            error_msg += _format_sensitive_constraints(schema_key, sensitive_properties[schema_key])
+        raise ValueError(error_msg)
+
+    if not isinstance(schema_rule, dict):
+        return
+
+    text_value = str(value)
+    min_length = schema_rule.get("minLength")
+    max_length = schema_rule.get("maxLength")
+    pattern = schema_rule.get("pattern")
+    constraint_info = _format_sensitive_constraints(context, schema_rule)
+
+    if isinstance(min_length, int) and len(text_value) < min_length:
+        raise ValueError(
+            f"Environment variable '{env_var_name}' for {context} is too short "
+            f"({len(text_value)} < {min_length}). Value is sensitive and hidden."
+            f"{constraint_info}"
+        )
+    if isinstance(max_length, int) and len(text_value) > max_length:
+        raise ValueError(
+            f"Environment variable '{env_var_name}' for {context} is too long "
+            f"({len(text_value)} > {max_length}). Value is sensitive and hidden."
+            f"{constraint_info}"
+        )
+    if isinstance(pattern, str) and pattern:
+        try:
+            compiled = re.compile(pattern)
+        except re.error as exc:
+            raise ValueError(
+                f"Invalid regex pattern in abstract.sensitive_variables for {context}: {exc}"
+            ) from exc
+        if compiled.search(text_value) is None:
+            raise ValueError(
+                f"Environment variable '{env_var_name}' for {context} does not match "
+                f"the schema pattern. Value is sensitive and hidden."
+                f"{constraint_info}"
+            )
+
+
+def _resolve_sensitive_identifier(
+    var_id: Any,
+    env_prefix: str,
+    schema_key: Optional[str],
+    context: str,
+    sensitive_properties: Dict[str, Any],
+    resolved_vars: Dict[str, str],
+) -> None:
+    """Resolve one sensitive variable identifier to its env value and validate.
+
+    Args:
+        var_id:               Integer identifier from the model (1-64).
+        env_prefix:           Environment variable name prefix (without _N suffix).
+        schema_key:           Key inside abstract.sensitive_variables for validation rules,
+                              or None if no schema entry exists.
+        context:              Human-readable path used in error messages.
+        sensitive_properties: Dict returned by accessing _SENSITIVE_SCHEMA_PROPS.
+        resolved_vars:        Mutable dict where resolved env_var_name -> value is stored.
+    """
+    if var_id in (None, ""):
+        return
+    if not isinstance(var_id, int) or var_id <= 0:
+        raise ValueError(
+            f"{context} must be a positive integer sensitive variable identifier."
+        )
+
+    env_var_name = f"{env_prefix}_{var_id}"
+    env_value = os.environ.get(env_var_name)
+    if env_value in (None, ""):
+        error_msg = (
+            f"Missing required environment variable '{env_var_name}' for {context}.\n"
+            f"\n  To fix this, run:\n"
+            f"    export {env_var_name}='<your_value_here>'"
+        )
+        if schema_key and schema_key in sensitive_properties:
+            error_msg += _format_sensitive_constraints(schema_key, sensitive_properties[schema_key])
+        raise ValueError(error_msg)
+
+    if schema_key:
+        schema_rule = sensitive_properties.get(schema_key, {})
+        _validate_sensitive_value(
+            env_value, schema_rule, env_var_name, context,
+            schema_key, sensitive_properties,
+        )
+
+    resolved_vars[env_var_name] = str(env_value)
+
+
+def _resolve_sensitive_var(
+    var_id: Any,
+    env_prefix: str,
+    schema_key: Optional[str],
+    context: str,
+) -> str:
+    """Resolve and validate one sensitive variable, returning its value.
+
+    Thin wrapper around _resolve_sensitive_identifier that returns the resolved
+    string value directly rather than writing into a shared dict.
+    """
+    resolved: Dict[str, str] = {}
+    _resolve_sensitive_identifier(
+        var_id, env_prefix, schema_key, context,
+        _SENSITIVE_SCHEMA_PROPS, resolved,
+    )
+    env_var_name = f"{env_prefix}_{var_id}"
+    return resolved[env_var_name]
 
 
 def merge_dicts(base: Dict[str, Any], new_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -321,19 +499,6 @@ def cleanup_existing_nmstate_templates(output_dir: Path) -> None:
         file_path.unlink(missing_ok=True)
 
 
-def resolve_secret_value(prefix: str, suffix: Any, context: str) -> str:
-    """Resolve a required credential from an environment variable suffix."""
-    if suffix in (None, ""):
-        raise ValueError(
-            f"Missing secret suffix for {context}. Expected env var name pattern: {prefix}_<suffix>"
-        )
-
-    env_name = f"{prefix}_{suffix}"
-    value = os.getenv(env_name)
-    if not value:
-        raise ValueError(f"Missing required environment variable for {context}: {env_name}")
-    return value
-
 
 def validate_ssh_public_key_value(value: str, context: str) -> None:
     """Validate that a value looks like an SSH public key."""
@@ -354,9 +519,10 @@ def validate_ssh_public_key_value(value: str, context: str) -> None:
 def resolve_ssh_public_key(config: Dict[str, Any]) -> str:
     """Resolve and validate the SSH public key from its sensitive variable suffix."""
     suffix = get_ssh_public_key_suffix(config)
-    value = resolve_secret_value(
-        "ssh_public_key",
+    value = _resolve_sensitive_var(
         suffix,
+        "ssh_public_key",
+        "ssh_public_key",
         "openshift.install.bare_metal.ssh_public_key",
     )
     validate_ssh_public_key_value(value, f"ssh_public_key_{suffix}")
@@ -391,7 +557,7 @@ def collect_required_credential_env_vars(servers: List[Dict[str, Any]], config: 
                     f"host {hostname}: missing fabric_interconnect password suffix for endpoint {fi_entry.get('ip', '')}"
                 )
                 continue
-            required_env_vars.add(f"fi_password_{suffix}")
+            required_env_vars.add(f"fabric_interconnect_password_{suffix}")
             continue
 
         if server.get("redfish"):
@@ -593,9 +759,10 @@ def resolve_redfish(server: Dict[str, Any], config: Dict[str, Any]) -> Optional[
             "endpoint_ip": fi_entry.get("ip", ""),
             "endpoint_type": "fi",
             "inventory_id": fi_ref.get("inventory_id", ""),
-            "password": resolve_secret_value(
-                "fi_password",
+            "password": _resolve_sensitive_var(
                 fi_entry.get("password"),
+                "fabric_interconnect_password",
+                "fabric_interconnect_password",
                 f"host {hostname} fabric_interconnect {fi_entry.get('ip', '')}",
             ),
             "username": fi_entry.get("username", ""),
@@ -606,9 +773,10 @@ def resolve_redfish(server: Dict[str, Any], config: Dict[str, Any]) -> Optional[
         return {
             "endpoint_ip": redfish.get("endpoint_ip", redfish.get("ip", "")),
             "endpoint_type": redfish.get("endpoint_type", redfish.get("type", "bmc")),
-            "password": resolve_secret_value(
-                "redfish_password",
+            "password": _resolve_sensitive_var(
                 redfish.get("password"),
+                "redfish_password",
+                "redfish_password",
                 f"host {hostname} redfish endpoint {redfish.get('ip', redfish.get('endpoint_ip', ''))}",
             ),
             "username": redfish.get("username", ""),
@@ -707,6 +875,7 @@ def generate_server_json(
 
 def main() -> None:
     args = parse_args()
+    load_schema()
 
     script_dir = Path(__file__).parent
     vars_path = args.vars_file if args.vars_file else script_dir.parent / "script_vars"

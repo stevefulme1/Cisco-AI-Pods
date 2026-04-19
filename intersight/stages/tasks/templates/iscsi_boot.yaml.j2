@@ -2,18 +2,26 @@
 description: "{{ item.1.description | default('') }}"
 initiator_ip_source: "{{ item.1.initiator_ip_source | default('dhcp') | lower }}"
 {% if item.1.initiator_ip_pool is defined %}
-initiator_ip_pool_name: "{{ item.1.initiator_ip_pool }}"
+initiator_ip_pool_name:
+  name: "{{ item.1.initiator_ip_pool.split('/')[-1] }}"
+  organization: "{{ item.1.initiator_ip_pool.split('/')[0] if '/' in item.1.initiator_ip_pool else item.0.key }}"
 {% endif %}
 {% if item.1.iscsi_adapter_policy is defined %}
-iscsi_adapter_policy_name: "{{ item.1.iscsi_adapter_policy }}"
+iscsi_adapter_policy_name:
+  name: "{{ item.1.iscsi_adapter_policy.split('/')[-1] }}"
+  organization: "{{ item.1.iscsi_adapter_policy.split('/')[0] if '/' in item.1.iscsi_adapter_policy else item.0.key }}"
 {% endif %}
 name: "{{ policy_name_prefix.iscsi_boot | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.iscsi_boot | default(policy_name_suffix.default | default('')) }}"
 organization: "{{ item.0.key }}"
 {% if item.1.primary_target_policy is defined %}
-primary_target_policy_name: "{{ item.1.primary_target_policy }}"
+primary_target_policy_name:
+  name: "{{ item.1.primary_target_policy.split('/')[-1] }}"
+  organization: "{{ item.1.primary_target_policy.split('/')[0] if '/' in item.1.primary_target_policy else item.0.key }}"
 {% endif %}
 {% if item.1.secondary_target_policy is defined %}
-secondary_target_policy_name: "{{ item.1.secondary_target_policy }}"
+secondary_target_policy_name:
+  name: "{{ item.1.secondary_target_policy.split('/')[-1] }}"
+  organization: "{{ item.1.secondary_target_policy.split('/')[0] if '/' in item.1.secondary_target_policy else item.0.key }}"
 {% endif %}
 target_source_type: "{{ item.1.target_source_type | default('static') | lower }}"
 {% if item.1.dhcp_vendor_id_iqn is defined %}

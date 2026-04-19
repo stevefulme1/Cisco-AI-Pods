@@ -1,13 +1,166 @@
 ---
-{{
-  item.1
-  | merge_schema_defaults(intersight_schema, 'intersight.san_connectivity')
-  | to_module_params('intersight_san_connectivity_policy')
-  | combine({
-      'description': item.1.description | default(omit),
-      'name': policy_name_prefix.san_connectivity | default(policy_name_prefix.default | default(''))
-               ~ item.1.name
-               ~ policy_name_suffix.san_connectivity | default(policy_name_suffix.default | default('')),
-      'organization': item.0.key
-    })
-}}
+{% set _scp = item.1 %}
+{% set vhbas = _scp.vhbas | default([]) %}
+{% if _scp.wwnn_pool is defined %}
+wwnn_pool_name:
+  name: "{{ _scp.wwnn_pool.split('/')[-1] }}"
+  organization: "{{ _scp.wwnn_pool.split('/')[0] if _scp.wwnn_pool.split('/') | length > 1 else item.0.key }}"
+{% endif %}
+{% if _scp.wwnn_static_address is defined %}
+wwnn_static_address: "{{ _scp.wwnn_static_address }}"
+{% endif %}
+name: "{{ policy_name_prefix.san_connectivity | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.san_connectivity | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+{% if _scp.target_platform | default('FIAttached') == 'FIAttached' %}
+placement_mode: "{{ item.1.vhba_placement_mode | default('custom') }}"
+{% endif %}
+target_platform: "{{ item.1.target_platform | default('FIAttached') }}"
+{% if vhbas | length > 0 %}
+vhbas:
+{% for vhba in vhbas %}
+{% set _vhba_names = vhba.names | default([]) %}
+{% set placement = vhba.placement | default({}) %}
+{% for idx in range(_vhba_names | length) %}
+  - name: "{{ _vhba_names[idx] }}"
+    persistent_lun_bindings: {{ vhba.persistent_lun_bindings | default(false) }}
+{% if _scp.target_platform | default('FIAttached') == 'FIAttached' and (placement == {} or placement.pci_order is not defined) %}
+    auto_vnic_placement_enabled: true
+{% elif _scp.target_platform | default('FIAttached') == 'FIAttached' %}
+{% if placement.automatic_pci_link_assignment | default(false) == true or placement.pci_links | default([]) | length != _vhba_names | length %}
+    auto_pci_link: true
+{% elif placement.automatic_pci_link_assignment | default(false) == false and placement.pci_links is not defined %}
+    auto_pci_link: false
+    pci_link_assignment_mode: "Load-Balanced"
+{% elif placement.pci_links | default([]) | length == _vhba_names | length %}
+    auto_pci_link: false
+    pci_link: {{ placement.pci_links[idx] }}
+    pci_link_assignment_mode: "Custom"
+{% endif %}
+{% if placement.automatic_slot_id_assignment | default(false) == true or placement.slot_ids is not defined %}
+    auto_slot_id: true
+{% else %}
+    placement_slot_id: {{ placement.slot_ids[idx] if placement.slot_ids | length > idx else placement.slot_ids[0] }}
+{% endif %}
+{% if placement.pci_order is defined and placement.pci_order | length > 0 %}
+    order: {{ placement.pci_order[idx] if placement.pci_order | length > idx else placement.pci_order[0] }}
+{% endif %}
+    switch_id: {% if placement.switch_ids is defined %}{{ placement.switch_ids[idx] if placement.switch_ids | length > idx else placement.switch_ids[0] }}{% elif idx == 0 %}"A"{% else %}"B"{% endif %}
+{% endif %}
+    uplink_port: {% if placement.uplink_ports is defined and placement.uplink_ports | default([]) | length == _vhba_names | length %}{{ placement.uplink_ports[idx] }}{% else %}0{% endif %}
+{% set _fc_adapter_policy = vhba.fibre_channel_adapter_policy | default('default') %}
+{% set _fc_adapter_parts = _fc_adapter_policy.split('/') %}
+    fibre_channel_adapter_policy_name:
+      name: "{{ _fc_adapter_parts[-1] }}"
+      organization: "{{ _fc_adapter_parts[0] if _fc_adapter_parts | length > 1 else item.0.key }}"
+{% set _fc_qos_policy = vhba.fibre_channel_qos_policy | default('default') %}
+{% set _fc_qos_parts = _fc_qos_policy.split('/') %}
+    fibre_channel_qos_policy_name:
+      name: "{{ _fc_qos_parts[-1] }}"
+      organization: "{{ _fc_qos_parts[0] if _fc_qos_parts | length > 1 else item.0.key }}"
+{% if vhba.fibre_channel_network_policies is defined and vhba.fibre_channel_network_policies | length > idx %}
+{% set _fc_network_policy = vhba.fibre_channel_network_policies[idx] if vhba.fibre_channel_network_policies | length > idx else vhba.fibre_channel_network_policies[0] %}
+{% set _fc_network_parts = _fc_network_policy.split('/') %}
+    fibre_channel_network_policy_name:
+      name: "{{ _fc_network_parts[-1] }}"
+      organization: "{{ _fc_network_parts[0] if _fc_network_parts | length > 1 else item.0.key }}"
+{% endif %}
+{% if vhba.fc_zone_policies is defined and vhba.fc_zone_policies | length > 0 %}
+{% set _fcz = vhba.fc_zone_policies %}
+{% if _fcz | length > 1 and _vhba_names | length == 2 %}
+{% set _fcz_mid = (_fcz | length // 2) %}
+{% set _fcz_for_name = _fcz[:_fcz_mid] if idx == 0 else _fcz[_fcz_mid:] %}
+{% else %}
+{% set _fcz_for_name = _fcz %}
+{% endif %}
+    fc_zone_policies:
+{% for fcz in _fcz_for_name %}
+{% set _fcz_parts = fcz.split('/') %}
+      - name: "{{ _fcz_parts[-1] }}"
+        organization: "{{ _fcz_parts[0] if _fcz_parts | length > 1 else item.0.key }}"
+{% endfor %}
+{% endif %}
+{% if vhba.wwpn_pools is defined and vhba.wwpn_pools | length > idx %}
+{% set _wwpn_pool = vhba.wwpn_pools[idx] if vhba.wwpn_pools | length > idx else vhba.wwpn_pools[0] %}
+{% set _wwpn_pool_parts = _wwpn_pool.split('/') %}
+    wwpn_pool_name:
+      name: "{{ _wwpn_pool_parts[-1] }}"
+      organization: "{{ _wwpn_pool_parts[0] if _wwpn_pool_parts | length > 1 else item.0.key }}"
+{% elif vhba.wwpn_static_addresses is defined and vhba.wwpn_static_addresses | length > idx %}
+    wwpn_static_address: "{{ vhba.wwpn_static_addresses[idx] if vhba.wwpn_static_addresses | length > idx else vhba.wwpn_static_addresses[0] }}"
+{% endif %}
+{% if vnic.pin_group_names is defined and vnic.pin_group_names | length > 0 %}
+    ping_group_name: "{{ vnic.pin_group_names[idx] if vnic.pin_group_names | length > idx else vnic.pin_group_names[0] }}"
+{% endif %}
+{% if vhba.vhba_type is defined %}
+    vhba_type: "{{ vhba.vhba_type }}"
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% if _scp.vhbas_from_template is defined and _scp.vhbas_from_template | length > 0 %}
+vhbas_from_template:
+{% for vhba_tmpl in _scp.vhbas_from_template %}
+{% set placement = vhba_tmpl.placement | default({}) %}
+  - name: "{{ vhba_tmpl.name }}"
+{% if placement.automatic_pci_link_assignment is defined %}
+    automatic_pci_link_assignment: {{ placement.automatic_pci_link_assignment }}
+{% endif %}
+{% if placement.automatic_slot_id_assignment is defined %}
+    automatic_slot_id_assignment: {{ placement.automatic_slot_id_assignment }}
+{% endif %}
+{% if placement.pci_link is defined %}
+    pci_link: {{ placement.pci_link }}
+{% endif %}
+{% if placement.pci_order is defined %}
+    pci_order: {{ placement.pci_order }}
+{% endif %}
+{% if placement.slot_id is defined %}
+    pci_slot_id: "{{ placement.slot_id }}"
+{% endif %}
+{% if placement.switch_id is defined %}
+    switch_id: "{{ placement.switch_id }}"
+{% endif %}
+{% if placement.uplink_port is defined %}
+    uplink_port: {{ placement.uplink_port }}
+{% endif %}
+{% set _vhba_template = vhba_tmpl.vhba_template | default('default') %}
+{% set _vhba_template_parts = _vhba_template.split('/') %}
+    vhba_template_name:
+      name: "{{ _vhba_template_parts[-1] }}"
+      organization: "{{ _vhba_template_parts[0] if _vhba_template_parts | length > 1 else item.0.key }}"
+{% if vhba_tmpl.fibre_channel_adapter_policy is defined %}
+{% set _fc_adapter_override = vhba_tmpl.fibre_channel_adapter_policy | default('default') %}
+{% set _fc_adapter_override_parts = _fc_adapter_override.split('/') %}
+    fibre_channel_adapter_policy_name:
+      name: "{{ _fc_adapter_override_parts[-1] }}"
+      organization: "{{ _fc_adapter_override_parts[0] if _fc_adapter_override_parts | length > 1 else item.0.key }}"
+{% endif %}
+{% if vhba_tmpl.fibre_channel_network_policy is defined %}
+{% set _fc_network_override = vhba_tmpl.fibre_channel_network_policy | default('default') %}
+{% set _fc_network_override_parts = _fc_network_override.split('/') %}
+    fibre_channel_network_policy_name:
+      name: "{{ _fc_network_override_parts[-1] }}"
+      organization: "{{ _fc_network_override_parts[0] if _fc_network_override_parts | length > 1 else item.0.key }}"
+{% endif %}
+{% if vhba_tmpl.fc_zone_policies is defined and vhba_tmpl.fc_zone_policies | length > 0 %}
+    fc_zone_policies:
+{% for fcz in vhba_tmpl.fc_zone_policies %}
+{% set _fcz_parts = fcz.split('/') %}
+      - name: "{{ _fcz_parts[-1] }}"
+        organization: "{{ _fcz_parts[0] if _fcz_parts | length > 1 else item.0.key }}"
+{% endfor %}
+{% endif %}
+{% if vhba_tmpl.pin_group_name is defined %}
+    pin_group_name: "{{ vhba_tmpl.pin_group_name }}"
+{% endif %}
+{% if vhba_tmpl.wwpn_pool is defined %}
+{% set _wwpn_pool_override = vhba_tmpl.wwpn_pool | default('default') %}
+{% set _wwpn_pool_override_parts = _wwpn_pool_override.split('/') %}
+    wwpn_pool_name:
+      name: "{{ _wwpn_pool_override_parts[-1] }}"
+      organization: "{{ _wwpn_pool_override_parts[0] if _wwpn_pool_override_parts | length > 1 else item.0.key }}"
+{% elif vhba_tmpl.wwpn_static_address is defined %}
+    wwpn_static_address: "{{ vhba_tmpl.wwpn_static_address }}"
+{% endif %}
+{% endfor %}
+{% endif %}

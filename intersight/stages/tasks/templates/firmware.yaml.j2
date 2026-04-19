@@ -1,8 +1,10 @@
 ---
+{% set _am = item.1.advanced_mode | default({}) %}
 description: "{{ item.1.description | default('') }}"
+exclude_drives: {% if _am.exclude_drives is defined %}{{ _am.exclude_drives }}{% else %}false{% endif %}
+exclude_storage_controllers: {% if _am.exclude_storage_controllers is defined %}{{ _am.exclude_storage_controllers }}{% else %}false{% endif %}
 name: "{{ policy_name_prefix.firmware | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.firmware | default(policy_name_suffix.default | default('')) }}"
 organization: "{{ item.0.key }}"
-target_platform: "{{ item.1.target_platform }}"
 {% if item.1.model_bundle_version is defined %}
 model_bundle_combo:
 {% for bundle in item.1.model_bundle_version %}
@@ -11,4 +13,5 @@ model_bundle_combo:
     model_family: "{{ model }}"
 {% endfor %}
 {% endfor %}
+target_platform: "{{ item.1.target_platform }}"
 {% endif %}

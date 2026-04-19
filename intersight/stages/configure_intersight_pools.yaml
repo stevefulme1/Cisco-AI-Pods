@@ -6,6 +6,11 @@
   vars_files:
     - ../vars/shared.yaml
   vars:
+    api_info: &api_info
+      api_key_id: "{{ intersight_api_key_id | default(omit) }}"
+      api_private_key: "{{ intersight_api_private_key | default(omit) }}"
+      api_uri: "{{ intersight_api_uri | default(omit) }}"
+      validate_certs: "{{ intersight_validate_certs | default(omit) }}"
     model_files: >-
       {{
         query('ansible.builtin.fileglob', intersight_model_root ~ '/global_settings*.yaml')

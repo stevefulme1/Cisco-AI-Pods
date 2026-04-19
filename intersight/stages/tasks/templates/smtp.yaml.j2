@@ -1,6 +1,6 @@
 ---
 description: "{{ item.1.description | default('') }}"
-enabled: "{{ item.1.enabled | default(True) }}"
+enabled: "{{ item.1.enable_smtp | default(True) }}"
 min_severity: "{{ item.1.minimum_severity | default('critical') }}"
 name: "{{ policy_name_prefix.smtp | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.smtp | default(policy_name_suffix.default | default('')) }}"
 organization: "{{ item.0.key }}"

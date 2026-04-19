@@ -16,6 +16,47 @@
     merged_model: "{{ merged_model | combine((lookup('ansible.builtin.file', item) | from_yaml), recursive=True, list_merge='append') }}"
   loop: "{{ model_files }}"
 
+- name: Validate all sensitive environment variables against model
+  block:
+    - name: Create temporary directory for validation
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: ansible_validation_
+      register: temp_dir
+
+    - name: Save merged model to temporary file
+      ansible.builtin.copy:
+        content: "{{ merged_model | to_nice_json }}"
+        dest: "{{ temp_dir.path }}/merged_model.json"
+        mode: '0644'
+      changed_when: false
+
+    - name: Run sensitive variables validator
+      ansible.builtin.command:
+        cmd: >-
+          python3 "{{ playbook_dir }}/../filter_plugins/validate_sensitive_variables.py"
+          --model "{{ temp_dir.path }}/merged_model.json"
+      changed_when: false
+      register: validation_result
+      failed_when: validation_result.rc != 0
+
+    - name: Display validation results
+      ansible.builtin.debug:
+        msg: "{{ validation_result.stdout }}"
+      when: validation_result.stdout is defined and validation_result.stdout | length > 0
+
+    - name: Display validation errors
+      ansible.builtin.debug:
+        msg: "{{ validation_result.stderr }}"
+      when: validation_result.stderr is defined and validation_result.stderr | length > 0
+
+  always:
+    - name: Clean up temporary directory
+      ansible.builtin.file:
+        path: "{{ temp_dir.path }}"
+        state: absent
+      when: temp_dir.path is defined
+
 - name: Collect organizations map
   ansible.builtin.set_fact:
     organizations_map: "{{ merged_model.intersight.organizations | default({}) }}"

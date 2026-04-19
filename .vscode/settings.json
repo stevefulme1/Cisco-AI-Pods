@@ -4,6 +4,7 @@
     "*.ezia.yaml": "yaml"
   },
   "yaml.schemas": {
-    "../schema/cisco-ai-pods.json": "**/*.ezai.yaml"
+    "/home/tyscott@rich.ciscolabs.com/scotttyso/Cisco-AI-Pods/schema/cisco-ai-pods.json": "**/*.ezai.yaml",
+    "/home/tyscott@rich.ciscolabs.com/scotttyso/easy-imm/yaml_schema/easy-imm.json": "*.ezi.yaml"
   }
 }

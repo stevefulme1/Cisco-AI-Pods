@@ -6,6 +6,11 @@
   vars_files:
     - ../vars/shared.yaml
   vars:
+    api_info: &api_info
+      api_key_id: "{{ intersight_api_key_id | default(omit) }}"
+      api_private_key: "{{ intersight_api_private_key | default(omit) }}"
+      api_uri: "{{ intersight_api_uri | default(omit) }}"
+      validate_certs: "{{ intersight_validate_certs | default(omit) }}"
     model_files: >-
       {{
         query('ansible.builtin.fileglob', intersight_model_root ~ '/global_settings*.yaml')
@@ -39,9 +44,7 @@
 
     - name: Configure Domain profiles
       cisco.intersight.intersight_domain:
-        api_key_id: "{{ intersight_api_key_id }}"
-        api_private_key: "{{ intersight_api_private_key }}"
-        api_uri: "{{ intersight_api_uri }}"
+        <<: *api_info
         assigned_switch_a_serial: "{{ item.1.serial_numbers[0] | default(omit) }}"
         assigned_switch_b_serial: "{{ item.1.serial_numbers[1] | default(omit) }}"
         description: "{{ item.1.description | default(omit) }}"
@@ -62,7 +65,6 @@
         vlan_policy_fi_a: "{{ item.1.vlan_policies[0] | default(omit) }}"
         vlan_policy_fi_b: "{{ item.1.vlan_policies[1] | default(item.1.vlan_policies[0] | default(omit)) }}"
         state: present
-        validate_certs: "{{ module_validate_certs }}"
       loop: >-
         {{
           query('ansible.builtin.subelements', organizations_map | dict2items,
@@ -73,9 +75,7 @@
 
     - name: Configure Chassis profiles (one profile per target)
       cisco.intersight.intersight_chassis_profile:
-        api_key_id: "{{ intersight_api_key_id }}"
-        api_private_key: "{{ intersight_api_private_key }}"
-        api_uri: "{{ intersight_api_uri }}"
+        <<: *api_info
         assigned_chassis_name: "{{ item.1.serial_number | default(item.1.name) }}"
         description: "{{ item.0.1.description | default(omit) }}"
         imc_access_policy: "{{ item.0.1.imc_access_policy | default(omit) }}"
@@ -90,7 +90,6 @@
         snmp_policy: "{{ item.0.1.snmp_policy | default(omit) }}"
         thermal_policy: "{{ item.0.1.thermal_policy | default(omit) }}"
         state: present
-        validate_certs: "{{ module_validate_certs }}"
       loop: >-
         {{
           query('ansible.builtin.subelements',
@@ -103,9 +102,7 @@
 
     - name: Configure Server profile templates
       cisco.intersight.intersight_server_profile_template:
-        api_key_id: "{{ intersight_api_key_id }}"
-        api_private_key: "{{ intersight_api_private_key }}"
-        api_uri: "{{ intersight_api_uri }}"
+        <<: *api_info
         adapter_policy: "{{ item.1.adapter_configuration_policy | default(item.1.adapter_policy | default(omit)) }}"
         bios_policy: "{{ item.1.bios_policy | default(omit) }}"
         boot_order_policy: "{{ item.1.boot_order_policy | default(omit) }}"
@@ -131,7 +128,6 @@
         virtual_kvm_policy: "{{ item.1.virtual_kvm_policy | default(omit) }}"
         virtual_media_policy: "{{ item.1.virtual_media_policy | default(omit) }}"
         state: present
-        validate_certs: "{{ module_validate_certs }}"
       when: item.1.create_template | default(true)
       loop: >-
         {{
@@ -166,9 +162,7 @@
 
     - name: Configure Server profiles from associated templates (pre-assign unsupported)
       cisco.intersight.intersight_server_profile:
-        api_key_id: "{{ intersight_api_key_id }}"
-        api_private_key: "{{ intersight_api_private_key }}"
-        api_uri: "{{ intersight_api_uri }}"
+        <<: *api_info
         name: |-
           {{
             profile_name_prefix.server | default(profile_name_prefix.default | default(''))
@@ -201,7 +195,6 @@
         virtual_kvm_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).virtual_kvm_policy | default(omit) }}"
         virtual_media_policy: "{{ (server_templates_by_org[item.0.0.key][item.0.1.ucs_server_profile_template] | default({})).virtual_media_policy | default(omit) }}"
         state: present
-        validate_certs: "{{ module_validate_certs }}"
       loop: >-
         {{
           query('ansible.builtin.subelements',

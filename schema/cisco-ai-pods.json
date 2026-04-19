@@ -262,6 +262,231 @@
             "title": "OpenShift Container Platform (OCP) - Machine Network Gateway",
             "unevaluatedProperties": false
         },
+        "abstract.sensitive_variables": {
+            "type": "object",
+            "description": "Object sent by user to configure range of unified ports as FC/Ethernet or ports as breakout.",
+            "title": "Sensitive Variables",
+            "required": [],
+            "properties": {
+                "cco_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Cisco.com Authentication Password.  It must meet the following criteria:\n * One Uppercase Letter\n * One Lowercase Letter\n * One Number\n * One Special Character: `!`, `@`, `#`, `$`, `%`, `^`, `&`, `*`, `+`, `_`, `=`, `-`\n * Be between 12 and 60 Characters in Length.",
+                    "pattern": "^$|^((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[=!&#$%+^@_*-])[a-zA-Z0-9=!&#$%+^@_*-]{12,60})$",
+                    "minLength": 12,
+                    "maxLength": 60,
+                    "title": "cco_password"
+                },
+                "certificate": {
+                    "type": "string",
+                    "default": "",
+                    "description": "X.509 certificate in PEM (Privacy-Enhanced Mail) format.\n\nRequirements:\n  * Must begin with `-----BEGIN CERTIFICATE-----`\n  * Must end with `-----END CERTIFICATE-----`\n  * Body must be Base64-encoded DER data, line-wrapped at 64 characters.\n  * Intermediate and root CA certificates follow the same format.\n  * Certificates can be chained by concatenating multiple PEM blocks.\n\nExample:\n```\n-----BEGIN CERTIFICATE-----\nMIID...base64...\n-----END CERTIFICATE-----\n```",
+                    "pattern": "^-----BEGIN CERTIFICATE-----\\n[A-Za-z0-9+/=\\n]+\\n-----END CERTIFICATE-----\\n?$",
+                    "minLength": 50,
+                    "maxLength": 65536,
+                    "title": "certificate"
+                },
+                "cert_mgmt_passphrase": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Pure Storage Certificate Management - Passphrase for encrypted private key.  A number Between 1-64 to denote the variables cert_mgmt_passphrase_[1-64].  i.e. `export cert_mgmt_passphrase_1='passphrasehere'`.\n\nKey Requirements:\n  * Required only if private key is encrypted with a passphrase\n  * Character Set: Alphanumeric and special characters typically allowed\n  * Length: 1 to 255 characters\n  * Omit if private key is not passphrase-protected",
+                    "pattern": "^.{1,}$",
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "title": "cert_mgmt_passphrase"
+                },
+                "drive_security_authentication_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Drive Security Authentication Password",
+                    "pattern": "^$|^[!\"#%&\\'\\(\\)\\*\\+,\\-\\./:;<>@\\[\\\\\\]\\^_`\\{\\|\\}~a-zA-Z0-9]{0,80}$",
+                    "minLength": 8,
+                    "maxLength": 80,
+                    "title": "drive_security_authentication_password"
+                },
+                "drive_security_passphrase": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Drive Security Current/New Security Key Passphrase for Manual or Remote Key Management.\n\nIntersight drive security passphrases for Self-Encrypting Drives (SEDs) must be 8 to 32 characters long, including at least one uppercase letter, one lowercase letter, one number, and one special character. These alphanumeric keys are critical for securing data on UCS servers, and if lost, cannot be recovered. \n\nKey Requirements & Best Practices:\n  * `Length`: 8–32 characters.\n  * `Complexity`: At least one: uppercase, lowercase, number, and special character.\n  * `Storage`: Passphrases are not stored by the system; save them externally.\n  * `Impact`: A lost passphrase causes irrecoverable loss of drive data.\n  * `Modification`: When re-keying or updating policies, ensure the \"Drive Security is Already Enabled\" box is checked if applicable.",
+                    "pattern": "^((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[=!&#$%+^@_*-])[a-zA-Z0-9=!&#$%+^@_*-]{8,32})$",
+                    "minLength": 8,
+                    "maxLength": 32,
+                    "title": "drive_security_passphrase"
+                },
+                "fabric_interconnect_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Cisco UCS Fabric Interconnect administrator password.  A number Between 1-64 to denote the variables fabric_interconnect_password_[1-64].  i.e. `export fabric_interconnect_password_1='Cisco123!'`.\n\nKey Requirements:\n  * Length: 8 to 127 characters.\n  * No whitespace characters.\n  * Best Practice: Use a mix of uppercase letters, lowercase letters, digits, and special characters.",
+                    "pattern": "^[\\S]{8,127}$",
+                    "minLength": 8,
+                    "maxLength": 127,
+                    "title": "fabric_interconnect_password"
+                },
+                "intersight_api_key_id": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Intersight API Key Identity.",
+                    "pattern": "^[\\da-f]{24}/[\\da-f]{24}/[\\da-f]{24}$",
+                    "minLength": 74,
+                    "maxLength": 74,
+                    "title": "intersight_api_key_id"
+                },
+                "ipmi_key": {
+                    "type": "string",
+                    "default": "",
+                    "description": "IMPI Key for an IPMI Policy.",
+                    "pattern": "^[\\da-fA-F]{2,40}",
+                    "minLength": 2,
+                    "maxLength": 40,
+                    "title": "ipmi_key"
+                },
+                "iscsi_boot_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "iSCSI Boot Password.  Password of Initiator or Target Interface. Enter between 12 and 16 characters, including special characters except spaces, tabs, line breaks.",
+                    "pattern": "^[\\S]{12,16}$",
+                    "minLength": 12,
+                    "maxLength": 16,
+                    "title": "iscsi_boot_password"
+                },
+                "iso_web_server_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Password for HTTP/HTTPS basic authentication to the ISO web server.  A number Between 1-64 to denote the variables iso_web_server_password_[1-64].  i.e. `export iso_web_server_password_1='password123'`.\n\nKey Requirements:\n  * Length: 6 to 255 characters.\n  * No whitespace characters.\n  * Best Practice: Use a strong password; avoid `/`, `#`, backtick, and `,` characters to prevent URL parsing issues.",
+                    "pattern": "^[\\S]{6,255}$",
+                    "minLength": 6,
+                    "maxLength": 255,
+                    "title": "iso_web_server_password"
+                },
+                "ldap_binding_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "LDAP Binding Password.  Intersight LDAP binding passwords must be a string, typically up to 254 characters long, excluding spaces, tabs, and line breaks. The password connects Intersight to Active Directory (AD) with read capabilities. For security, it is recommended to use a strong password and, if using Terraform, set this via secure variables. \n\nKey Requirements:\n  * Characters: Any string excluding spaces, tabs, or line breaks.\n  * Length: Up to 254 characters.\n  * Best Practice: Ensure the Bind DN user has appropriate read-only access in AD.",
+                    "pattern": "^[\\S]{8,254}$",
+                    "minLength": 8,
+                    "maxLength": 254,
+                    "title": "ldap_binding_password"
+                },
+
+                "linux_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Generic Linux/Unix user password enforced by PAM (pam_pwquality / pam_cracklib defaults).\n\nKey Requirements:\n  * Length: 8 to 255 characters.\n  * Complexity: Must include characters from at least three of the following four categories:\n    - Uppercase letters `A-Z`\n    - Lowercase letters `a-z`\n    - Digits `0-9`\n    - Special characters: `!@#$%^&*()-_=+[]{}|;:',.<>?/~``\n  * No whitespace (spaces, tabs, newlines).\n  * Best Practice: Use 16+ characters with all four categories for stronger security.",
+                    "pattern": "^(?:(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])|(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*()\\-_=+\\[\\]{}|;:',.<>?/~`])|(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\\-_=+\\[\\]{}|;:',.<>?/~`])|(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()\\-_=+\\[\\]{}|;:',.<>?/~`]))[\\S]{8,255}$",
+                    "minLength": 8,
+                    "maxLength": 255,
+                    "title": "linux_password"
+                },
+                "local_user_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Local User Password.  Cisco Intersight local user passwords require 8 to 127 characters when \"Enforce Strong Password\" is enabled (default), including at least three of these categories: uppercase letters, lowercase letters, digits, and special characters (! , @, #, $, %, ^, &, *, -, _, +, =). If strong password enforcement is disabled, 8–20 characters are required. \n\nKey Requirements & Configuration\n  * Length: 8 to 127 characters (with Strong Password) or 8 to 20 characters (without).\n  * Complexity: Must include characters from three of the following: `A-Z`, `a-z`, `0-9`, and `!@#$%^&*- _+=`.\n  * Restriction: Must not contain the username.\n  * Expiry & Security: Policies can set an expiry duration (1–3650 days), notification period, and grace period.\n  * Admin User: Password changes for the admin user can be handled via the Local User Policy. \n\nPolicy Options\n  * Enforce Strong Password: Default true, enforced.\n  * Password History: Tracks history to prevent reuse.\n  * Disable Strong Password: If unchecked, 8-20 characters of any type can be used.",
+                    "pattern": "^(?:(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])|(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*\\-_+=])|(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*\\-_+=])|(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*\\-_+=]))[a-zA-Z0-9!@#$%^&*\\-_+=]{8,127}$",
+                    "minLength": 8,
+                    "maxLength": 127,
+                    "title": "local_user_password"
+                },
+                "persistent_passphrase": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Persistent Memory Passphrase.",
+                    "pattern": "^$|^[a-zA-Z0-9=!&#$%+^@_*-]+$",
+                    "minLength": 8,
+                    "maxLength": 32,
+                    "title": "persistent_passphrase"
+                },
+                "private_key": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Private key in PEM (Privacy-Enhanced Mail) format.\n\nSupported PEM headers:\n  * `-----BEGIN PRIVATE KEY-----` — PKCS#8 unencrypted (RSA, EC, Ed25519)\n  * `-----BEGIN RSA PRIVATE KEY-----` — PKCS#1 RSA private key\n  * `-----BEGIN EC PRIVATE KEY-----` — SEC1 EC private key\n  * `-----BEGIN OPENSSH PRIVATE KEY-----` — OpenSSH format (Ed25519, ECDSA, RSA)\n\nRequirements:\n  * Must begin and end with matching `-----BEGIN/END <TYPE> PRIVATE KEY-----` markers.\n  * Body must be Base64-encoded, line-wrapped at 64 characters (except OpenSSH format).\n  * Private keys must be kept strictly confidential and never committed to version control.\n  * Prefer encrypted private keys (passphrase-protected) for storage at rest.\n\nExample:\n```\n-----BEGIN PRIVATE KEY-----\nMIIE...base64...\n-----END PRIVATE KEY-----\n```",
+                    "pattern": "^-----BEGIN (PRIVATE KEY|RSA PRIVATE KEY|EC PRIVATE KEY|OPENSSH PRIVATE KEY|ENCRYPTED PRIVATE KEY)-----\\n[A-Za-z0-9+/=\\n]+\\n-----END (PRIVATE KEY|RSA PRIVATE KEY|EC PRIVATE KEY|OPENSSH PRIVATE KEY|ENCRYPTED PRIVATE KEY)-----\\n?$",
+                    "minLength": 50,
+                    "maxLength": 65536,
+                    "title": "private_key"
+                },
+                "pure_api_token": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Pure Storage Array API Token.  A number Between 1-64 to denote the variables pure_api_token_[1-64].  i.e. `export pure_api_token_1='token_string'`.\n\nKey Requirements:\n  * Required for authentication with Pure Storage FlashArray and FlashBlade systems\n  * Length: Typically 20-128 characters depending on Pure Storage version\n  * Character Set: Alphanumeric and special characters\n  * Sensitive: Never commit to version control; use environment variables for deployment\n  * Best Practice: Use dedicated API tokens with minimal required permissions",
+                    "pattern": "^[\\S]{1,}$",
+                    "minLength": 1,
+                    "maxLength": 512,
+                    "title": "pure_api_token"
+                },
+                "redfish_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Redfish/BMC (iDRAC, iLO, CIMC) administrator password.  A number Between 1-64 to denote the variables redfish_password_[1-64].  i.e. `export redfish_password_1='Cisco123!'`.\n\nKey Requirements:\n  * Length: 8 to 127 characters.\n  * No whitespace characters.\n  * Best Practice: Use a mix of uppercase letters, lowercase letters, digits, and special characters consistent with your BMC vendor requirements.",
+                    "pattern": "^[\\S]{8,127}$",
+                    "minLength": 8,
+                    "maxLength": 127,
+                    "title": "redfish_password"
+                },
+                "root_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "REPLACE Root Password in plain text.  The Script will convert to an encrypted password.",
+                    "pattern": "^[\\S]{8,254}$",
+                    "minLength": 8,
+                    "maxLength": 254,
+                    "title": "Root Password"
+                },
+                "snmp_community_string": {
+                    "type": "string",
+                    "default": "",
+                    "description": "SNMP Community String.\n\nAvoid using the @ and : characters in Cisco SNMP community strings. The @ character is reserved for indexing (VLAN designation), causing potential mapping issues, while : can cause delimiters issues in management systems. Most other characters (-=;,. ~#$%^&*()_+{}|<>?) are generally allowed, but it's best to avoid special characters. \n\nKey takeaways:\n * Avoid `@ and `:`.  Specifically, the `@` symbol is used for SNMP community string indexing (e.g., `community@vlan`).\n * Characters Allowed: Standard alphanumeric characters, along with special characters like `-`, `_`, `.`, `!`, `#`, `$`, `%`, etc., are generally supported.\n * Impact: Using an @ symbol can cause the switch to misunderstand which VLAN you are trying to query.\n * Best Practice: Use strong, long strings, but avoid the reserved `@` and `:` characters to prevent polling errors. \n\nIf you are encountering errors, you may want to try:\n * Checking for errors in the CLI: Use show running-config to verify the string actually applied correctly.\n * Using alphanumeric characters: Try avoiding symbols entirely if you are still experiencing issues.",
+                    "pattern": "^[^\\s@:]+$",
+                    "minLength": 1,
+                    "maxLength": 32,
+                    "title": "snmp_community_string"
+                },
+                "snmp_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "SNMP Auth/Privacy Password.  Cisco Intersight SNMPv3 policies require SHA for authentication (auth) and AES-128 or AES-256 for privacy (priv). Passwords must be a minimum of 8 characters and can be up to 64 characters if in plain text. AuthPriv is the recommended, highly secure option, requiring unique passwords for both authentication and encryption. \n\nKey SNMPv3 Password and Policy Requirements:\nAuth Protocol: SHA (Secure Hash Algorithm) is required; MD5 is not supported.\nPriv Protocol: AES (Advanced Encryption Standard) 128-bit is supported and conforms with RFC 3826.\nPassword Length: Minimum 8 characters.\nSecurity Level: AuthPriv (Authentication and Privacy) is the recommended security level for encryption.\nUser Constraints: You can define a maximum of 15 trap users, and the username can be up to 32 characters.",
+                    "pattern": "^[a-zA-Z0-9]{8,64}$",
+                    "minLength": 8,
+                    "maxLength": 64,
+                    "title": "snmp_password"
+                },
+                "ssh_public_key": {
+                    "type": "string",
+                    "default": "",
+                    "description": "SSH public key in OpenSSH authorized_keys format.\n\nSupported key types:\n  * `ssh-ed25519` — 256-bit EdDSA (recommended)\n  * `ecdsa-sha2-nistp256` / `ecdsa-sha2-nistp384` / `ecdsa-sha2-nistp521` — ECDSA\n  * `ssh-rsa` — RSA (minimum 2048-bit recommended)\n  * `ssh-dss` — DSA (deprecated, avoid)\n\nFormat: `<key-type> <base64-encoded-key> [optional-comment]`\n\nExamples:\n  * `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... user@host`\n  * `ssh-rsa AAAAB3NzaC1yc2EAAAA... user@host`",
+                    "pattern": "^(ssh-ed25519|ssh-rsa|ssh-dss|ecdsa-sha2-nistp256|ecdsa-sha2-nistp384|ecdsa-sha2-nistp521) [A-Za-z0-9+/]+=*( .*)?$",
+                    "minLength": 20,
+                    "maxLength": 16384,
+                    "title": "ssh_public_key"
+                },
+                "vmedia_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "When configuring Virtual Media (vMedia) in Cisco Intersight for OS installation or firmware updates, passwords for HTTPS and CIFS shares must adhere to specific character restrictions to prevent mounting failures.\nPassword Requirements by Protocol\n  * CIFS (Common Internet File System): Supported characters include standard alphanumeric characters, but the password cannot contain the following special characters: `!`, `@`, `\\`, or ` (backtick).\n  * HTTPS: The password cannot contain the following characters: `/`, `#`, `, or `,`.\n  * General Character Set: Generally, accepted characters for passwords in these fields include `~#$%^&*()_+-={[}]|;:'<>.?/`. \n\nKey Considerations for vMedia Mounts\n  * Username Requirement: A username must be configured on the CIFS/HTTPS server for authentication.\n  * CIFS Authentication: Intersight supports various authentication protocols for CIFS, including Ntlm, Ntlmi, Ntlmssp, Ntlmsspi, Ntlmv2, and Ntlmv2i.\n  * Port Requirements: Ensure port 445 is open for CIFS, and port 443 (HTTPS) or 80 (HTTP) is open for web-based shares.\n  * URL Length: The maximum allowed length for the HTTP/HTTPS URL is 2048 characters. \n\n\nIf you are experiencing mounting issues, it is often due to special characters in the password that are interpreted incorrectly by the file server.",
+                    "pattern": "^[\\S]{6,255}$",
+                    "minLength": 6,
+                    "maxLength": 255,
+                    "title": "vmedia_password"
+                },
+                "vmware_esxi_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "VMware ESXi Password.",
+                    "pattern": "^[\\S]{8,255}$",
+                    "minLength": 8,
+                    "maxLength": 255,
+                    "title": "vmware_esxi_password"
+                },
+                "windows_admin_password": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Windows Administrator Password.",
+                    "pattern": "^[\\S]{8,255}$",
+                    "minLength": 8,
+                    "maxLength": 255,
+                    "title": "windows_admin_password"
+                }
+            }
+        },
         "abstract.ssh_public_key": {
             "default": 1,
             "description": "The default value is `1`.  SSH public key to assign.  A number Between 1-64 to denote the variables ssh_public_key_[1-64].  i.e. `export ssh_public_key_1='ssh-ed25519 AAAAC...'`.",
@@ -1449,26 +1674,30 @@
                             "default": "",
                             "description": "The default value is ``.  Name of a BIOS Template to Configure.\n\nImportant Note: Add `-tpm/Tpm` to enable TPM.  Without `-tpm/Tpm`, TPM is disabled.\n\nOptions are:\n\n  * `AnalyticalDatabaseSystems-M6-Intel(-Tpm)` - BIOS Policy for Analytical Database Systems on Cisco UCS M6 Servers with Intel processors`\n  * `AnalyticalDatabaseSystems-M7-Intel(-Tpm)` - BIOS Policy for Analytical Database Systems on Cisco UCS M7 Servers with Intel processors`\n  * `AnalyticsDatabaseSystems-M5-Intel(-Tpm)` - BIOS Policy for Analytics Database Decision-Support System on Cisco UCS M5 Servers with Intel processors`\n  * `Analytics-M8-AMD(-Tpm)` - BIOS Policy for Analytical Database Systems on Cisco UCS M8 Servers with AMD processors`\n  * `CPUIntensive-M6-Intel(-Tpm)` - BIOS Policy for CPU Intensive on Cisco UCS M6 Servers with Intel processors`\n  * `CPUIntensive-M7-Intel(-Tpm)` - BIOS Policy for CPU Intensive on Cisco UCS M7 Servers with Intel processors`\n  * `CPUIntensive-M8-AMD(-Tpm)` - BIOS Policy for CPU Intensive on Cisco UCS M8 Servers with AMD processors`\n  * `ComputationIntensive-M6-AMD(-Tpm)` - BIOS Policy for CPU Intensive on Cisco UCS M6 Servers with AMD processors`\n  * `DataAnalytics-M6-Intel(-Tpm)` - BIOS Policy for Data Analytics on Cisco UCS M6 Servers with Intel processors`\n  * `DataAnalytics-M7-Intel(-Tpm)` - BIOS Policy for Data Analytics on Cisco UCS M7 Servers with Intel processors`\n  * `EnergyEfficiency-M5-Intel(-Tpm)` - BIOS Policy for Energy Efficiency on Cisco UCS M5 Servers with Intel processors`\n  * `EnergyEfficiency-M6-AMD(-Tpm)` - BIOS Policy for Energy Efficiency on Cisco UCS M6 Servers with AMD processors`\n  * `EnergyEfficiency-M6-Intel(-Tpm)` - BIOS Policy for Energy Efficiency on Cisco UCS M6 Servers with Intel processors`\n  * `EnergyEfficient-M7-Intel(-Tpm)` - BIOS Policy for Energy Efficiency on Cisco UCS M7 Servers with Intel processors`\n  * `EnergyEfficiency-M8-AMD(-Tpm)` - BIOS Policy for Energy Efficiency on Cisco UCS M8 Servers with AMD processors`\n  * `HighPerformanceComputing-M5-Intel(-Tpm)` - BIOS Policy for High-Performance Computing on Cisco UCS M5 Servers with Intel processors`\n  * `HighPerformanceComputing-M6-AMD(-Tpm)` - BIOS Policy for High-Performance Computing on Cisco UCS M6 Servers with AMD processors`\n  * `HighPerformanceComputing-M6-Intel(-Tpm)` - BIOS Policy for High-Performance Computing on Cisco UCS M6 Servers with Intel processors`\n  * `HighPerformanceComputing-M7-Intel(-Tpm)` - BIOS Policy for High-Performance Computing on Cisco UCS M7 Servers with Intel processors`\n  * `HPC-M8-AMD(-Tpm)` - BIOS Policy for High-Performance Computing on Cisco UCS M8 Servers with AMD processors`\n  * `IOIntensive-M6-AMD(-Tpm)` - BIOS Policy for IO Intensive on Cisco UCS M6 Servers with AMD processors`\n  * `IOIntensive-M6-Intel(-Tpm)` - BIOS Policy for IO Intensive on Cisco UCS M6 Servers with Intel processors`\n  * `IOIntensive-M8-AMD(-Tpm)` - BIOS Policy for IO Intensive on Cisco UCS M8 Servers with AMD processors`\n  * `JavaApplicationServer-M5-Intel(-Tpm)` - BIOS Policy for Java Application Server on Cisco UCS M5 Servers with Intel processors`\n  * `LowLatency-M5-Intel(-Tpm)` - BIOS Policy for Low Latency on Cisco UCS M5 Servers with Intel processors`\n  * `LowLatency-M6-AMD(-Tpm)` - BIOS Policy for Low Latency on Cisco UCS M6 Servers with AMD processors`\n  * `LowLatency-M6-Intel(-Tpm)` - BIOS Policy for Low Latency on Cisco UCS M6 Servers with Intel processors`\n  * `LowLatency-M7-Intel(-Tpm)` - BIOS Policy for Low Latency on Cisco UCS M7 Servers with Intel processors`\n  * `LowLatency-M8-AMD(-Tpm)` - BIOS Policy for Low Latency on Cisco UCS M8 Servers with AMD processors`\n  * `M5-amd-virtual(-Tpm)` - BIOS Policy for Virtualization on Cisco UCS M5 Servers with AMD processors`\n  * `M5-intel-virtual(-Tpm)` - (Depricated - Use Virtualization-M5-Intel(-Tpm)) - BIOS Policy for Virtualization on Cisco UCS M5 Servers with Intel processors`\n  * `M6-amd-virtual(-Tpm)` - (Depricated - Use Virtualization-M6-AMD(-Tpm)) - BIOS Policy for Virtualization on Cisco UCS M6 Servers with AMD processors`\n  * `M6-intel-virtual(-Tpm)` - (Depricated - Use Virtualization-M6-Intel(-Tpm)) - BIOS Policy for Virtualization on Cisco UCS M6 Servers with Intel processors`\n  * `MaximumPerformance-M5-Intel(-Tpm)` - BIOS Policy for Maximum Performance on Cisco UCS M5 Servers with Intel processors`\n  * `OnlineTransactionProcessing-M5-Intel(-Tpm)` - BIOS Policy for Online Transaction Processing on Cisco UCS M5 Servers with Intel processors`\n  * `RDBMS-M8-AMD(-Tpm)` - BIOS Policy for Relational Database Systems on Cisco UCS M8 Servers with AMD processors`\n  * `RelationalDatabaseSystems-M6-Intel(-Tpm)` - BIOS Policy for Relational Database Systems on Cisco UCS M6 Servers with Intel processors`\n  * `RelationalDatabaseSystems-M7-Intel(-Tpm)` - BIOS Policy for Relational Database Systems on Cisco UCS M7 Servers with Intel processors`\n  * `VDI-M6-AMD(-Tpm)` - BIOS Policy for VDI on Cisco UCS M6 Servers with AMD processors`\n  * `Virtualization-M5-Intel(-Tpm)` - BIOS Policy for Virtualization on Cisco UCS M5 Servers with Intel processors`\n  * `Virtualization-M6-AMD(-Tpm)` - BIOS Policy for Virtualization on Cisco UCS M6 Servers with AMD processors`\n  * `Virtualization-M6-Intel(-Tpm)` - BIOS Policy for Virtualization on Cisco UCS M6 Servers with Intel processors`\n  * `Virtualization-M7-Intel(-Tpm)` - BIOS Policy for Virtualization on Cisco UCS M7 Servers with Intel processors`\n  * `Virtualization-M8-AMD(-Tpm)` - BIOS Policy for Virtualization on Cisco UCS M8 Servers with AMD processors`\n  * `Virtualization-M8-Intel(-Tpm)` - BIOS Policy for Virtualization on Cisco UCS M8 Servers with AMD processors",
                             "enum": [
-                                "AnalyticalDatabaseSystems-M5-Intel",
-                                "AnalyticalDatabaseSystems-M5-Intel-Tpm",
                                 "AnalyticalDatabaseSystems-M6-Intel",
                                 "AnalyticalDatabaseSystems-M6-Intel-Tpm",
                                 "AnalyticalDatabaseSystems-M7-Intel",
                                 "AnalyticalDatabaseSystems-M7-Intel-Tpm",
                                 "Analytics-M8-AMD",
                                 "Analytics-M8-AMD-Tpm",
+                                "Analytics-M8-Intel",
+                                "Analytics-M8-Intel-Tpm",
+                                "AnalyticsDatabaseSystems-M5-Intel",
+                                "AnalyticsDatabaseSystems-M5-Intel-Tpm",
                                 "AzureStack-M6-Intel",
                                 "AzureStack-M6-Intel-Tpm",
                                 "AzureStack-M7-Intel",
                                 "AzureStack-M7-Intel-Tpm",
-                                "ComputationIntensive-M6-AMD",
-                                "ComputationIntensive-M6-AMD-Tpm",
                                 "CPUIntensive-M6-Intel",
                                 "CPUIntensive-M6-Intel-Tpm",
                                 "CPUIntensive-M7-Intel",
                                 "CPUIntensive-M7-Intel-Tpm",
                                 "CPUIntensive-M8-AMD",
                                 "CPUIntensive-M8-AMD-Tpm",
+                                "CPUIntensive-M8-Intel",
+                                "CPUIntensive-M8-Intel-Tpm",
+                                "ComputationIntensive-M6-AMD",
+                                "ComputationIntensive-M6-AMD-Tpm",
                                 "DataAnalytics-M6-Intel",
                                 "DataAnalytics-M6-Intel-Tpm",
                                 "DataAnalytics-M7-Intel",
@@ -1483,6 +1712,12 @@
                                 "EnergyEfficient-M7-Intel-Tpm",
                                 "EnergyEfficiency-M8-AMD",
                                 "EnergyEfficiency-M8-AMD-Tpm",
+                                "EnergyEfficiency-M8-Intel",
+                                "EnergyEfficiency-M8-Intel-Tpm",
+                                "HPC-M8-AMD",
+                                "HPC-M8-AMD-Tpm",
+                                "HPC-M8-Intel",
+                                "HPC-M8-Intel-Tpm",
                                 "HighPerformanceComputing-M5-Intel",
                                 "HighPerformanceComputing-M5-Intel-Tpm",
                                 "HighPerformanceComputing-M6-AMD",
@@ -1491,8 +1726,6 @@
                                 "HighPerformanceComputing-M6-Intel-Tpm",
                                 "HighPerformanceComputing-M7-Intel",
                                 "HighPerformanceComputing-M7-Intel-Tpm",
-                                "HPC-M8-AMD",
-                                "HPC-M8-AMD-Tpm",
                                 "IOIntensive-M6-AMD",
                                 "IOIntensive-M6-AMD-Tpm",
                                 "IOIntensive-M6-Intel",
@@ -1511,6 +1744,8 @@
                                 "LowLatency-M7-Intel-Tpm",
                                 "LowLatency-M8-AMD",
                                 "LowLatency-M8-AMD-Tpm",
+                                "LowLatency-M8-Intel",
+                                "LowLatency-M8-Intel-Tpm",
                                 "M5-amd-virtual",
                                 "M5-amd-virtual-tpm",
                                 "M5-intel-virtual",
@@ -1525,10 +1760,16 @@
                                 "OnlineTransactionProcessing-M5-Intel-Tpm",
                                 "RDBMS-M8-AMD",
                                 "RDBMS-M8-AMD-Tpm",
+                                "RDBMS-M8-Intel",
+                                "RDBMS-M8-Intel-Tpm",
                                 "RelationalDatabaseSystems-M6-Intel",
                                 "RelationalDatabaseSystems-M6-Intel-Tpm",
                                 "RelationalDatabaseSystems-M7-Intel",
                                 "RelationalDatabaseSystems-M7-Intel-Tpm",
+                                "SystemDefault",
+                                "SystemDefault-Tpm",
+                                "UnifiedEdgeBios",
+                                "UnifiedEdgeBios-Tpm",
                                 "VDI-M6-AMD",
                                 "VDI-M6-AMD-Tpm",
                                 "Virtualization-M5-Intel",
@@ -1698,6 +1939,19 @@
                             ],
                             "intersight_api": "CbsCmnCpuCpb",
                             "title": "cbs_cmn_cpu_cpb",
+                            "type": "string"
+                        },
+                        "cbs_cmn_cpu_frequency_control": {
+                            "default": "platform-default",
+                            "description": "The default value is `platform-default`.  BIOS Token for setting CPU Frequency Control configuration.\n* `platform-default` - Default value used by the platform for the BIOS setting.\n* `Auto` - Value - Auto for configuring CbsCmnCpuFrequencyControl token.\n* `disabled` - Value - disabled for configuring CbsCmnCpuFrequencyControl token.\n* `enabled` - Value - enabled for configuring CbsCmnCpuFrequencyControl token.",
+                            "enum": [
+                                "platform-default",
+                                "Auto",
+                                "disabled",
+                                "enabled"
+                            ],
+                            "intersight_api": "CbsCmnCpuFrequencyControl",
+                            "title": "cbs_cmn_cpu_frequency_control",
                             "type": "string"
                         },
                         "cbs_cmn_cpu_gen_downcore_ctrl": {
@@ -7238,9 +7492,21 @@
                             "title": "sparing_mode",
                             "type": "string"
                         },
+                        "speculative_lock_enable": {
+                            "default": "platform-default",
+                            "description": "The default value is `platform-default`.  BIOS Token for setting Speculative Lock configuration.\n* `platform-default` - Default value used by the platform for the BIOS setting.\n* `enabled` - Enables the BIOS setting.\n* `disabled` - Disables the BIOS setting.",
+                            "enum": [
+                                "platform-default",
+                                "enabled",
+                                "disabled"
+                            ],
+                            "intersight_api": "SpeculativeLockEnable",
+                            "title": "speculative_lock_enable",
+                            "type": "string"
+                        },
                         "sr_iov": {
                             "default": "platform-default",
-                            "description": "The default value is `platform-default`.  BIOS Token for setting SR-IOV Support configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `enabled` - Enables the BIOS setting.\n  * `disabled` - Disables the BIOS setting.",
+                            "description": "The default value is `platform-default`.  BIOS Token for setting SR-IOV Support configuration.\n* `platform-default` - Default value used by the platform for the BIOS setting.\n* `enabled` - Enables the BIOS setting.\n* `disabled` - Disables the BIOS setting.",
                             "enum": [
                                 "platform-default",
                                 "enabled",
@@ -7690,13 +7956,6 @@
                     "processor_c6report": "enabled",
                     "work_load_config": "Balanced"
                 },
-                "AnalyticsDatabaseSystems-M5-Intel": {
-                    "cpu_power_management": "custom",
-                    "intel_vt_for_directed_io": "disabled",
-                    "pcie_slots_cdn_enable": "enabled",
-                    "processor_c1e": "disabled",
-                    "processor_c6report": "disabled"
-                },
                 "Analytics-M8-AMD": {
                     "cbs_cmn_apbdis": "1",
                     "cbs_cmn_apbdis_df_pstate_rs": "0",
@@ -7716,6 +7975,26 @@
                     "cbs_df_cmn_mem_intlv_control": "Auto",
                     "cpu_perf_enhancement": "Disabled",
                     "pcie_slots_cdn_enable": "enabled"
+                },
+                "Analytics-M8-Intel": {
+                    "cpu_perf_enhancement": "Auto",
+                    "cpu_performance": "enterprise",
+                    "epp_profile": "Performance",
+                    "intel_virtualization_technology": "disabled",
+                    "latency_optimized_mode": "enabled",
+                    "llc_alloc": "disabled",
+                    "llc_prefetch": "disabled",
+                    "patrol_scrub": "disabled",
+                    "pwr_perf_tuning": "bios",
+                    "select_memory_ras_configuration": "adddc-sparing",
+                    "snc": "enabled"
+                },
+                "AnalyticsDatabaseSystems-M5-Intel": {
+                    "cpu_power_management": "custom",
+                    "intel_vt_for_directed_io": "disabled",
+                    "pcie_slots_cdn_enable": "enabled",
+                    "processor_c1e": "disabled",
+                    "processor_c6report": "disabled"
                 },
                 "AzureStack-M6-Intel": {
                     "ipv4http": "disabled",
@@ -7925,6 +8204,23 @@
                     "pcie_slots_cdn_enable": "enabled",
                     "svm_mode": "enabled"
                 },
+                "CPUIntensive-M8-Intel": {
+                    "adjacent_cache_line_prefetch": "disabled",
+                    "cpu_perf_enhancement": "Auto",
+                    "energy_efficient_turbo": "enabled",
+                    "epp_profile": "Performance",
+                    "kti_prefetch": "disabled",
+                    "latency_optimized_mode": "enabled",
+                    "llc_alloc": "enabled",
+                    "patrol_scrub": "disabled",
+                    "pwr_perf_tuning": "bios",
+                    "select_memory_ras_configuration": "maximum-performance",
+                    "snc": "enabled",
+                    "streamer_prefetch": "disabled",
+                    "work_load_config": "Balanced",
+                    "xpt_prefetch": "disabled",
+                    "xpt_remote_prefetch": "disabled"
+                },
                 "ComputationIntensive-M6-AMD": {
                     "cbs_cmn_apbdis": "1",
                     "cbs_cmn_cpu_cpb": "Auto",
@@ -8021,6 +8317,49 @@
                     "pcie_slots_cdn_enable": "enabled",
                     "svm_mode": "enabled"
                 },
+                "EnergyEfficiency-M8-Intel": {
+                    "adjacent_cache_line_prefetch": "disabled",
+                    "energy_efficient_turbo": "enabled",
+                    "epp_profile": "Power",
+                    "package_cstate_limit": "C6 Non Retention",
+                    "processor_c1e": "enabled",
+                    "processor_c6report": "enabled",
+                    "pwr_perf_tuning": "bios",
+                    "select_memory_ras_configuration": "adddc-sparing",
+                    "streamer_prefetch": "disabled",
+                    "work_load_config": "Balanced"
+                },
+                "HPC-M8-AMD": {
+                    "cbs_cmn_apbdis": "1",
+                    "cbs_cmn_apbdis_df_pstate_rs": "0",
+                    "cbs_cmn_cpu_cpb": "Auto",
+                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
+                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
+                    "cbs_cmn_determinism_slider": "Power",
+                    "cbs_cmn_efficiency_mode_en_rs": "High Performance Mode",
+                    "cbs_cmn_gnb_nb_iommu": "Auto",
+                    "cbs_cmn_gnb_smu_df_cstates": "Auto",
+                    "cbs_cmn_gnb_smucppc": "Auto",
+                    "cbs_cpu_smt_ctrl": "disabled",
+                    "cbs_df_cmn4link_max_xgmi_speed": "Auto",
+                    "cbs_df_cmn_acpi_srat_l3numa": "Auto",
+                    "cbs_df_cmn_dram_nps": "NPS4",
+                    "cbs_df_cmn_mem_intlv_control": "Auto",
+                    "cpu_perf_enhancement": "Auto",
+                    "pcie_slots_cdn_enable": "enabled"
+                },
+                "HPC-M8-Intel": {
+                    "cpu_perf_enhancement": "Auto",
+                    "cpu_performance": "hpc",
+                    "epp_profile": "Performance",
+                    "intel_hyper_threading_tech": "disabled",
+                    "intel_virtualization_technology": "disabled",
+                    "latency_optimized_mode": "enabled",
+                    "llc_alloc": "disabled",
+                    "pwr_perf_tuning": "bios",
+                    "select_memory_ras_configuration": "adddc-sparing"
+                },
                 "HighPerformanceComputing-M5-Intel": {
                     "intel_hyper_threading_tech": "disabled",
                     "intel_virtualization_technology": "disabled",
@@ -8066,26 +8405,6 @@
                     "pcie_slots_cdn_enable": "enabled",
                     "processor_c6report": "enabled",
                     "work_load_config": "Balanced"
-                },
-                "HPC-M8-AMD": {
-                    "cbs_cmn_apbdis": "1",
-                    "cbs_cmn_apbdis_df_pstate_rs": "0",
-                    "cbs_cmn_cpu_cpb": "Auto",
-                    "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
-                    "cbs_cmn_cpu_l1stream_hw_prefetcher": "Auto",
-                    "cbs_cmn_cpu_l2stream_hw_prefetcher": "Auto",
-                    "cbs_cmn_determinism_slider": "Power",
-                    "cbs_cmn_efficiency_mode_en_rs": "High Performance Mode",
-                    "cbs_cmn_gnb_nb_iommu": "Auto",
-                    "cbs_cmn_gnb_smu_df_cstates": "Auto",
-                    "cbs_cmn_gnb_smucppc": "Auto",
-                    "cbs_cpu_smt_ctrl": "disabled",
-                    "cbs_df_cmn4link_max_xgmi_speed": "Auto",
-                    "cbs_df_cmn_acpi_srat_l3numa": "Auto",
-                    "cbs_df_cmn_dram_nps": "NPS4",
-                    "cbs_df_cmn_mem_intlv_control": "Auto",
-                    "cpu_perf_enhancement": "Auto",
-                    "pcie_slots_cdn_enable": "enabled"
                 },
                 "IOIntensive-M6-AMD": {
                     "cbs_cmn_apbdis": "1",
@@ -8207,6 +8526,17 @@
                     "pcie_slots_cdn_enable": "enabled",
                     "svm_mode": "disabled"
                 },
+                "LowLatency-M8-Intel": {
+                    "adjacent_cache_line_prefetch": "disabled",
+                    "epp_profile": "Balanced Power",
+                    "intel_hyper_threading_tech": "disabled",
+                    "intel_turbo_boost_tech": "disabled",
+                    "intel_virtualization_technology": "disabled",
+                    "pwr_perf_tuning": "bios",
+                    "select_memory_ras_configuration": "adddc-sparing",
+                    "streamer_prefetch": "disabled",
+                    "work_load_config": "Balanced"
+                },
                 "M5-amd-virtual": {
                     "cpu_power_management": "custom",
                     "nvmdimm_perform_config": "Balanced Profile",
@@ -8278,6 +8608,21 @@
                     "cpu_perf_enhancement": "Disabled",
                     "pcie_slots_cdn_enable": "enabled"
                 },
+                "RDBMS-M8-Intel": {
+                    "cpu_perf_enhancement": "Auto",
+                    "cpu_performance": "enterprise",
+                    "energy_efficient_turbo": "enabled",
+                    "epp_profile": "Performance",
+                    "intel_virtualization_technology": "disabled",
+                    "latency_optimized_mode": "enabled",
+                    "llc_alloc": "disabled",
+                    "llc_prefetch": "disabled",
+                    "patrol_scrub": "disabled",
+                    "processor_c1e": "disabled",
+                    "pwr_perf_tuning": "bios",
+                    "select_memory_ras_configuration": "adddc-sparing",
+                    "snc": "enabled"
+                },
                 "RelationalDatabaseSystems-M6-Intel": {
                     "cpu_perf_enhancement": "Auto",
                     "llc_alloc": "disabled",
@@ -8299,6 +8644,7 @@
                     "xpt_prefetch": "enabled"
                 },
                 "SystemDefault": {},
+                "UnifiedEdgeBios": {},
                 "VDI-M6-AMD": {
                     "cbs_cmn_apbdis": "1",
                     "cbs_cmn_cpu_cpb": "Auto",
@@ -8370,6 +8716,16 @@
                     "cbs_df_cmn_mem_intlv_control": "Auto",
                     "cpu_perf_enhancement": "Disabled",
                     "pcie_slots_cdn_enable": "enabled"
+                },
+                "Virtualization-M8-Intel": {
+                    "cpu_performance": "enterprise",
+                    "energy_efficient_turbo": "enabled",
+                    "epp_profile": "Performance",
+                    "latency_optimized_mode": "enabled",
+                    "processor_c1e": "disabled",
+                    "pwr_perf_tuning": "bios",
+                    "select_memory_ras_configuration": "adddc-sparing",
+                    "work_load_config": "Balanced"
                 },
                 "tpm": {
                     "sha1pcr_bank": "disabled",
@@ -8725,88 +9081,21 @@
                         "properties": {
                             "device_type": {
                                 "not": {
-                                    "enum": ["http_boot", "pxe_boot"]
+                                    "enum": [
+                                        "http_boot",
+                                        "pxe_boot"
+                                    ]
                                 }
                             }
                         },
-                        "required": ["device_type"]
+                        "required": [
+                            "device_type"
+                        ]
                     },
                     "then": {
                         "not": {
-                            "required": ["interface_source"]
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "device_type": {
-                                "not": {
-                                    "enum": ["http_boot", "pxe_boot", "iscsi_boot", "san_boot"]
-                                }
-                            }
-                        },
-                        "required": ["device_type"]
-                    },
-                    "then": {
-                        "not": {
-                            "required": ["interface_name"]
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "device_type": {
-                                "not": {
-                                    "enum": ["http_boot", "pxe_boot"]
-                                }
-                            }
-                        },
-                        "required": ["device_type"]
-                    },
-                    "then": {
-                        "not": {
-                            "required": ["mac_address"]
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "device_type": {
-                                "not": {
-                                    "enum": ["http_boot", "pxe_boot", "iscsi_boot"]
-                                }
-                            }
-                        },
-                        "required": ["device_type"]
-                    },
-                    "then": {
-                        "not": {
-                            "required": ["port"]
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "device_type": {
-                                "not": {
-                                    "enum": ["http_boot"]
-                                }
-                            }
-                        },
-                        "required": ["device_type"]
-                    },
-                    "then": {
-                        "not": {
-                            "anyOf": [
-                                {"required": ["ip_config_type"]},
-                                {"required": ["ipv4_config"]},
-                                {"required": ["ipv6_config"]},
-                                {"required": ["protocol"]},
-                                {"required": ["uri"]}
+                            "required": [
+                                "interface_source"
                             ]
                         }
                     }
@@ -8816,15 +9105,24 @@
                         "properties": {
                             "device_type": {
                                 "not": {
-                                    "enum": ["http_boot", "pxe_boot"]
+                                    "enum": [
+                                        "http_boot",
+                                        "pxe_boot",
+                                        "iscsi_boot",
+                                        "san_boot"
+                                    ]
                                 }
                             }
                         },
-                        "required": ["device_type"]
+                        "required": [
+                            "device_type"
+                        ]
                     },
                     "then": {
                         "not": {
-                            "required": ["ip_type"]
+                            "required": [
+                                "interface_name"
+                            ]
                         }
                     }
                 },
@@ -8833,15 +9131,22 @@
                         "properties": {
                             "device_type": {
                                 "not": {
-                                    "enum": ["local_disk", "pch_storage", "san_boot", "sd_card"]
+                                    "enum": [
+                                        "http_boot",
+                                        "pxe_boot"
+                                    ]
                                 }
                             }
                         },
-                        "required": ["device_type"]
+                        "required": [
+                            "device_type"
+                        ]
                     },
                     "then": {
                         "not": {
-                            "required": ["lun"]
+                            "required": [
+                                "mac_address"
+                            ]
                         }
                     }
                 },
@@ -8850,15 +9155,23 @@
                         "properties": {
                             "device_type": {
                                 "not": {
-                                    "enum": ["http_boot", "iscsi_boot", "local_disk", "pxe_boot", "san_boot"]
+                                    "enum": [
+                                        "http_boot",
+                                        "pxe_boot",
+                                        "iscsi_boot"
+                                    ]
                                 }
                             }
                         },
-                        "required": ["device_type"]
+                        "required": [
+                            "device_type"
+                        ]
                     },
                     "then": {
                         "not": {
-                            "required": ["slot"]
+                            "required": [
+                                "port"
+                            ]
                         }
                     }
                 },
@@ -8867,15 +9180,45 @@
                         "properties": {
                             "device_type": {
                                 "not": {
-                                    "enum": ["flex_mmc", "sd_card", "usb", "virtual_media"]
+                                    "enum": [
+                                        "http_boot"
+                                    ]
                                 }
                             }
                         },
-                        "required": ["device_type"]
+                        "required": [
+                            "device_type"
+                        ]
                     },
                     "then": {
                         "not": {
-                            "required": ["subtype"]
+                            "anyOf": [
+                                {
+                                    "required": [
+                                        "ip_config_type"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "ipv4_config"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "ipv6_config"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "protocol"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "uri"
+                                    ]
+                                }
+                            ]
                         }
                     }
                 },
@@ -8884,15 +9227,22 @@
                         "properties": {
                             "device_type": {
                                 "not": {
-                                    "enum": ["san_boot"]
+                                    "enum": [
+                                        "http_boot",
+                                        "pxe_boot"
+                                    ]
                                 }
                             }
                         },
-                        "required": ["device_type"]
+                        "required": [
+                            "device_type"
+                        ]
                     },
                     "then": {
                         "not": {
-                            "required": ["target_wwpn"]
+                            "required": [
+                                "ip_type"
+                            ]
                         }
                     }
                 },
@@ -8901,15 +9251,129 @@
                         "properties": {
                             "device_type": {
                                 "not": {
-                                    "enum": ["iscsi_boot", "local_disk", "nvme", "pch_storage", "pxe_boot", "san_boot", "sd_card"]
+                                    "enum": [
+                                        "local_disk",
+                                        "pch_storage",
+                                        "san_boot",
+                                        "sd_card"
+                                    ]
                                 }
                             }
                         },
-                        "required": ["device_type"]
+                        "required": [
+                            "device_type"
+                        ]
                     },
                     "then": {
                         "not": {
-                            "required": ["bootloader"]
+                            "required": [
+                                "lun"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": [
+                                        "http_boot",
+                                        "iscsi_boot",
+                                        "local_disk",
+                                        "pxe_boot",
+                                        "san_boot"
+                                    ]
+                                }
+                            }
+                        },
+                        "required": [
+                            "device_type"
+                        ]
+                    },
+                    "then": {
+                        "not": {
+                            "required": [
+                                "slot"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": [
+                                        "flex_mmc",
+                                        "sd_card",
+                                        "usb",
+                                        "virtual_media"
+                                    ]
+                                }
+                            }
+                        },
+                        "required": [
+                            "device_type"
+                        ]
+                    },
+                    "then": {
+                        "not": {
+                            "required": [
+                                "subtype"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": [
+                                        "san_boot"
+                                    ]
+                                }
+                            }
+                        },
+                        "required": [
+                            "device_type"
+                        ]
+                    },
+                    "then": {
+                        "not": {
+                            "required": [
+                                "target_wwpn"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "device_type": {
+                                "not": {
+                                    "enum": [
+                                        "iscsi_boot",
+                                        "local_disk",
+                                        "nvme",
+                                        "pch_storage",
+                                        "pxe_boot",
+                                        "san_boot",
+                                        "sd_card"
+                                    ]
+                                }
+                            }
+                        },
+                        "required": [
+                            "device_type"
+                        ]
+                    },
+                    "then": {
+                        "not": {
+                            "required": [
+                                "bootloader"
+                            ]
                         }
                     }
                 }
@@ -9495,7 +9959,28 @@
                             "$ref": "#/definitions/intersight.drive_security.remote_key_management"
                         }
                     },
-                    "required": [],
+                    "oneOf": [
+                        {
+                            "required": [
+                                "manual_key"
+                            ],
+                            "not": {
+                                "required": [
+                                    "remote_key_management"
+                                ]
+                            }
+                        },
+                        {
+                            "required": [
+                                "remote_key_management"
+                            ],
+                            "not": {
+                                "required": [
+                                    "manual_key"
+                                ]
+                            }
+                        }
+                    ],
                     "title": "drive_security",
                     "type": "object"
                 }
@@ -10054,7 +10539,7 @@
                     "default": 5,
                     "description": "The default value is `5`.  The Class of Service for RoCE on this virtual interface.\n  * `5` - RDMA CoS Service Level 5.\n  * `1` - RDMA CoS Service Level 1.\n  * `2` - RDMA CoS Service Level 2.\n  * `4` - RDMA CoS Service Level 4.\n  * `6` - RDMA CoS Service Level 6.",
                     "intersight_api": "ClassOfService",
-                    "maximum": 64,
+                    "maximum": 6,
                     "minimum": 1,
                     "title": "class_of_service",
                     "type": "integer"
@@ -12456,7 +12941,7 @@
                         },
                         "encryption_key": {
                             "default": 1,
-                            "description": "The default value is `1`.  The Encryption Key Sensitive Variable Identifier.  The encryption key to use for IPMI communication. It should have an even number of hexadecimal characters and not exceed 40 characters. Use \u201c00\u201d to disable encryption key use. This configuration is supported by all standalone rack servers. FI-attached rack servers with firmware at minimum of 4.2.3a support this configuration. FI-attached blade servers with firmware at minimum of 5.1.0.x support this configuration. IPMI commands using this key should append zeroes to the key to achieve a length of 40 characters.  A number Between 1-64 to denote the variables ipmi_key_[1-64].  i.e. `export ipmi_key_1='cisco123'`.",
+                            "description": "The default value is `1`.  The Encryption Key Sensitive Variable Identifier.  The encryption key to use for IPMI communication. It should have an even number of hexadecimal characters and not exceed 40 characters. Use “00” to disable encryption key use. This configuration is supported by all standalone rack servers. FI-attached rack servers with firmware at minimum of 4.2.3a support this configuration. FI-attached blade servers with firmware at minimum of 5.1.0.x support this configuration. IPMI commands using this key should append zeroes to the key to achieve a length of 40 characters.  A number Between 1-64 to denote the variables ipmi_key_[1-64].  i.e. `export ipmi_key_1='cisco123'`.",
                             "intersight_api": "EncryptionKey",
                             "maximum": 64,
                             "minimum": 1,
@@ -13087,23 +13572,38 @@
             "unevaluatedProperties": false
         },
         "intersight.lan_connectivity.vnics": {
+            "allOf": [
+                {
+                    "not": {
+                        "required": [
+                            "sriov",
+                            "usnic"
+                        ]
+                    }
+                },
+                {
+                    "not": {
+                        "required": [
+                            "sriov",
+                            "vmq"
+                        ]
+                    }
+                },
+                {
+                    "not": {
+                        "required": [
+                            "usnic",
+                            "vmq"
+                        ]
+                    }
+                }
+            ],
             "description": "Virtual Ethernet Interface.",
             "intersight_api": "vnics",
             "intersight_type": "policies",
             "intersight_uri": "vnic/EthIfs",
             "object_type": "vnic.EthIf",
             "properties": {
-                "cdn_source": {
-                    "default": "vnic",
-                    "description": "The default value is `vnic`.  Source of the CDN. It can either be user specified or be the same as the vNIC name.\n  * `vnic` - Source of the CDN is the same as the vNIC name.\n  * `user` - Source of the CDN is specified by the user.",
-                    "enum": [
-                        "vnic",
-                        "user"
-                    ],
-                    "intersight_api": "$ref:Cdn:vnic.Cdn:Source",
-                    "title": "cdn_source",
-                    "type": "string"
-                },
                 "cdn_values": {
                     "description": "Only used when cdn_source is `user` (aka user defined).  A List of one or two CDN value(s), one for each vNIC.",
                     "intersight_uri": "$ref:Cdn:vnic.Cdn:Value",
@@ -13120,7 +13620,7 @@
                             "default"
                         ]
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "object_type": "vnic.Cdn",
                     "title": "cdn_values - Cdn Values",
@@ -13293,7 +13793,7 @@
                             "default"
                         ]
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "object_type": "Name",
                     "title": "names - Names",
@@ -13340,14 +13840,25 @@
                 "ethernet_adapter_policy",
                 "ethernet_network_control_policy",
                 "ethernet_qos_policy",
-                "names",
-                "placement"
+                "names"
             ],
             "title": "vnics - Virtual Ethernet Interfaces - Intersight Uri: vnic/EthIfs",
             "type": "object"
         },
         "intersight.lan_connectivity.vnics.placement": {
-            "description": "Placement Settings for the virtual interface.\n\nRequired Attributes:\n  * `pci_order`\n\nOptional Attributes:\n  * `automatic_pci_link_assignment`\n  * `automatic_slot_id_assignment`\n  * `pci_links`\n  * `slot_ids`\n  * `switch_ids`\n  * `uplink_ports`",
+            "anyOf": [
+                {
+                    "required": [
+                        "pci_order"
+                    ]
+                },
+                {
+                    "required": [
+                        "switch_ids"
+                    ]
+                }
+            ],
+            "description": "Placement Settings for the virtual interface.\n\nRequired Attributes:\n  * `pci_order` and/or `switch_ids`\n\nOptional Attributes:\n  * `automatic_pci_link_assignment`\n  * `automatic_slot_id_assignment`\n  * `pci_links`\n  * `slot_ids`\n  * `uplink_ports`",
             "intersight_api": "Placement",
             "object_type": "vnic.PlacementSettings",
             "properties": {
@@ -13377,7 +13888,7 @@
                         "title": "pci_link",
                         "type": "integer"
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "objectType": "PciLink",
                     "title": "pci_links - Pci Link - Object Type: vnic.PlacementSettings",
@@ -13389,14 +13900,14 @@
                     "intersight_api": "Order",
                     "items": {
                         "default": 0,
-                        "description": "The default value is `0`.  PCI Order Assigned to the Interface. The order should start from zero with no overlaps, including LAN and SAN Policies.",
+                        "description": "The default value is `0`.  PCI Order Assigned to the Interface. The order should start from zero with no overlaps, including LAN and SAN Policies for the PCI Link.",
                         "intersight_api": "Order",
                         "maximum": 256,
                         "minimum": 0,
                         "title": "pci_order",
                         "type": "integer"
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "objectType": "Order",
                     "title": "pci_order - Pci Order",
@@ -13419,7 +13930,7 @@
                             ""
                         ]
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "objectType": "Id",
                     "title": "slot_ids - Slot Ids - Object Type: vnic.PlacementSettings",
@@ -13441,7 +13952,7 @@
                         "title": "switch_id",
                         "type": "string"
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "objectType": "SwitchId",
                     "title": "switch_ids - Switch Ids - Object Type: vnic.PlacementSettings",
@@ -13460,7 +13971,7 @@
                         "title": "pci_link",
                         "type": "integer"
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "objectType": "Uplink",
                     "title": "uplink_ports - Uplink Port - Object Type: vnic.PlacementSettings",
@@ -13468,9 +13979,6 @@
                     "uniqueItems": true
                 }
             },
-            "required": [
-                "pci_order"
-            ],
             "title": "placement - Placement Settings - object_type: vnic.PlacementSettings",
             "type": "object"
         },
@@ -13487,13 +13995,6 @@
                     "minimum": 1,
                     "title": "interrupt_count_per_vf",
                     "type": "integer"
-                },
-                "enabled": {
-                    "default": false,
-                    "description": "The default value is `False`.  The default value is `false`.  If enabled, sets Single Root Input Output Virtualization (SR-IOV) on this vNIC.",
-                    "intersight_api": "Enabled",
-                    "title": "enabled",
-                    "type": "boolean"
                 },
                 "interrupt_count_per_vf": {
                     "default": 8,
@@ -13543,6 +14044,15 @@
             "intersight_api": "UsnicSettings",
             "object_type": "vnic.UsnicSettings",
             "properties": {
+                "class_of_service": {
+                    "default": 5,
+                    "description": "The default value is `5`.  The Class of Service for User Space NICs.\n\nNote: Only for Standalone Servers.\n\n  * `0` - CoS Service Level 0.\n  * `1` - CoS Service Level 1.\n  * `2` - CoS Service Level 2.\n  * `3` - CoS Service Level 3.\n  * `4` - CoS Service Level 4.\n  * `5` - CoS Service Level 5.\n  * `6` - CoS Service Level 6.",
+                    "intersight_api": "Cos",
+                    "maximum": 6,
+                    "minimum": 0,
+                    "title": "class_of_service",
+                    "type": "integer"
+                },
                 "number_of_usnics": {
                     "default": 0,
                     "description": "The default value is `0`.  Number of usNIC interfaces to be created. Valid values are 1 to 255 when the usNIC is enabled. When the usNIC is disabled, the default value is `0`.",
@@ -14282,7 +14792,7 @@
                         },
                         "suspend_individual": {
                             "default": false,
-                            "description": "The default value is `False`.  The default value is `false`.  Flag tells the switch whether to suspend the port if it didn\u2019t receive LACP PDU.",
+                            "description": "The default value is `False`.  The default value is `false`.  Flag tells the switch whether to suspend the port if it didn’t receive LACP PDU.",
                             "intersight_api": "SuspendIndividual",
                             "title": "suspend_individual",
                             "type": "boolean"
@@ -15597,7 +16107,7 @@
                     "uniqueItems": true
                 },
                 "bios": {
-                    "description": "A BIOS policy automates the configuration of BIOS settings on servers. You can create one or more BIOS policies that contain a specific grouping of BIOS settings, matching the needs of a server or a set of servers. If you do not specify a BIOS policy for a server, the BIOS settings will default to set of values for a brand new baremetal server or to a set of values previously configured using Cisco IMC. If a BIOS policy is specified, its values replace any previously configured values on the server.\n\nAll BIOS tokens are not applicable to all servers. If unsupported tokens are pushed to a server, those tokens are ignored.\n\nRequired Attributes:\n  * `name`\n\nRecommended Attribute:\n\n  * `bios_template`\n\nOptional Attributes:\n  * `description`\n  * `tags`\n#+++++++++++++++++++++++++++++++\n# Advanced Section\n#+++++++++++++++++++++++++++++++\n  * `latency_optimized_mode`\n#+++++++++++++++++++++++++++++++\n# Boot Options Section\n#+++++++++++++++++++++++++++++++\n  * `boot_option_num_retry`\n  * `boot_option_re_cool_down`\n  * `boot_option_retry`\n  * `ipv4http`\n  * `ipv4pxe`\n  * `ipv6http`\n  * `ipv6pxe`\n  * `network_stack`\n  * `onboard_scu_storage_support`\n  * `onboard_scu_storage_sw_stack`\n  * `pop_support`\n  * `psata`\n  * `sata_mode_select`\n  * `vmd_enable`\n#+++++++++++++++++++++++++++++++\n# Intel Directed IO Section\n#+++++++++++++++++++++++++++++++\n  * `intel_vt_for_directed_io`\n  * `intel_vtd_coherency_support`\n  * `intel_vtd_interrupt_remapping`\n  * `intel_vtd_pass_through_dma_support`\n  * `intel_vtdats_support`\n#+++++++++++++++++++++++++++++++\n# LOM and PCIe Slots Section\n#+++++++++++++++++++++++++++++++\n  * `acs_control_gpu1state`\n  * `acs_control_gpu2state`\n  * `acs_control_gpu3state`\n  * `acs_control_gpu4state`\n  * `acs_control_gpu5state`\n  * `acs_control_gpu6state`\n  * `acs_control_gpu7state`\n  * `acs_control_gpu8state`\n  * `acs_control_slot11state`\n  * `acs_control_slot12state`\n  * `acs_control_slot13state`\n  * `acs_control_slot14state`\n  * `cdn_support`\n  * `edpc_en`\n  * `enable_clock_spread_spec`\n  * `lom_port0state`\n  * `lom_port1state`\n  * `lom_port2state`\n  * `lom_port3state`\n  * `lom_ports_all_state`\n  * `pch_pcie_pll_ssc`\n  * `pci_option_ro_ms`\n  * `pci_rom_clp`\n  * `pcie_ari_support`\n  * `pcie_pll_ssc`\n  * `pcie_slot_mraid1link_speed`\n  * `pcie_slot_mraid1option_rom`\n  * `pcie_slot_mraid2link_speed`\n  * `pcie_slot_mraid2option_rom`\n  * `pcie_slot_mstorraid_link_speed`\n  * `pcie_slot_mstorraid_option_rom`\n  * `pcie_slot_nvme1link_speed`\n  * `pcie_slot_nvme1option_rom`\n  * `pcie_slot_nvme2link_speed`\n  * `pcie_slot_nvme2option_rom`\n  * `pcie_slot_nvme3link_speed`\n  * `pcie_slot_nvme3option_rom`\n  * `pcie_slot_nvme4link_speed`\n  * `pcie_slot_nvme4option_rom`\n  * `pcie_slot_nvme5link_speed`\n  * `pcie_slot_nvme5option_rom`\n  * `pcie_slot_nvme6link_speed`\n  * `pcie_slot_nvme6option_rom`\n  * `slot10link_speed`\n  * `slot10state`\n  * `slot11link_speed`\n  * `slot11state`\n  * `slot12link_speed`\n  * `slot12state`\n  * `slot13state`\n  * `slot14state`\n  * `slot1link_speed`\n  * `slot1state`\n  * `slot2link_speed`\n  * `slot2state`\n  * `slot3link_speed`\n  * `slot3state`\n  * `slot4link_speed`\n  * `slot4state`\n  * `slot5link_speed`\n  * `slot5state`\n  * `slot6link_speed`\n  * `slot6state`\n  * `slot7link_speed`\n  * `slot7state`\n  * `slot8link_speed`\n  * `slot8state`\n  * `slot9link_speed`\n  * `slot9state`\n  * `slot_flom_link_speed`\n  * `slot_front_nvme1link_speed`\n  * `slot_front_nvme2link_speed`\n  * `slot_front_nvme2option_rom`\n  * `slot_front_nvme3link_speed`\n  * `slot_front_nvme3option_rom`\n  * `slot_front_nvme4link_speed`\n  * `slot_front_nvme4option_rom`\n  * `slot_front_nvme5link_speed`\n  * `slot_front_nvme5option_rom`\n  * `slot_front_nvme6link_speed`\n  * `slot_front_nvme6option_rom`\n  * `slot_front_nvme7link_speed`\n  * `slot_front_nvme7option_rom`\n  * `slot_front_nvme8link_speed`\n  * `slot_front_nvme8option_rom`\n  * `slot_front_nvme9link_speed`\n  * `slot_front_nvme9option_rom`\n  * `slot_front_nvme1option_rom`\n  * `slot_front_nvme10link_speed`\n  * `slot_front_nvme10option_rom`\n  * `slot_front_nvme11link_speed`\n  * `slot_front_nvme11option_rom`\n  * `slot_front_nvme12link_speed`\n  * `slot_front_nvme12option_rom`\n  * `slot_front_nvme13link_speed`\n  * `slot_front_nvme13option_rom`\n  * `slot_front_nvme14link_speed`\n  * `slot_front_nvme14option_rom`\n  * `slot_front_nvme15link_speed`\n  * `slot_front_nvme15option_rom`\n  * `slot_front_nvme16link_speed`\n  * `slot_front_nvme16option_rom`\n  * `slot_front_nvme17link_speed`\n  * `slot_front_nvme17option_rom`\n  * `slot_front_nvme18link_speed`\n  * `slot_front_nvme18option_rom`\n  * `slot_front_nvme19link_speed`\n  * `slot_front_nvme19option_rom`\n  * `slot_front_nvme20link_speed`\n  * `slot_front_nvme20option_rom`\n  * `slot_front_nvme21link_speed`\n  * `slot_front_nvme21option_rom`\n  * `slot_front_nvme22link_speed`\n  * `slot_front_nvme22option_rom`\n  * `slot_front_nvme23link_speed`\n  * `slot_front_nvme23option_rom`\n  * `slot_front_nvme24link_speed`\n  * `slot_front_nvme24option_rom`\n  * `slot_front_nvme25link_speed`\n  * `slot_front_nvme25option_rom`\n  * `slot_front_nvme26link_speed`\n  * `slot_front_nvme26option_rom`\n  * `slot_front_nvme27link_speed`\n  * `slot_front_nvme27option_rom`\n  * `slot_front_nvme28link_speed`\n  * `slot_front_nvme28option_rom`\n  * `slot_front_nvme29link_speed`\n  * `slot_front_nvme29option_rom`\n  * `slot_front_nvme30link_speed`\n  * `slot_front_nvme30option_rom`\n  * `slot_front_nvme31link_speed`\n  * `slot_front_nvme31option_rom`\n  * `slot_front_nvme32link_speed`\n  * `slot_front_nvme32option_rom`\n  * `slot_front_slot5link_speed`\n  * `slot_front_slot6link_speed`\n  * `slot_gpu1state`\n  * `slot_gpu2state`\n  * `slot_gpu3state`\n  * `slot_gpu4state`\n  * `slot_gpu5state`\n  * `slot_gpu6state`\n  * `slot_gpu7state`\n  * `slot_gpu8state`\n  * `slot_hba_link_speed`\n  * `slot_hba_state`\n  * `slot_lom1link`\n  * `slot_lom2link`\n  * `slot_mezz_state`\n  * `slot_mlom_link_speed`\n  * `slot_mlom_state`\n  * `slot_mraid_link_speed`\n  * `slot_mraid_state`\n  * `slot_n10state`\n  * `slot_n11state`\n  * `slot_n12state`\n  * `slot_n13state`\n  * `slot_n14state`\n  * `slot_n15state`\n  * `slot_n16state`\n  * `slot_n17state`\n  * `slot_n18state`\n  * `slot_n19state`\n  * `slot_n1state`\n  * `slot_n20state`\n  * `slot_n21state`\n  * `slot_n22state`\n  * `slot_n23state`\n  * `slot_n24state`\n  * `slot_n2state`\n  * `slot_n3state`\n  * `slot_n4state`\n  * `slot_n5state`\n  * `slot_n6state`\n  * `slot_n7state`\n  * `slot_n8state`\n  * `slot_n9state`\n  * `slot_raid_link_speed`\n  * `slot_raid_state`\n  * `slot_rear_nvme1link_speed`\n  * `slot_rear_nvme1state`\n  * `slot_rear_nvme2link_speed`\n  * `slot_rear_nvme2state`\n  * `slot_rear_nvme3link_speed`\n  * `slot_rear_nvme3state`\n  * `slot_rear_nvme4link_speed`\n  * `slot_rear_nvme4state`\n  * `slot_rear_nvme5state`\n  * `slot_rear_nvme6state`\n  * `slot_rear_nvme7state`\n  * `slot_rear_nvme8state`\n  * `slot_riser1link_speed`\n  * `slot_riser1slot1link_speed`\n  * `slot_riser1slot2link_speed`\n  * `slot_riser1slot3link_speed`\n  * `slot_riser2link_speed`\n  * `slot_riser2slot4link_speed`\n  * `slot_riser2slot5link_speed`\n  * `slot_riser2slot6link_speed`\n  * `slot_sas_state`\n  * `slot_ssd_slot1link_speed`\n  * `slot_ssd_slot2link_speed`\n#+++++++++++++++++++++++++++++++\n# Main Section\n#+++++++++++++++++++++++++++++++\n  * `gpu_direct_cpu1`\n  * `gpu_direct_cpu2`\n  * `gpu_direct_cpu3`\n  * `gpu_direct_cpu4`\n  * `pcie_slots_cdn_enable`\n  * `post_error_pause`\n  * `tpm_support`\n#+++++++++++++++++++++++++++++++\n# Memory Section\n#+++++++++++++++++++++++++++++++\n  * `acpi_srat_sp_flag_en`\n  * `adaptive_refresh_mgmt_level`\n  * `advanced_mem_test`\n  * `bme_dma_mitigation`\n  * `burst_and_postponed_refresh`\n  * `cbs_cmn_cpu_sev_asid_space_limit`\n  * `cbs_cmn_cpu_smee`\n  * `cbs_cmn_gnb_nb_iommu`\n  * `cbs_cmn_mem_ctrl_bank_group_swap_ddr4`\n  * `cbs_cmn_mem_map_bank_interleave_ddr4`\n  * `cbs_cmn_mem_speed_ddr47xx2`\n  * `cbs_cmn_mem_speed_ddr47xx3`\n  * `cbs_dbg_cpu_snp_mem_cover`\n  * `cbs_dbg_cpu_snp_mem_size_cover`\n  * `cbs_df_cmn4link_max_xgmi_speed`\n  * `cbs_df_cmn_dram_nps`\n  * `cbs_df_cmn_dram_scrub_time`\n  * `cbs_df_cmn_mem_intlv`\n  * `cbs_df_cmn_mem_intlv_control`\n  * `cbs_df_cmn_mem_intlv_size`\n  * `cbs_gnb_dbg_pcie_tbt_support`\n  * `cbs_sev_snp_support`\n  * `cke_low_policy`\n  * `cr_qos`\n  * `crfastgo_config`\n  * `dcpmm_firmware_downgrade`\n  * `dram_refresh_rate`\n  * `dram_sw_thermal_throttling`\n  * `eadr_support`\n  * `enable_rmt`\n  * `error_check_scrub`\n  * `lv_ddr_mode`\n  * `memory_bandwidth_boost`\n  * `memory_refresh_rate`\n  * `memory_size_limit`\n  * `memory_thermal_throttling`\n  * `mirroring_mode`\n  * `mmioh_base`\n  * `mmioh_size`\n  * `numa_optimized`\n  * `nvmdimm_perform_config`\n  * `operation_mode`\n  * `panic_high_watermark`\n  * `partial_cache_line_sparing`\n  * `partial_mirror_mode_config`\n  * `partial_mirror_percent`\n  * `partial_mirror_value1`\n  * `partial_mirror_value2`\n  * `partial_mirror_value3`\n  * `partial_mirror_value4`\n  * `pc_ie_ras_support`\n  * `pre_boot_dma_protection`\n  * `post_package_repair`\n  * `runtime_post_package_repair`\n  * `select_memory_ras_configuration`\n  * `select_ppr_type`\n  * `sev`\n  * `smee`\n  * `snoopy_mode_for2lm`\n  * `snoopy_mode_for_ad`\n  * `sparing_mode`\n  * `tsme`\n  * `uefi_mem_map_sp_flag_en`\n  * `uma_based_clustering`\n  * `vol_memory_mode`\n#+++++++++++++++++++++++++++++++\n# PCI Section\n#+++++++++++++++++++++++++++++++\n  * `aspm_support`\n  * `ioh_resource`\n  * `memory_mapped_io_above4gb`\n  * `mmcfg_base`\n  * `onboard10gbit_lom`\n  * `onboard_gbit_lom`\n  * `pc_ie_ssd_hot_plug_support`\n  * `resize_bar_support`\n  * `sr_iov`\n  * `vga_priority`\n#+++++++++++++++++++++++++++++++\n# Power and Performance Section\n#+++++++++++++++++++++++++++++++\n  * `c1auto_demotion`\n  * `c1auto_un_demotion`\n  * `cbs_cmn_cpu_cpb`\n  * `cbs_cmn_cpu_global_cstate_ctrl`\n  * `cbs_cmn_cpu_l1stream_hw_prefetcher`\n  * `cbs_cmn_cpu_l2stream_hw_prefetcher`\n  * `cbs_cmn_determinism_slider`\n  * `cbs_cmn_efficiency_mode_en`\n  * `cbs_cmn_efficiency_mode_en_rs`\n  * `cbs_cmn_gnb_smucppc`\n  * `cbs_cmnc_tdp_ctl`\n  * `cpu_perf_enhancement`\n  * `llc_alloc`\n  * `optimized_power_mode`\n  * `upi_link_enablement`\n  * `upi_power_management`\n  * `virtual_numa`\n  * `x2apic_opt_out`\n  * `xpt_remote_prefetch`\n#+++++++++++++++++++++++++++++++\n# Processor Section\n#+++++++++++++++++++++++++++++++\n  * `adjacent_cache_line_prefetch`\n  * `altitude`\n  * `auto_cc_state`\n  * `autonumous_cstate_enable`\n  * `boot_performance_mode`\n  * `cbs_cmn_apbdis`\n  * `cbs_cmn_apbdis_df_pstate_rs`\n  * `cbs_cmn_cpu_avx512`\n  * `cbs_cmn_cpu_gen_downcore_ctrl`\n  * `cbs_cmn_cpu_streaming_stores_ctrl`\n  * `cbs_cmn_edc_control_throttle`\n  * `cbs_cmn_fixed_soc_pstate`\n  * `cbs_cmn_gnb_smu_df_cstates`\n  * `cbs_cmn_gnb_smu_dffo_rs`\n  * `cbs_cmn_gnb_smu_dlwm_support`\n  * `cbs_cmn_mem_ctrller_pwr_dn_en_ddr`\n  * `cbs_cmn_preferred_io7xx2`\n  * `cbs_cmn_preferred_io7xx3`\n  * `cbs_cmnx_gmi_force_link_width_rs`\n  * `cbs_cpu_ccd_ctrl_ssp`\n  * `cbs_cpu_core_ctrl`\n  * `cbs_cpu_down_core_ctrl_bergamo`\n  * `cbs_cpu_down_core_ctrl_genoa`\n  * `cbs_cpu_smt_ctrl`\n  * `cbs_dbg_cpu_gen_cpu_wdt`\n  * `cbs_dbg_cpu_lapic_mode`\n  * `cbs_df_cmn_acpi_srat_l3numa`\n  * `cbs_df_dbg_xgmi_link_cfg`\n  * `channel_inter_leave`\n  * `cisco_xgmi_max_speed`\n  * `closed_loop_therm_throtl`\n  * `cmci_enable`\n  * `config_tdp`\n  * `config_tdp_level`\n  * `core_multi_processing`\n  * `cpu_energy_performance`\n  * `cpu_frequency_floor`\n  * `cpu_performance`\n  * `cpu_power_management`\n  * `demand_scrub`\n  * `dfx_osb_en`\n  * `direct_cache_access`\n  * `dram_clock_throttling`\n  * `energy_efficient_turbo`\n  * `eng_perf_tuning`\n  * `enhanced_intel_speed_step_tech`\n  * `epp_enable`\n  * `epp_profile`\n  * `execute_disable_bit`\n  * `extended_apic`\n  * `hardware_prefetch`\n  * `hwpm_enable`\n  * `imc_interleave`\n  * `intel_dynamic_speed_select`\n  * `intel_hyper_threading_tech`\n  * `intel_speed_select`\n  * `intel_turbo_boost_tech`\n  * `intel_virtualization_technology`\n  * `ioat_config_cpm`\n  * `ioh_error_enable`\n  * `ip_prefetch`\n  * `kti_prefetch`\n  * `llc_prefetch`\n  * `memory_inter_leave`\n  * `package_cstate_limit`\n  * `patrol_scrub`\n  * `patrol_scrub_duration`\n  * `prmrr_size`\n  * `processor_c1e`\n  * `processor_c3report`\n  * `processor_c6report`\n  * `processor_cstate`\n  * `pstate_coord_type`\n  * `pwr_perf_tuning`\n  * `qpi_link_speed`\n  * `rank_inter_leave`\n  * `single_pctl_enable`\n  * `smt_mode`\n  * `snc`\n  * `streamer_prefetch`\n  * `svm_mode`\n  * `ufs_disable`\n  * `ufs_disable_io`\n  * `work_load_config`\n  * `xpt_prefetch`\n#+++++++++++++++++++++++++++++++\n# QPI Section\n#+++++++++++++++++++++++++++++++\n  * `qpi_link_frequency`\n  * `qpi_snoop_mode`\n#+++++++++++++++++++++++++++++++\n# Security Section\n#+++++++++++++++++++++++++++++++\n  * `enable_tdx`\n  * `enable_tdx_seamldr`\n#+++++++++++++++++++++++++++++++\n# Serial Port Section\n#+++++++++++++++++++++++++++++++\n  * `serial_port_aenable`\n#+++++++++++++++++++++++++++++++\n# Server Management Section\n#+++++++++++++++++++++++++++++++\n  * `assert_nmi_on_perr`\n  * `assert_nmi_on_serr`\n  * `baud_rate`\n  * `cdn_enable`\n  * `cisco_adaptive_mem_training`\n  * `cisco_debug_level`\n  * `cisco_oprom_launch_optimization`\n  * `console_redirection`\n  * `flow_control`\n  * `frb2enable`\n  * `legacy_os_redirection`\n  * `os_boot_watchdog_timer`\n  * `os_boot_watchdog_timer_policy`\n  * `os_boot_watchdog_timer_timeout`\n  * `out_of_band_mgmt_port`\n  * `putty_key_pad`\n  * `redirection_after_post`\n  * `serial_mux`\n  * `terminal_type`\n  * `ucsm_boot_order_rule`\n#+++++++++++++++++++++++++++++++\n# Trusted Platform Section\n#+++++++++++++++++++++++++++++++\n  * `cpu_pa_limit`\n  * `enable_mktme`\n  * `dma_ctrl_opt_in`\n  * `enable_sgx`\n  * `enable_tme`\n  * `epoch_update`\n  * `sgx_auto_registration_agent`\n  * `sgx_epoch0`\n  * `sgx_epoch1`\n  * `sgx_factory_reset`\n  * `sgx_le_pub_key_hash0`\n  * `sgx_le_pub_key_hash1`\n  * `sgx_le_pub_key_hash2`\n  * `sgx_le_pub_key_hash3`\n  * `sgx_le_wr`\n  * `sgx_package_info_in_band_access`\n  * `sgx_qos`\n  * `sha1pcr_bank`\n  * `sha256pcr_bank`\n  * `sha384pcr_bank`\n  * `tpm_control`\n  * `tpm_pending_operation`\n  * `tpm_ppi_required`\n  * `txt_support`\n#+++++++++++++++++++++++++++++++\n# USB Section\n#+++++++++++++++++++++++++++++++\n  * `all_usb_devices`\n  * `legacy_usb_support`\n  * `make_device_non_bootable`\n  * `pch_usb30mode`\n  * `usb_emul6064`\n  * `usb_port_front`\n  * `usb_port_internal`\n  * `usb_port_kvm`\n  * `usb_port_rear`\n  * `usb_port_sd_card`\n  * `usb_port_vmedia`\n  * `usb_xhci_support`",
+                    "description": "A BIOS policy automates the configuration of BIOS settings on servers. You can create one or more BIOS policies that contain a specific grouping of BIOS settings, matching the needs of a server or a set of servers. If you do not specify a BIOS policy for a server, the BIOS settings will default to set of values for a brand new baremetal server or to a set of values previously configured using Cisco IMC. If a BIOS policy is specified, its values replace any previously configured values on the server.\n\nAll BIOS tokens are not applicable to all servers. If unsupported tokens are pushed to a server, those tokens are ignored.\n\nRequired Attributes:\n  * `name`\n\nRecommended Attribute:\n\n  * `bios_template`\n\nOptional Attributes:\n  * `description`\n  * `tags`\n#+++++++++++++++++++++++++++++++\n# Advanced Section\n#+++++++++++++++++++++++++++++++\n  * `latency_optimized_mode`\n#+++++++++++++++++++++++++++++++\n# Boot Options Section\n#+++++++++++++++++++++++++++++++\n  * `boot_option_num_retry`\n  * `boot_option_re_cool_down`\n  * `boot_option_retry`\n  * `ipv4http`\n  * `ipv4pxe`\n  * `ipv6http`\n  * `ipv6pxe`\n  * `network_stack`\n  * `onboard_scu_storage_support`\n  * `onboard_scu_storage_sw_stack`\n  * `pop_support`\n  * `psata`\n  * `sata_mode_select`\n  * `vmd_enable`\n#+++++++++++++++++++++++++++++++\n# Intel Directed IO Section\n#+++++++++++++++++++++++++++++++\n  * `intel_vt_for_directed_io`\n  * `intel_vtd_coherency_support`\n  * `intel_vtd_interrupt_remapping`\n  * `intel_vtd_pass_through_dma_support`\n  * `intel_vtdats_support`\n#+++++++++++++++++++++++++++++++\n# LOM and PCIe Slots Section\n#+++++++++++++++++++++++++++++++\n  * `acs_control_gpu1state`\n  * `acs_control_gpu2state`\n  * `acs_control_gpu3state`\n  * `acs_control_gpu4state`\n  * `acs_control_gpu5state`\n  * `acs_control_gpu6state`\n  * `acs_control_gpu7state`\n  * `acs_control_gpu8state`\n  * `acs_control_slot11state`\n  * `acs_control_slot12state`\n  * `acs_control_slot13state`\n  * `acs_control_slot14state`\n  * `cdn_support`\n  * `edpc_en`\n  * `enable_clock_spread_spec`\n  * `lom_port0state`\n  * `lom_port1state`\n  * `lom_port2state`\n  * `lom_port3state`\n  * `lom_ports_all_state`\n  * `pch_pcie_pll_ssc`\n  * `pci_option_ro_ms`\n  * `pci_rom_clp`\n  * `pcie_ari_support`\n  * `pcie_pll_ssc`\n  * `pcie_slot_mraid1link_speed`\n  * `pcie_slot_mraid1option_rom`\n  * `pcie_slot_mraid2link_speed`\n  * `pcie_slot_mraid2option_rom`\n  * `pcie_slot_mstorraid_link_speed`\n  * `pcie_slot_mstorraid_option_rom`\n  * `pcie_slot_nvme1link_speed`\n  * `pcie_slot_nvme1option_rom`\n  * `pcie_slot_nvme2link_speed`\n  * `pcie_slot_nvme2option_rom`\n  * `pcie_slot_nvme3link_speed`\n  * `pcie_slot_nvme3option_rom`\n  * `pcie_slot_nvme4link_speed`\n  * `pcie_slot_nvme4option_rom`\n  * `pcie_slot_nvme5link_speed`\n  * `pcie_slot_nvme5option_rom`\n  * `pcie_slot_nvme6link_speed`\n  * `pcie_slot_nvme6option_rom`\n  * `slot10link_speed`\n  * `slot10state`\n  * `slot11link_speed`\n  * `slot11state`\n  * `slot12link_speed`\n  * `slot12state`\n  * `slot13state`\n  * `slot14state`\n  * `slot1link_speed`\n  * `slot1state`\n  * `slot2link_speed`\n  * `slot2state`\n  * `slot3link_speed`\n  * `slot3state`\n  * `slot4link_speed`\n  * `slot4state`\n  * `slot5link_speed`\n  * `slot5state`\n  * `slot6link_speed`\n  * `slot6state`\n  * `slot7link_speed`\n  * `slot7state`\n  * `slot8link_speed`\n  * `slot8state`\n  * `slot9link_speed`\n  * `slot9state`\n  * `slot_flom_link_speed`\n  * `slot_front_nvme1link_speed`\n  * `slot_front_nvme2link_speed`\n  * `slot_front_nvme2option_rom`\n  * `slot_front_nvme3link_speed`\n  * `slot_front_nvme3option_rom`\n  * `slot_front_nvme4link_speed`\n  * `slot_front_nvme4option_rom`\n  * `slot_front_nvme5link_speed`\n  * `slot_front_nvme5option_rom`\n  * `slot_front_nvme6link_speed`\n  * `slot_front_nvme6option_rom`\n  * `slot_front_nvme7link_speed`\n  * `slot_front_nvme7option_rom`\n  * `slot_front_nvme8link_speed`\n  * `slot_front_nvme8option_rom`\n  * `slot_front_nvme9link_speed`\n  * `slot_front_nvme9option_rom`\n  * `slot_front_nvme1option_rom`\n  * `slot_front_nvme10link_speed`\n  * `slot_front_nvme10option_rom`\n  * `slot_front_nvme11link_speed`\n  * `slot_front_nvme11option_rom`\n  * `slot_front_nvme12link_speed`\n  * `slot_front_nvme12option_rom`\n  * `slot_front_nvme13link_speed`\n  * `slot_front_nvme13option_rom`\n  * `slot_front_nvme14link_speed`\n  * `slot_front_nvme14option_rom`\n  * `slot_front_nvme15link_speed`\n  * `slot_front_nvme15option_rom`\n  * `slot_front_nvme16link_speed`\n  * `slot_front_nvme16option_rom`\n  * `slot_front_nvme17link_speed`\n  * `slot_front_nvme17option_rom`\n  * `slot_front_nvme18link_speed`\n  * `slot_front_nvme18option_rom`\n  * `slot_front_nvme19link_speed`\n  * `slot_front_nvme19option_rom`\n  * `slot_front_nvme20link_speed`\n  * `slot_front_nvme20option_rom`\n  * `slot_front_nvme21link_speed`\n  * `slot_front_nvme21option_rom`\n  * `slot_front_nvme22link_speed`\n  * `slot_front_nvme22option_rom`\n  * `slot_front_nvme23link_speed`\n  * `slot_front_nvme23option_rom`\n  * `slot_front_nvme24link_speed`\n  * `slot_front_nvme24option_rom`\n  * `slot_front_nvme25link_speed`\n  * `slot_front_nvme25option_rom`\n  * `slot_front_nvme26link_speed`\n  * `slot_front_nvme26option_rom`\n  * `slot_front_nvme27link_speed`\n  * `slot_front_nvme27option_rom`\n  * `slot_front_nvme28link_speed`\n  * `slot_front_nvme28option_rom`\n  * `slot_front_nvme29link_speed`\n  * `slot_front_nvme29option_rom`\n  * `slot_front_nvme30link_speed`\n  * `slot_front_nvme30option_rom`\n  * `slot_front_nvme31link_speed`\n  * `slot_front_nvme31option_rom`\n  * `slot_front_nvme32link_speed`\n  * `slot_front_nvme32option_rom`\n  * `slot_front_slot5link_speed`\n  * `slot_front_slot6link_speed`\n  * `slot_gpu1state`\n  * `slot_gpu2state`\n  * `slot_gpu3state`\n  * `slot_gpu4state`\n  * `slot_gpu5state`\n  * `slot_gpu6state`\n  * `slot_gpu7state`\n  * `slot_gpu8state`\n  * `slot_hba_link_speed`\n  * `slot_hba_state`\n  * `slot_lom1link`\n  * `slot_lom2link`\n  * `slot_mezz_state`\n  * `slot_mlom_link_speed`\n  * `slot_mlom_state`\n  * `slot_mraid_link_speed`\n  * `slot_mraid_state`\n  * `slot_n10state`\n  * `slot_n11state`\n  * `slot_n12state`\n  * `slot_n13state`\n  * `slot_n14state`\n  * `slot_n15state`\n  * `slot_n16state`\n  * `slot_n17state`\n  * `slot_n18state`\n  * `slot_n19state`\n  * `slot_n1state`\n  * `slot_n20state`\n  * `slot_n21state`\n  * `slot_n22state`\n  * `slot_n23state`\n  * `slot_n24state`\n  * `slot_n2state`\n  * `slot_n3state`\n  * `slot_n4state`\n  * `slot_n5state`\n  * `slot_n6state`\n  * `slot_n7state`\n  * `slot_n8state`\n  * `slot_n9state`\n  * `slot_raid_link_speed`\n  * `slot_raid_state`\n  * `slot_rear_nvme1link_speed`\n  * `slot_rear_nvme1state`\n  * `slot_rear_nvme2link_speed`\n  * `slot_rear_nvme2state`\n  * `slot_rear_nvme3link_speed`\n  * `slot_rear_nvme3state`\n  * `slot_rear_nvme4link_speed`\n  * `slot_rear_nvme4state`\n  * `slot_rear_nvme5state`\n  * `slot_rear_nvme6state`\n  * `slot_rear_nvme7state`\n  * `slot_rear_nvme8state`\n  * `slot_riser1link_speed`\n  * `slot_riser1slot1link_speed`\n  * `slot_riser1slot2link_speed`\n  * `slot_riser1slot3link_speed`\n  * `slot_riser2link_speed`\n  * `slot_riser2slot4link_speed`\n  * `slot_riser2slot5link_speed`\n  * `slot_riser2slot6link_speed`\n  * `slot_sas_state`\n  * `slot_ssd_slot1link_speed`\n  * `slot_ssd_slot2link_speed`\n#+++++++++++++++++++++++++++++++\n# Main Section\n#+++++++++++++++++++++++++++++++\n  * `gpu_direct_cpu1`\n  * `gpu_direct_cpu2`\n  * `gpu_direct_cpu3`\n  * `gpu_direct_cpu4`\n  * `pcie_slots_cdn_enable`\n  * `post_error_pause`\n  * `tpm_support`\n#+++++++++++++++++++++++++++++++\n# Memory Section\n#+++++++++++++++++++++++++++++++\n  * `acpi_srat_sp_flag_en`\n  * `adaptive_refresh_mgmt_level`\n  * `advanced_mem_test`\n  * `bme_dma_mitigation`\n  * `burst_and_postponed_refresh`\n  * `cbs_cmn_cpu_sev_asid_space_limit`\n  * `cbs_cmn_cpu_smee`\n  * `cbs_cmn_gnb_nb_iommu`\n  * `cbs_cmn_mem_ctrl_bank_group_swap_ddr4`\n  * `cbs_cmn_mem_map_bank_interleave_ddr4`\n  * `cbs_cmn_mem_speed_ddr47xx2`\n  * `cbs_cmn_mem_speed_ddr47xx3`\n  * `cbs_dbg_cpu_snp_mem_cover`\n  * `cbs_dbg_cpu_snp_mem_size_cover`\n  * `cbs_df_cmn4link_max_xgmi_speed`\n  * `cbs_df_cmn_dram_nps`\n  * `cbs_df_cmn_dram_scrub_time`\n  * `cbs_df_cmn_mem_intlv`\n  * `cbs_df_cmn_mem_intlv_control`\n  * `cbs_df_cmn_mem_intlv_size`\n  * `cbs_gnb_dbg_pcie_tbt_support`\n  * `cbs_sev_snp_support`\n  * `cke_low_policy`\n  * `cr_qos`\n  * `crfastgo_config`\n  * `dcpmm_firmware_downgrade`\n  * `dram_refresh_rate`\n  * `dram_sw_thermal_throttling`\n  * `eadr_support`\n  * `enable_rmt`\n  * `error_check_scrub`\n  * `lv_ddr_mode`\n  * `memory_bandwidth_boost`\n  * `memory_refresh_rate`\n  * `memory_size_limit`\n  * `memory_thermal_throttling`\n  * `mirroring_mode`\n  * `mmioh_base`\n  * `mmioh_size`\n  * `numa_optimized`\n  * `nvmdimm_perform_config`\n  * `operation_mode`\n  * `panic_high_watermark`\n  * `partial_cache_line_sparing`\n  * `partial_mirror_mode_config`\n  * `partial_mirror_percent`\n  * `partial_mirror_value1`\n  * `partial_mirror_value2`\n  * `partial_mirror_value3`\n  * `partial_mirror_value4`\n  * `pc_ie_ras_support`\n  * `pre_boot_dma_protection`\n  * `post_package_repair`\n  * `runtime_post_package_repair`\n  * `select_memory_ras_configuration`\n  * `select_ppr_type`\n  * `sev`\n  * `smee`\n  * `snoopy_mode_for2lm`\n  * `snoopy_mode_for_ad`\n  * `sparing_mode`\n  * `tsme`\n  * `uefi_mem_map_sp_flag_en`\n  * `uma_based_clustering`\n  * `vol_memory_mode`\n#+++++++++++++++++++++++++++++++\n# PCI Section\n#+++++++++++++++++++++++++++++++\n  * `aspm_support`\n  * `ioh_resource`\n  * `memory_mapped_io_above4gb`\n  * `mmcfg_base`\n  * `onboard10gbit_lom`\n  * `onboard_gbit_lom`\n  * `pc_ie_ssd_hot_plug_support`\n  * `resize_bar_support`\n  * `sr_iov`\n  * `vga_priority`\n#+++++++++++++++++++++++++++++++\n# Power and Performance Section\n#+++++++++++++++++++++++++++++++\n  * `c1auto_demotion`\n  * `c1auto_un_demotion`\n  * `cbs_cmn_cpu_cpb`\n  * `cbs_cmn_cpu_global_cstate_ctrl`\n  * `cbs_cmn_cpu_l1stream_hw_prefetcher`\n  * `cbs_cmn_cpu_l2stream_hw_prefetcher`\n  * `cbs_cmn_determinism_slider`\n  * `cbs_cmn_efficiency_mode_en`\n  * `cbs_cmn_efficiency_mode_en_rs`\n  * `cbs_cmn_gnb_smucppc`\n  * `cbs_cmnc_tdp_ctl`\n  * `cpu_perf_enhancement`\n  * `llc_alloc`\n  * `optimized_power_mode`\n  * `upi_link_enablement`\n  * `upi_power_management`\n  * `virtual_numa`\n  * `x2apic_opt_out`\n  * `xpt_remote_prefetch`\n#+++++++++++++++++++++++++++++++\n# Processor Section\n#+++++++++++++++++++++++++++++++\n  * `adjacent_cache_line_prefetch`\n  * `altitude`\n  * `auto_cc_state`\n  * `autonumous_cstate_enable`\n  * `boot_performance_mode`\n  * `cbs_cmn_apbdis`\n  * `cbs_cmn_apbdis_df_pstate_rs`\n  * `cbs_cmn_cpu_avx512`\n  * `cbs_cmn_cpu_frequency_control`\n  * `cbs_cmn_cpu_gen_downcore_ctrl`\n  * `cbs_cmn_cpu_streaming_stores_ctrl`\n  * `cbs_cmn_edc_control_throttle`\n  * `cbs_cmn_fixed_soc_pstate`\n  * `cbs_cmn_gnb_smu_df_cstates`\n  * `cbs_cmn_gnb_smu_dffo_rs`\n  * `cbs_cmn_gnb_smu_dlwm_support`\n  * `cbs_cmn_mem_ctrller_pwr_dn_en_ddr`\n  * `cbs_cmn_preferred_io7xx2`\n  * `cbs_cmn_preferred_io7xx3`\n  * `cbs_cmnx_gmi_force_link_width_rs`\n  * `cbs_cpu_ccd_ctrl_ssp`\n  * `cbs_cpu_core_ctrl`\n  * `cbs_cpu_down_core_ctrl_bergamo`\n  * `cbs_cpu_down_core_ctrl_genoa`\n  * `cbs_cpu_smt_ctrl`\n  * `cbs_dbg_cpu_gen_cpu_wdt`\n  * `cbs_dbg_cpu_lapic_mode`\n  * `cbs_df_cmn_acpi_srat_l3numa`\n  * `cbs_df_dbg_xgmi_link_cfg`\n  * `channel_inter_leave`\n  * `cisco_xgmi_max_speed`\n  * `closed_loop_therm_throtl`\n  * `cmci_enable`\n  * `config_tdp`\n  * `config_tdp_level`\n  * `core_multi_processing`\n  * `cpu_energy_performance`\n  * `cpu_frequency_floor`\n  * `cpu_performance`\n  * `cpu_power_management`\n  * `demand_scrub`\n  * `dfx_osb_en`\n  * `direct_cache_access`\n  * `dram_clock_throttling`\n  * `energy_efficient_turbo`\n  * `eng_perf_tuning`\n  * `enhanced_intel_speed_step_tech`\n  * `epp_enable`\n  * `epp_profile`\n  * `execute_disable_bit`\n  * `extended_apic`\n  * `hardware_prefetch`\n  * `hwpm_enable`\n  * `imc_interleave`\n  * `intel_dynamic_speed_select`\n  * `intel_hyper_threading_tech`\n  * `intel_speed_select`\n  * `intel_turbo_boost_tech`\n  * `intel_virtualization_technology`\n  * `ioat_config_cpm`\n  * `ioh_error_enable`\n  * `ip_prefetch`\n  * `kti_prefetch`\n  * `llc_prefetch`\n  * `memory_inter_leave`\n  * `package_cstate_limit`\n  * `patrol_scrub`\n  * `patrol_scrub_duration`\n  * `prmrr_size`\n  * `processor_c1e`\n  * `processor_c3report`\n  * `processor_c6report`\n  * `processor_cstate`\n  * `pstate_coord_type`\n  * `pwr_perf_tuning`\n  * `qpi_link_speed`\n  * `rank_inter_leave`\n  * `single_pctl_enable`\n  * `smt_mode`\n  * `snc`\n  * `speculative_lock_enable`\n  * `streamer_prefetch`\n  * `svm_mode`\n  * `ufs_disable`\n  * `ufs_disable_io`\n  * `work_load_config`\n  * `xpt_prefetch`\n#+++++++++++++++++++++++++++++++\n# QPI Section\n#+++++++++++++++++++++++++++++++\n  * `qpi_link_frequency`\n  * `qpi_snoop_mode`\n#+++++++++++++++++++++++++++++++\n# Security Section\n#+++++++++++++++++++++++++++++++\n  * `enable_tdx`\n  * `enable_tdx_seamldr`\n#+++++++++++++++++++++++++++++++\n# Serial Port Section\n#+++++++++++++++++++++++++++++++\n  * `serial_port_aenable`\n#+++++++++++++++++++++++++++++++\n# Server Management Section\n#+++++++++++++++++++++++++++++++\n  * `assert_nmi_on_perr`\n  * `assert_nmi_on_serr`\n  * `baud_rate`\n  * `cdn_enable`\n  * `cisco_adaptive_mem_training`\n  * `cisco_debug_level`\n  * `cisco_oprom_launch_optimization`\n  * `console_redirection`\n  * `flow_control`\n  * `frb2enable`\n  * `legacy_os_redirection`\n  * `os_boot_watchdog_timer`\n  * `os_boot_watchdog_timer_policy`\n  * `os_boot_watchdog_timer_timeout`\n  * `out_of_band_mgmt_port`\n  * `putty_key_pad`\n  * `redirection_after_post`\n  * `serial_mux`\n  * `terminal_type`\n  * `ucsm_boot_order_rule`\n#+++++++++++++++++++++++++++++++\n# Trusted Platform Section\n#+++++++++++++++++++++++++++++++\n  * `cpu_pa_limit`\n  * `enable_mktme`\n  * `dma_ctrl_opt_in`\n  * `enable_sgx`\n  * `enable_tme`\n  * `epoch_update`\n  * `sgx_auto_registration_agent`\n  * `sgx_epoch0`\n  * `sgx_epoch1`\n  * `sgx_factory_reset`\n  * `sgx_le_pub_key_hash0`\n  * `sgx_le_pub_key_hash1`\n  * `sgx_le_pub_key_hash2`\n  * `sgx_le_pub_key_hash3`\n  * `sgx_le_wr`\n  * `sgx_package_info_in_band_access`\n  * `sgx_qos`\n  * `sha1pcr_bank`\n  * `sha256pcr_bank`\n  * `sha384pcr_bank`\n  * `tpm_control`\n  * `tpm_pending_operation`\n  * `tpm_ppi_required`\n  * `txt_support`\n#+++++++++++++++++++++++++++++++\n# USB Section\n#+++++++++++++++++++++++++++++++\n  * `all_usb_devices`\n  * `legacy_usb_support`\n  * `make_device_non_bootable`\n  * `pch_usb30mode`\n  * `usb_emul6064`\n  * `usb_port_front`\n  * `usb_port_internal`\n  * `usb_port_kvm`\n  * `usb_port_rear`\n  * `usb_port_sd_card`\n  * `usb_port_vmedia`\n  * `usb_xhci_support`",
                     "intersight_uri": "bios/Policies",
                     "items": {
                         "$ref": "#/definitions/intersight.bios"
@@ -15649,7 +16159,7 @@
                     "uniqueItems": true
                 },
                 "drive_security": {
-                    "description": "In Intersight Managed Mode, the Drive Security Policy allows you to specify the KMIP server details and attach the policy to the server profile.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `manual_key`\n  * `remote_key_management`\n  * `tags`",
+                    "description": "In Intersight Managed Mode, the Drive Security Policy allows you to specify the KMIP server details and attach the policy to the server profile.  Either `manual_key` or `remote_key_management` must be specified, but not both.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `manual_key`\n  * `remote_key_management`\n  * `tags`",
                     "intersight_uri": "storage/DriveSecurityPolicies",
                     "items": {
                         "$ref": "#/definitions/intersight.drive_security"
@@ -15821,7 +16331,7 @@
                     "uniqueItems": true
                 },
                 "ipmi_over_lan": {
-                    "description": "Defines the protocols for interfacing with a service processor that is embedded in a server platform. The Intelligent Platform Management Interface (IPMI) enables an operating system to obtain information about the system health and control system hardware and directs the Cisco IMC to perform the required actions. You can create an IPMI Over LAN policy to manage the IPMI messages through Cisco Intersight. You can assign these user roles to an IPMI user per session:`\n  * `admin` \u2014 IPMI users can perform all available actions. If you select this option, IPMI users with the `Administrator` user role can create admin, user, and read-only sessions on this server.\n  * `read-only` \u2014 Can view information but cannot make any changes. IPMI users with the `Administrator`, `Operator`, or `User` user roles can only create read-only IPMI sessions, regardless of their other IPMI privileges.\n  * `user` \u2014 IPMI users can perform some functions but cannot perform administrative tasks. If you select this option, IPMI users with the `Administrator` or `Operator` user role can create user and read-only sessions on this server.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `enabled`\n  * `privilege`\n  * `tags`",
+                    "description": "Defines the protocols for interfacing with a service processor that is embedded in a server platform. The Intelligent Platform Management Interface (IPMI) enables an operating system to obtain information about the system health and control system hardware and directs the Cisco IMC to perform the required actions. You can create an IPMI Over LAN policy to manage the IPMI messages through Cisco Intersight. You can assign these user roles to an IPMI user per session:`\n  * `admin` — IPMI users can perform all available actions. If you select this option, IPMI users with the `Administrator` user role can create admin, user, and read-only sessions on this server.\n  * `read-only` — Can view information but cannot make any changes. IPMI users with the `Administrator`, `Operator`, or `User` user roles can only create read-only IPMI sessions, regardless of their other IPMI privileges.\n  * `user` — IPMI users can perform some functions but cannot perform administrative tasks. If you select this option, IPMI users with the `Administrator` or `Operator` user role can create user and read-only sessions on this server.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `enabled`\n  * `privilege`\n  * `tags`",
                     "intersight_uri": "ipmioverlan/Policies",
                     "items": {
                         "$ref": "#/definitions/intersight.ipmi_over_lan"
@@ -15847,7 +16357,7 @@
                     "uniqueItems": true
                 },
                 "iscsi_boot": {
-                    "description": "iSCSI boot support allows you to initialize the Operating System on FI-attached blade and rack servers from a remote disk across a Storage Area Network. The remote disk, known as the target, is accessed using TCP/IP and iSCSI boot firmware.\nPrerequisites - The following are required to configure the iSCSI boot device:\n\n  * iSCSI Static Target Policy\u2014When you select Static as the mode for configuring the iSCSI boot policy, you can use the iSCSI Static Target policy to specify the primary target details. You can also specify the details of a secondary target, if required.\n  * iSCSI Adapter Policy\u2014Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n  * Creating an IQN Pool\u2014Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `authentication`\n  * `description`\n  * `dhcp_vendor_id_iqn`\n  * `initiator_ip_pool`\n  * `initiator_ip_source`\n  * `initiator_static_ipv4_config`\n  * `tags`\n  * `target_source_type`",
+                    "description": "iSCSI boot support allows you to initialize the Operating System on FI-attached blade and rack servers from a remote disk across a Storage Area Network. The remote disk, known as the target, is accessed using TCP/IP and iSCSI boot firmware.\nPrerequisites - The following are required to configure the iSCSI boot device:\n\n  * iSCSI Static Target Policy—When you select Static as the mode for configuring the iSCSI boot policy, you can use the iSCSI Static Target policy to specify the primary target details. You can also specify the details of a secondary target, if required.\n  * iSCSI Adapter Policy—Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n  * Creating an IQN Pool—Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `authentication`\n  * `description`\n  * `dhcp_vendor_id_iqn`\n  * `initiator_ip_pool`\n  * `initiator_ip_source`\n  * `initiator_static_ipv4_config`\n  * `tags`\n  * `target_source_type`",
                     "intersight_uri": "vnic/IscsiBootPolicies",
                     "items": {
                         "$ref": "#/definitions/intersight.iscsi_boot"
@@ -16009,7 +16519,7 @@
                     "uniqueItems": true
                 },
                 "persistent_memory": {
-                    "description": "Persistent Memory Modules (PMem Modules) are non-volatile memory modules that bring together the low latency of memory and the persistence of storage. PMem Modules provide faster access to data and retain across power cycles, based on the mode. Intersight supports the configuration of Intel\u00ae Optane\u2122 PMem Module modules on the UCS M5 servers that are based on the Second Generation Intel\u00ae Xeon\u00ae Scalable processors. Intel\u00ae Optane\u2122 PMem Modules can be used only with the Second-Generation Intel\u00ae Xeon\u00ae Scalable processors. The Persistent Memory Policy allows the configuration of security, Goals, and Namespaces of Persistent Memory Modules.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `management_mode`\n  * `memory_mode_percentage`\n  * `name`spaces`\n  * `persistent_memory_type`\n  * `retain_namespaces`\n  * `tags`",
+                    "description": "Persistent Memory Modules (PMem Modules) are non-volatile memory modules that bring together the low latency of memory and the persistence of storage. PMem Modules provide faster access to data and retain across power cycles, based on the mode. Intersight supports the configuration of Intel® Optane™ PMem Module modules on the UCS M5 servers that are based on the Second Generation Intel® Xeon® Scalable processors. Intel® Optane™ PMem Modules can be used only with the Second-Generation Intel® Xeon® Scalable processors. The Persistent Memory Policy allows the configuration of security, Goals, and Namespaces of Persistent Memory Modules.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `management_mode`\n  * `memory_mode_percentage`\n  * `name`spaces`\n  * `persistent_memory_type`\n  * `retain_namespaces`\n  * `tags`",
                     "intersight_uri": "memory/PersistentMemoryPolicies",
                     "items": {
                         "$ref": "#/definitions/intersight.persistent_memory"
@@ -16100,7 +16610,7 @@
                     "uniqueItems": true
                 },
                 "server_pool_qualification": {
-                    "description": "A server will be included in the resource pool if it matches the conditions of all the qualifiers present in the policy. The qualifiers are of four types:`\n  * `Domain` \u2014 All FI-attached servers in any domain that match the provided Fabric Interconnect PID and domain name qualify under this type.\n  * `Server` \u2014 All blade and/or rack servers that match the provided server IDs, PIDs, tags, user labels, and chassis IDs qualify under this type.\n  * `Tag` \u2014 All servers that match any of the provided server tags, domain profile, and chassis tags qualify under this type. Domain profile and chassis tags are applicable only for FI-attached servers.\n  * `Hardware` \u2014 All servers with hardware components that match the provided CPU, memory, GPU, and Network adapters qualify under this type.\n\nThis policy is applicable for Intersight Managed Mode and Standalone servers.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `domain_qualifiers`\n  * `hardware_qualifiers`\n  * `server_qualifiers`\n  * `tag_qualifiers`\n  * `tags`",
+                    "description": "A server will be included in the resource pool if it matches the conditions of all the qualifiers present in the policy. The qualifiers are of four types:`\n  * `Domain` — All FI-attached servers in any domain that match the provided Fabric Interconnect PID and domain name qualify under this type.\n  * `Server` — All blade and/or rack servers that match the provided server IDs, PIDs, tags, user labels, and chassis IDs qualify under this type.\n  * `Tag` — All servers that match any of the provided server tags, domain profile, and chassis tags qualify under this type. Domain profile and chassis tags are applicable only for FI-attached servers.\n  * `Hardware` — All servers with hardware components that match the provided CPU, memory, GPU, and Network adapters qualify under this type.\n\nThis policy is applicable for Intersight Managed Mode and Standalone servers.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `domain_qualifiers`\n  * `hardware_qualifiers`\n  * `server_qualifiers`\n  * `tag_qualifiers`\n  * `tags`",
                     "intersight_uri": "resourcepool/QualificationPolicies",
                     "items": {
                         "$ref": "#/definitions/intersight.server_pool_qualification"
@@ -19061,7 +19571,7 @@
                         },
                         "power_save_mode": {
                             "default": "Enabled",
-                            "description": "The default value is `Enabled`.  Sets the Power Save mode of the Chassis. If the requested power budget is less than available power\u00a0capacity,  the additional PSUs not required to comply with redundancy policy are placed in Power Save mode. This option is only supported for Cisco UCS X series Chassis.\n  * `Enabled` - Set the value to Enabled.\n  * `disabled` ` - Set the value to Disabled.",
+                            "description": "The default value is `Enabled`.  Sets the Power Save mode of the Chassis. If the requested power budget is less than available power capacity,  the additional PSUs not required to comply with redundancy policy are placed in Power Save mode. This option is only supported for Cisco UCS X series Chassis.\n  * `Enabled` - Set the value to Enabled.\n  * `Disabled` - Set the value to Disabled.",
                             "enum": [
                                 "Enabled",
                                 "Disabled"
@@ -19081,10 +19591,24 @@
                             "intersight_api": "ProcessorPackagePowerLimit",
                             "title": "processor_package_power_limit",
                             "type": "string"
+                        },
+                        "target_platform": {
+                            "default": "",
+                            "description": "The default value is ``.  The platform for which the server profile is applicable. It can either be a server that is operating in standalone mode or which is attached to a Fabric Interconnect managed by Intersight.\n  * `Standalone` - Servers which are operating in standalone mode i.e. not connected to a Fabric Interconnected.\n  * `FIAttached` - Servers which are connected to a Fabric Interconnect that is managed by Intersight.",
+                            "enum": [
+                                "All",
+                                "Chassis",
+                                "Standalone",
+                                "FIAttached"
+                            ],
+                            "intersight_api": "TargetPlatform",
+                            "title": "target_platform",
+                            "type": "string"
                         }
                     },
                     "required": [
-                        "power_redundancy"
+                        "power_redundancy",
+                        "target_platform"
                     ],
                     "title": "power - Power - Intersight Uri: power/Policies",
                     "type": "object"
@@ -19140,7 +19664,7 @@
                     "$ref": "#/definitions/intersight.profiles.name.prefix_suffix"
                 },
                 "server": {
-                    "description": "In Cisco Intersight, a Server Profile enables resource management by streamlining policy alignment, and server configuration. You can create Server Profiles using the Server Profile wizard or you can import the configuration details of C-series servers in standalone mode and FI-attached servers in Intersight Managed Mode (IMM), directly from Cisco IMC. You can create Server Profiles using the Server Profile wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profiles wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:`\n  * Compute Policies \u2014 BIOS, Boot Order, and Virtual Media.\n  * Network Policies \u2014 Adapter Configuration, iSCSI Boot, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create Ethernet Network Policy, Ethernet Adapter Policy, and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create Fibre Channel Network Policy, Fibre Channel Adapter Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * Storage Policies \u2014 SD Card and Storage policies`\n  * Management Policies \u2014 Device Connector, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, Certificate Management, and Virtual KVM policies\n\nIMPORTANT:`\n  * The server profile feature is available in Cisco Intersight only if:\n     - You have installed the Cisco Intersight Essentials License.\n\nRequired Base Attributes:\n  * `action`\n  * `attach_template`\n  * `targets`\n  * `target_platform`\n\nRequired for FIAttached when using pre-assignment under the targets:\n  * `domain_name`\n\nOptional Attributes:\n  * `detach_template`\n  * `ignore_reservations`\n  * `resource_pool`\n  * `tags`\n  * `ucs_server_template` - For backward compatibility.  Use ucs_server_profile_template is preferred`\n  * `ucs_server_profile_template`\n\n#=======================================\n# Compute Configuration\n#=======================================\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `persistent_memory_policy` - Standalone Only`\n  * `power_policy` - FIAttached Only`\n  * `thermal_policy`\n  * `uuid_pool` - FIAttached Only`\n  * `virtual_media_policy`\n\n#=======================================\n# Management Configuration\n#=======================================\n  * `certificate_management_policy` - FIAttached Only\n  * `device_connector_policy` - Standalone Only\n  * `imc_access_policy` - FIAttached Only\n  * `ipmi_over_lan_policy`\n  * `ldap_policy - Standalone Only\n  * `local_user_policy`\n  * `network_connectivity_policy` - Standalone Only\n  * `ntp_policy` - Standalone Only\n  * `serial_over_lan_policy`\n  * `smtp_policy` - Standalone Only\n  * `snmp_policy`\n  * `ssh_policy` - Standalone Only`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#=======================================\n# Storage Configuration\n#=======================================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n\n#=======================================\n# Network Configuration\n#=======================================\n  * `adapter_configuration_policy` - Standalone Only\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`",
+                    "description": "In Cisco Intersight, a Server Profile enables resource management by streamlining policy alignment, and server configuration. You can create Server Profiles using the Server Profile wizard or you can import the configuration details of C-series servers in standalone mode and FI-attached servers in Intersight Managed Mode (IMM), directly from Cisco IMC. You can create Server Profiles using the Server Profile wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profiles wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:`\n  * Compute Policies — BIOS, Boot Order, and Virtual Media.\n  * Network Policies — Adapter Configuration, iSCSI Boot, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create Ethernet Network Policy, Ethernet Adapter Policy, and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create Fibre Channel Network Policy, Fibre Channel Adapter Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * Storage Policies — SD Card and Storage policies`\n  * Management Policies — Device Connector, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, Certificate Management, and Virtual KVM policies\n\nIMPORTANT:`\n  * The server profile feature is available in Cisco Intersight only if:\n     - You have installed the Cisco Intersight Essentials License.\n\nRequired Base Attributes:\n  * `action`\n  * `attach_template`\n  * `targets`\n  * `target_platform`\n\nRequired for FIAttached when using pre-assignment under the targets:\n  * `domain_name`\n\nOptional Attributes:\n  * `detach_template`\n  * `ignore_reservations`\n  * `resource_pool`\n  * `tags`\n  * `ucs_server_template` - For backward compatibility.  Use ucs_server_profile_template is preferred`\n  * `ucs_server_profile_template`\n\n#=======================================\n# Compute Configuration\n#=======================================\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `persistent_memory_policy` - Standalone Only`\n  * `power_policy` - FIAttached Only`\n  * `thermal_policy`\n  * `uuid_pool` - FIAttached Only`\n  * `virtual_media_policy`\n\n#=======================================\n# Management Configuration\n#=======================================\n  * `certificate_management_policy` - FIAttached Only\n  * `device_connector_policy` - Standalone Only\n  * `imc_access_policy` - FIAttached Only\n  * `ipmi_over_lan_policy`\n  * `ldap_policy - Standalone Only\n  * `local_user_policy`\n  * `network_connectivity_policy` - Standalone Only\n  * `ntp_policy` - Standalone Only\n  * `serial_over_lan_policy`\n  * `smtp_policy` - Standalone Only\n  * `snmp_policy`\n  * `ssh_policy` - Standalone Only`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#=======================================\n# Storage Configuration\n#=======================================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n\n#=======================================\n# Network Configuration\n#=======================================\n  * `adapter_configuration_policy` - Standalone Only\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`",
                     "intersight_uri": "server/Profiles",
                     "items": {
                         "$ref": "#/definitions/intersight.profiles.server"
@@ -20725,7 +21249,7 @@
                             "default"
                         ]
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "object_type": "fabric.EthNetworkGroupPolicy",
                     "title": "fibre_channel_network_policies - Fibre Channel Network Policies",
@@ -20761,7 +21285,7 @@
                             "default"
                         ]
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "object_type": "",
                     "title": "names - Names",
@@ -20791,7 +21315,7 @@
                             ""
                         ]
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "objectType": "fabric.SanPinGroup",
                     "title": "pin_group_names - Pin Groups - Intersight Object: fabric/SanPinGroup",
@@ -20830,7 +21354,7 @@
                             "default"
                         ]
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "object_type": "fcpool.Pool",
                     "title": "wwpn_pools - Wwpn Pools - Intersight Uri: fcpool/Pools",
@@ -20853,7 +21377,7 @@
                             "20:00:00:25:B5:00:00:00"
                         ]
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "title": "wwpn_static_addresses - Wwpn Static Addresses",
                     "type": "array",
@@ -21387,7 +21911,7 @@
                     "$ref": "#/definitions/intersight.abstract.policy"
                 },
                 {
-                    "description": "A server will be included in the resource pool if it matches the conditions of all the qualifiers present in the policy. The qualifiers are of four types:`\n  * `Domain` \u2014 All FI-attached servers in any domain that match the provided Fabric Interconnect PID and domain name qualify under this type.\n  * `Server` \u2014 All blade and/or rack servers that match the provided server IDs, PIDs, tags, user labels, and chassis IDs qualify under this type.\n  * `Tag` \u2014 All servers that match any of the provided server tags, domain profile, and chassis tags qualify under this type. Domain profile and chassis tags are applicable only for FI-attached servers.\n  * `Hardware` \u2014 All servers with hardware components that match the provided CPU, memory, GPU, and Network adapters qualify under this type.\n\nThis policy is applicable for Intersight Managed Mode and Standalone servers.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `domain_qualifiers`\n  * `hardware_qualifiers`\n  * `server_qualifiers`\n  * `tag_qualifiers`\n  * `tags`",
+                    "description": "A server will be included in the resource pool if it matches the conditions of all the qualifiers present in the policy. The qualifiers are of four types:`\n  * `Domain` — All FI-attached servers in any domain that match the provided Fabric Interconnect PID and domain name qualify under this type.\n  * `Server` — All blade and/or rack servers that match the provided server IDs, PIDs, tags, user labels, and chassis IDs qualify under this type.\n  * `Tag` — All servers that match any of the provided server tags, domain profile, and chassis tags qualify under this type. Domain profile and chassis tags are applicable only for FI-attached servers.\n  * `Hardware` — All servers with hardware components that match the provided CPU, memory, GPU, and Network adapters qualify under this type.\n\nThis policy is applicable for Intersight Managed Mode and Standalone servers.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `domain_qualifiers`\n  * `hardware_qualifiers`\n  * `server_qualifiers`\n  * `tag_qualifiers`\n  * `tags`",
                     "properties": {
                         "domain_qualifiers": {
                             "$ref": "#/definitions/intersight.server_pool_qualification.domain_qualifiers"
@@ -21407,7 +21931,7 @@
                     "type": "object"
                 }
             ],
-            "description": "A server will be included in the resource pool if it matches the conditions of all the qualifiers present in the policy. The qualifiers are of four types:`\n  * `Domain` \u2014 All FI-attached servers in any domain that match the provided Fabric Interconnect PID and domain name qualify under this type.\n  * `Server` \u2014 All blade and/or rack servers that match the provided server IDs, PIDs, tags, user labels, and chassis IDs qualify under this type.\n  * `Tag` \u2014 All servers that match any of the provided server tags, domain profile, and chassis tags qualify under this type. Domain profile and chassis tags are applicable only for FI-attached servers.\n  * `Hardware` \u2014 All servers with hardware components that match the provided CPU, memory, GPU, and Network adapters qualify under this type.\n\nThis policy is applicable for Intersight Managed Mode and Standalone servers.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `domain_qualifiers`\n  * `hardware_qualifiers`\n  * `server_qualifiers`\n  * `tag_qualifiers`\n  * `tags`",
+            "description": "A server will be included in the resource pool if it matches the conditions of all the qualifiers present in the policy. The qualifiers are of four types:`\n  * `Domain` — All FI-attached servers in any domain that match the provided Fabric Interconnect PID and domain name qualify under this type.\n  * `Server` — All blade and/or rack servers that match the provided server IDs, PIDs, tags, user labels, and chassis IDs qualify under this type.\n  * `Tag` — All servers that match any of the provided server tags, domain profile, and chassis tags qualify under this type. Domain profile and chassis tags are applicable only for FI-attached servers.\n  * `Hardware` — All servers with hardware components that match the provided CPU, memory, GPU, and Network adapters qualify under this type.\n\nThis policy is applicable for Intersight Managed Mode and Standalone servers.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `domain_qualifiers`\n  * `hardware_qualifiers`\n  * `server_qualifiers`\n  * `tag_qualifiers`\n  * `tags`",
             "intersight_type": "policies",
             "intersight_uri": "resourcepool/QualificationPolicies",
             "object_type": "resourcepool.QualificationPolicy",
@@ -23074,7 +23598,7 @@
                     "properties": {
                         "access_community_string": {
                             "default": 1,
-                            "description": "The default value is `1`.  The Sensitive Variable Identifier for the Access Community String.  The SNMP Access Community String for devices performing SNMP Queries against the appliance for SNMPv1/v2c. The value can be 18 characters long.  A number Between 1-64 to denote the variables access_community_string_[1-64].  i.e. `export access_community_string_1='cisco123'`.",
+                            "description": "The default value is `1`.  The Sensitive Variable Identifier for the Access Community String.  The SNMP Access Community String for devices performing SNMP Queries against the appliance for SNMPv1/v2c. The value can be 18 characters long.  A number Between 1-64 to denote the variables snmp_access_community_string_[1-64].  i.e. `export snmp_access_community_string_1='cisco123'`.",
                             "intersight_api": "AccessCommunityString",
                             "maximum": 64,
                             "minimum": 1,
@@ -23284,7 +23808,7 @@
             "properties": {
                 "auth_password": {
                     "default": 1,
-                    "description": "The default value is `1`.  A number Between 1-64 to denote the variables snmp_auth_password_[1-64].  i.e. `export snmp_auth_password_1='cisco123'`.",
+                    "description": "The default value is `1`.  A number Between 1-64 to denote the variables snmp_user_auth_password_[1-64].  i.e. `export snmp_user_auth_password_1='cisco123'`.",
                     "intersight_api": "AuthPassword",
                     "maximum": 64,
                     "minimum": 1,
@@ -23293,11 +23817,10 @@
                 },
                 "auth_type": {
                     "default": "SHA",
-                    "description": "The default value is `SHA`.  Authorization protocol for authenticating the user.\n  * `NA` - Authentication protocol is not applicable.\n  * `MD5` - MD5 protocol is used to authenticate SNMP user.\n  * `SHA` - SHA protocol is used to authenticate SNMP user.\n  * `SHA-224` - SHA-224 protocol is used to authenticate SNMP user.\n  * `SHA-256` - SHA-256 protocol is used to authenticate SNMP user.\n  * `SHA-384` - SHA-384 protocol is used to authenticate SNMP user.\n  * `SHA-512` - SHA-512 protocol is used to authenticate SNMP user.",
+                    "description": "The default value is `SHA`.  Authorization protocol for authenticating the user.\n  * `NA` - Authentication protocol is not applicable.\n  * `MD5` - MD5 protocol is used to authenticate SNMP user.\n  * `SHA` - SHA protocol is used to authenticate SNMP user.\n  * `SHA-256` - SHA-256 protocol is used to authenticate SNMP user.\n  * `SHA-384` - SHA-384 protocol is used to authenticate SNMP user.\n  * `SHA-512` - SHA-512 protocol is used to authenticate SNMP user.",
                     "enum": [
                         "MD5",
                         "SHA",
-                        "SHA-224",
                         "SHA-256",
                         "SHA-384",
                         "SHA-512"
@@ -23321,7 +23844,7 @@
                 },
                 "privacy_password": {
                     "default": 1,
-                    "description": "The default value is `1`.  A number Between 1-64 to denote the variables snmp_privacy_password_[1-64].  i.e. `export snmp_privacy_password_1='cisco123'`.",
+                    "description": "The default value is `1`.  A number Between 1-64 to denote the variables snmp_user_privacy_password_[1-64].  i.e. `export snmp_user_privacy_password_1='cisco123'`.",
                     "intersight_api": "PrivacyPassword",
                     "maximum": 64,
                     "minimum": 1,
@@ -24494,7 +25017,7 @@
                     "title": "chassis - Chassis Profile Template - Intersight Uri: chassis/ProfileTemplates",
                     "type": "array",
                     "uniqueItems": true,
-                    "Description": "In Cisco Intersight, a Chassis Profile Template enables resource management by streamlining policy alignment, and chassis configuration. You can create Chassis Profile Templates using the UCS Chassis Profile Template wizard to provision chassis, create policies to ensure smooth deployment of a chassis, and eliminate failures that are caused by inconsistent configuration. The UCS Chassis Profile Templates wizard has the following policies that are attached to a template:\n\n  * `Chassis Configuration` \u2014 IMC Access, Power, SNMP and Thermal\n\nRequired Base Attributes:\n  * `create_template`\n  * `name`\n\nOptional Base Attributes:\n  * `description`\n  * `tags`\n\n#=======================================\n# Chassis Configuration\n#=======================================\n  * `imc_access_policy`\n  * `power_policy`\n  * `snmp_policy`\n  * `thermal_policy`"
+                    "Description": "In Cisco Intersight, a Chassis Profile Template enables resource management by streamlining policy alignment, and chassis configuration. You can create Chassis Profile Templates using the UCS Chassis Profile Template wizard to provision chassis, create policies to ensure smooth deployment of a chassis, and eliminate failures that are caused by inconsistent configuration. The UCS Chassis Profile Templates wizard has the following policies that are attached to a template:\n\n  * `Chassis Configuration` — IMC Access, Power, SNMP and Thermal\n\nRequired Base Attributes:\n  * `create_template`\n  * `name`\n\nOptional Base Attributes:\n  * `description`\n  * `tags`\n\n#=======================================\n# Chassis Configuration\n#=======================================\n  * `imc_access_policy`\n  * `power_policy`\n  * `snmp_policy`\n  * `thermal_policy`"
                 },
                 "domain": {
                     "intersight_uri": "fabric/SwitchClusterProfiles",
@@ -24507,7 +25030,7 @@
                     "title": "domain - Domain Cluster Profile Template - Intersight Uri: fabric/SwitchClusterProfileTemplates",
                     "type": "array",
                     "uniqueItems": true,
-                    "Description": "In Cisco Intersight, a Domain Profile Template enables resource management by streamlining policy alignment, and domain configuration. You can create Domain Profile Templates using the UCS Domain Profile Template wizard to provision Fabric Interconnects, create policies to ensure smooth deployment of a Pair of Fabric Interconnects, and eliminate failures that are caused by inconsistent configuration. The Domain Profile Templates wizard groups the domain policies into the following three categories to provide a quick Summary View of the policies that are attached to a template:`\n  * `VLAN & VSAN Configuration` \u2014 VLAN and VSAN policies for Fabric Interconnect A and Fabric Interconnect B.\n     - Note: Both Fabrics can share the same policies or they can be distinct.\n  * `Ports Configuration` \u2014 Port policies.\n     - Note: Both Fabrics can share the same port policy or they can be distinct.\n  * `UCS Domain Configuration` \u2014 Management: NTP, Syslog, Network Connectivity and SNMP.  Network: System QoS and Switch Control.\n\nRequired Base Attributes:\n  * `create_template`\n  * `name`\n\nOptional Base Attributes:\n  * `description`\n  * `tags`\n\n#=======================================\n# VLAN & VSAN Configuration\n#=======================================\n  * `vlan_policies` - required - A list of one or two VLAN policies.  A list of one will assign the same policy to both fabrics.\n  * `vsan_policies` - A list of one or two VSAN policies.  A list of one will assign the same policy to both fabrics.\n\n#=======================================\n# Ports Configuration\n#=======================================\n  * `port_policies` - required\n\n#=======================================\n# UCS Domain Configuration - Management\n#=======================================\n  * `certificate_management_policy`\n  * `ldap_policy`\n  * `network_connectivity_policy`\n  * `ntp_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n\n#=======================================\n# UCS Domain Configuration - Network\n#=======================================\n  * `switch_control_policy`\n  * `system_qos_policy` - required"
+                    "Description": "In Cisco Intersight, a Domain Profile Template enables resource management by streamlining policy alignment, and domain configuration. You can create Domain Profile Templates using the UCS Domain Profile Template wizard to provision Fabric Interconnects, create policies to ensure smooth deployment of a Pair of Fabric Interconnects, and eliminate failures that are caused by inconsistent configuration. The Domain Profile Templates wizard groups the domain policies into the following three categories to provide a quick Summary View of the policies that are attached to a template:`\n  * `VLAN & VSAN Configuration` — VLAN and VSAN policies for Fabric Interconnect A and Fabric Interconnect B.\n     - Note: Both Fabrics can share the same policies or they can be distinct.\n  * `Ports Configuration` — Port policies.\n     - Note: Both Fabrics can share the same port policy or they can be distinct.\n  * `UCS Domain Configuration` — Management: NTP, Syslog, Network Connectivity and SNMP.  Network: System QoS and Switch Control.\n\nRequired Base Attributes:\n  * `create_template`\n  * `name`\n\nOptional Base Attributes:\n  * `description`\n  * `tags`\n\n#=======================================\n# VLAN & VSAN Configuration\n#=======================================\n  * `vlan_policies` - required - A list of one or two VLAN policies.  A list of one will assign the same policy to both fabrics.\n  * `vsan_policies` - A list of one or two VSAN policies.  A list of one will assign the same policy to both fabrics.\n\n#=======================================\n# Ports Configuration\n#=======================================\n  * `port_policies` - required\n\n#=======================================\n# UCS Domain Configuration - Management\n#=======================================\n  * `certificate_management_policy`\n  * `ldap_policy`\n  * `network_connectivity_policy`\n  * `ntp_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n\n#=======================================\n# UCS Domain Configuration - Network\n#=======================================\n  * `switch_control_policy`\n  * `system_qos_policy` - required"
                 },
                 "name_prefix": {
                     "$ref": "#/definitions/intersight.profiles.name.prefix_suffix"
@@ -24526,7 +25049,7 @@
                     "title": "server - Server Profile Template - Intersight Uri: server/ProfileTemplates",
                     "type": "array",
                     "uniqueItems": true,
-                    "Description": "In Cisco Intersight, a Server Profile Template enables resource management by streamlining policy alignment, and server configuration. You can create Server Profile Templates using the UCS Server Profile Template wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profile Templates wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:`\n  * `Compute Policies` \u2014 BIOS, Boot Order, and Virtual Media.\n  * `Network Policies` \u2014 Adapter Configuration, iSCSI Boot, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create Ethernet Network Policy, Ethernet Adapter Policy, and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create Fibre Channel Network Policy, Fibre Channel Adapter Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * `Storage Policies` \u2014 Drive Security, SD Card and Storage policies`\n  * `Management Policies` \u2014 Certificate Management, Device Connector, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, Certificate Management, and Virtual KVM policies\n\nRequired Attributes:\n  * `create_template`\n  * `name`\n\nRequired for Standalone:\n  * `target_platform`\n\nOptional Attributes:\n  * `description`\n  * `tags`\n#===========================\n# Compute Configuration\n#===========================\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `persistent_memory_policy` - Standalone Only\n  * `power_policy` - FIAttached Only\n  * `thermal_policy`\n  * `uuid_pool` - FIAttached Only\n  * `virtual_media_policy`\n#===========================\n# Management Configuration\n#===========================\n  * `certificate_management_policy`\n  * `device_connector_policy `- Standalone Only\n  * `imc_access_policy` - FIAttached Only\n  * `ipmi_over_lan_policy`\n  * `ldap_policy` - Standalone Only\n  * `local_user_policy`\n  * `network_connectivity_policy` - Standalone Only\n  * `ntp_policy`- Standalone Only\n  * `serial_over_lan_policy`\n  * `smtp_policy` - Standalone Only\n  * `snmp_policy`\n  * `ssh_policy` - Standalone Only\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n#===========================\n# Storage Configuration\n#===========================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n#===========================\n# Network Configuration\n#===========================\n  * `adapter_configuration_policy` - Standalone Only\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`"
+                    "Description": "In Cisco Intersight, a Server Profile Template enables resource management by streamlining policy alignment, and server configuration. You can create Server Profile Templates using the UCS Server Profile Template wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profile Templates wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:`\n  * `Compute Policies` — BIOS, Boot Order, and Virtual Media.\n  * `Network Policies` — Adapter Configuration, iSCSI Boot, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create Ethernet Network Policy, Ethernet Adapter Policy, and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create Fibre Channel Network Policy, Fibre Channel Adapter Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * `Storage Policies` — Drive Security, SD Card and Storage policies`\n  * `Management Policies` — Certificate Management, Device Connector, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, Certificate Management, and Virtual KVM policies\n\nRequired Attributes:\n  * `create_template`\n  * `name`\n\nRequired for Standalone:\n  * `target_platform`\n\nOptional Attributes:\n  * `description`\n  * `tags`\n#===========================\n# Compute Configuration\n#===========================\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `persistent_memory_policy` - Standalone Only\n  * `power_policy` - FIAttached Only\n  * `thermal_policy`\n  * `uuid_pool` - FIAttached Only\n  * `virtual_media_policy`\n#===========================\n# Management Configuration\n#===========================\n  * `certificate_management_policy`\n  * `device_connector_policy `- Standalone Only\n  * `imc_access_policy` - FIAttached Only\n  * `ipmi_over_lan_policy`\n  * `ldap_policy` - Standalone Only\n  * `local_user_policy`\n  * `network_connectivity_policy` - Standalone Only\n  * `ntp_policy`- Standalone Only\n  * `serial_over_lan_policy`\n  * `smtp_policy` - Standalone Only\n  * `snmp_policy`\n  * `ssh_policy` - Standalone Only\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n#===========================\n# Storage Configuration\n#===========================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n#===========================\n# Network Configuration\n#===========================\n  * `adapter_configuration_policy` - Standalone Only\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`"
                 }
             },
             "required": [],
@@ -27239,7 +27762,7 @@
                     "type": "object"
                 }
             ],
-            "description": "This dictionary provides the required configuration settings for RedHat Openshift machine network gateway addressing.  A \"k8s machine network\" refers to the networking infrastructure within a Kubernetes cluster that allows all its components\u2014including containers, pods, and nodes\u2014to communicate with each other and with external services.\n\nOptional fields are:\n  * `v4`\n  * `v6`",
+            "description": "This dictionary provides the required configuration settings for RedHat Openshift machine network gateway addressing.  A \"k8s machine network\" refers to the networking infrastructure within a Kubernetes cluster that allows all its components—including containers, pods, and nodes—to communicate with each other and with external services.\n\nOptional fields are:\n  * `v4`\n  * `v6`",
             "title": "OpenShift Container Platform (OCP) - Machine Network Gateway",
             "unevaluatedProperties": false
         },
@@ -29139,7 +29662,7 @@
                 },
                 "group_base": {
                     "default": "",
-                    "description": "The default value is ``.  In the Group Base field, enter the path to the configured groups in the directory tree. The Group Base consists of one or more path components (OUs and CNs) that, when combined with the base DN attribute and the configured group CNs, complete the full distinguished name of each group. The group base should specify \u201cOU=\u201d for each OU and \u201cCN=\u201d for each CN. Multiple path components should be separated by commas. The order of the path components should get larger in scope from left to right. In the following example, SANManagers contains the sub-organizational unit PureGroups: \u201cOU=PureGroups,OU=SANManagers\u201d.",
+                    "description": "The default value is ``.  In the Group Base field, enter the path to the configured groups in the directory tree. The Group Base consists of one or more path components (OUs and CNs) that, when combined with the base DN attribute and the configured group CNs, complete the full distinguished name of each group. The group base should specify “OU=” for each OU and “CN=” for each CN. Multiple path components should be separated by commas. The order of the path components should get larger in scope from left to right. In the following example, SANManagers contains the sub-organizational unit PureGroups: “OU=PureGroups,OU=SANManagers”.",
                     "examples": [
                         "OU=PureGroups,OU=SANManagers"
                     ],

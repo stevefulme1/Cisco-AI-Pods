@@ -34,6 +34,7 @@ import os
 import re
 import copy
 import ipaddress
+import textwrap
 
 # ---------------------------------------------------------------------------
 # Schema-to-module key rename tables
@@ -792,6 +793,444 @@ def _validate_and_read_pem_file(file_path):
     return content
 
 
+def _get_sensitive_schema_properties(schema):
+    """Return abstract.sensitive_variables property schemas."""
+    if not isinstance(schema, dict):
+        return {}
+    definitions = schema.get('definitions', {})
+    if not isinstance(definitions, dict):
+        return {}
+    sensitive_def = definitions.get('abstract.sensitive_variables', {})
+    if not isinstance(sensitive_def, dict):
+        return {}
+    properties = sensitive_def.get('properties', {})
+    return properties if isinstance(properties, dict) else {}
+
+
+def _wrap_cli_text(text, indent='  ', width=100):
+    """Wrap long text blocks to keep CLI error output readable."""
+    rendered = str(text) if text not in (None, '') else 'N/A'
+    return textwrap.fill(
+        rendered,
+        width=width,
+        initial_indent=indent,
+        subsequent_indent=indent,
+        break_long_words=False,
+        break_on_hyphens=False,
+    )
+
+
+def _format_sensitive_constraints(context_label, schema_rule):
+    """Build a wrapped, human-readable constraint block for error messages."""
+    if not isinstance(schema_rule, dict):
+        return ''
+
+    description = schema_rule.get('description', 'N/A')
+    pattern = schema_rule.get('pattern', 'N/A')
+    min_length = schema_rule.get('minLength', 'N/A')
+    max_length = schema_rule.get('maxLength', 'N/A')
+
+    return (
+        f"\n\nSensitive Variable Constraints for '{context_label}':\n"
+        f"Description:\n{_wrap_cli_text(description)}\n"
+        f"Pattern:\n{_wrap_cli_text(pattern)}\n"
+        f"Min Length: {min_length}\n"
+        f"Max Length: {max_length}"
+    )
+
+
+def _validate_sensitive_value(value, schema_rule, env_var_name, context, schema_key=None, sensitive_properties=None):
+    """Validate a resolved sensitive value against schema min/max/pattern."""
+    if value in (None, ''):
+        error_msg = (
+            f"Missing required environment variable '{env_var_name}' for {context}.\n"
+            f"\n  To fix this, run:\n"
+            f"    export {env_var_name}='<your_value_here>'"
+        )
+        if schema_key and sensitive_properties and schema_key in sensitive_properties:
+            error_msg += _format_sensitive_constraints(
+                schema_key,
+                sensitive_properties[schema_key],
+            )
+        raise ValueError(error_msg)
+
+    if not isinstance(schema_rule, dict):
+        return
+
+    text_value = str(value)
+    min_length = schema_rule.get('minLength')
+    max_length = schema_rule.get('maxLength')
+    pattern = schema_rule.get('pattern')
+    constraint_info = _format_sensitive_constraints(context, schema_rule)
+
+    if isinstance(min_length, int) and len(text_value) < min_length:
+        raise ValueError(
+            f"Environment variable '{env_var_name}' for {context} is too short "
+            f"({len(text_value)} < {min_length}). Value is sensitive and hidden."
+            f"{constraint_info}"
+        )
+
+    if isinstance(max_length, int) and len(text_value) > max_length:
+        raise ValueError(
+            f"Environment variable '{env_var_name}' for {context} is too long "
+            f"({len(text_value)} > {max_length}). Value is sensitive and hidden."
+            f"{constraint_info}"
+        )
+
+    if isinstance(pattern, str) and pattern:
+        try:
+            compiled = re.compile(pattern)
+        except re.error as exc:
+            raise ValueError(
+                f"Invalid regex pattern in abstract.sensitive_variables for {context}: {exc}"
+            )
+        if compiled.search(text_value) is None:
+            raise ValueError(
+                f"Environment variable '{env_var_name}' for {context} does not match "
+                f"the schema pattern. Value is sensitive and hidden."
+                f"{constraint_info}"
+            )
+
+
+
+def _resolve_sensitive_identifier(var_id, env_prefix, schema_key, context,
+                                   sensitive_properties, resolved_vars):
+    """Resolve one sensitive variable identifier to its env value and validate.
+
+    Args:
+        var_id:               Integer identifier from the model (1-64).
+        env_prefix:           Environment variable name prefix (without _N).
+        schema_key:           Key inside abstract.sensitive_variables for validation rules,
+                              or None if no schema entry exists.
+        context:              Human-readable path for error messages.
+        sensitive_properties: Dict returned by _get_sensitive_schema_properties().
+        resolved_vars:        Mutable dict where resolved env_var_name -> value is stored.
+    """
+    if var_id in (None, ''):
+        return
+    if not isinstance(var_id, int) or var_id <= 0:
+        raise ValueError(
+            f"{context} must be a positive integer sensitive variable identifier."
+        )
+
+    env_var_name = f"{env_prefix}_{var_id}"
+    env_value = os.environ.get(env_var_name)
+    if env_value in (None, ''):
+        error_msg = (
+            f"Missing required environment variable '{env_var_name}' for {context}.\n"
+            f"\n  To fix this, run:\n"
+            f"    export {env_var_name}='<your_value_here>'"
+        )
+        if schema_key and schema_key in sensitive_properties:
+            error_msg += _format_sensitive_constraints(
+                schema_key,
+                sensitive_properties[schema_key],
+            )
+        raise ValueError(error_msg)
+
+    if schema_key:
+        schema_rule = sensitive_properties.get(schema_key, {})
+        _validate_sensitive_value(
+            env_value, schema_rule, env_var_name, context,
+            schema_key, sensitive_properties,
+        )
+
+    resolved_vars[env_var_name] = str(env_value)
+
+
+def _resolve_snmp_sensitive_vars(item, schema):
+    """Resolve and validate SNMP sensitive variable identifiers from model data."""
+    if not isinstance(item, dict):
+        return {}
+
+    sensitive_properties = _get_sensitive_schema_properties(schema)
+    resolved_vars = {}
+
+    def _resolve(var_id, env_prefix, schema_key, context):
+        _resolve_sensitive_identifier(
+            var_id, env_prefix, schema_key, context,
+            sensitive_properties, resolved_vars,
+        )
+
+    _resolve(
+        item.get('access_community_string'),
+        'snmp_access_community_string',
+        'snmp_community_string',
+        'snmp.access_community_string',
+    )
+    _resolve(
+        item.get('trap_community_string'),
+        'snmp_trap_community',
+        'snmp_community_string',
+        'snmp.trap_community_string',
+    )
+
+    snmp_users = item.get('snmp_users')
+    if isinstance(snmp_users, list):
+        for index, user in enumerate(snmp_users, start=1):
+            if not isinstance(user, dict):
+                continue
+            _resolve(
+                user.get('auth_password'),
+                'snmp_user_auth_password',
+                'snmp_password',
+                f'snmp.snmp_users[{index}].auth_password',
+            )
+            _resolve(
+                user.get('privacy_password'),
+                'snmp_user_privacy_password',
+                'snmp_password',
+                f'snmp.snmp_users[{index}].privacy_password',
+            )
+
+    trap_destinations = item.get('snmp_trap_destinations')
+    if isinstance(trap_destinations, list):
+        for index, trap in enumerate(trap_destinations, start=1):
+            if not isinstance(trap, dict):
+                continue
+            _resolve(
+                trap.get('community_string'),
+                'snmp_trap_community',
+                'snmp_community_string',
+                f'snmp.snmp_trap_destinations[{index}].community_string',
+            )
+
+    return resolved_vars
+
+
+def _resolve_cco_sensitive_vars(item, schema):
+    """Resolve and validate firmware_authenticate cco_password."""
+    if not isinstance(item, dict):
+        return {}
+    sensitive_properties = _get_sensitive_schema_properties(schema)
+    resolved_vars = {}
+    _resolve_sensitive_identifier(
+        item.get('cco_password'),
+        'cco_password',
+        'cco_password',
+        'firmware_authenticate.cco_password',
+        sensitive_properties, resolved_vars,
+    )
+    return resolved_vars
+
+
+def _resolve_drive_security_sensitive_vars(item, schema):
+    """Resolve and validate drive_security passphrase and authentication password."""
+    if not isinstance(item, dict):
+        return {}
+    sensitive_properties = _get_sensitive_schema_properties(schema)
+    resolved_vars = {}
+
+    def _resolve(var_id, env_prefix, schema_key, context):
+        _resolve_sensitive_identifier(
+            var_id, env_prefix, schema_key, context,
+            sensitive_properties, resolved_vars,
+        )
+
+    manual_key = item.get('manual_key')
+    if isinstance(manual_key, dict):
+        _resolve(
+            manual_key.get('current_security_key_passphrase'),
+            'drive_security_current_security_key_passphrase',
+            'drive_security_passphrase',
+            'drive_security.manual_key.current_security_key_passphrase',
+        )
+        _resolve(
+            manual_key.get('new_security_key_passphrase'),
+            'drive_security_new_security_key_passphrase',
+            'drive_security_passphrase',
+            'drive_security.manual_key.new_security_key_passphrase',
+        )
+
+    remote_key = item.get('remote_key')
+    if isinstance(remote_key, dict):
+        _resolve(
+            remote_key.get('current_security_key_passphrase'),
+            'drive_security_current_security_key_passphrase',
+            'drive_security_passphrase',
+            'drive_security.remote_key.current_security_key_passphrase',
+        )
+        auth = remote_key.get('enable_authentication')
+        if isinstance(auth, dict):
+            _resolve(
+                auth.get('password'),
+                'drive_security_authentication_password',
+                'drive_security_authentication_password',
+                'drive_security.remote_key.enable_authentication.password',
+            )
+
+    return resolved_vars
+
+
+def _resolve_ipmi_sensitive_vars(item, schema):
+    """Resolve and validate ipmi_over_lan encryption_key."""
+    if not isinstance(item, dict):
+        return {}
+    sensitive_properties = _get_sensitive_schema_properties(schema)
+    resolved_vars = {}
+    _resolve_sensitive_identifier(
+        item.get('encryption_key'),
+        'ipmi_key',
+        'ipmi_key',
+        'ipmi_over_lan.encryption_key',
+        sensitive_properties, resolved_vars,
+    )
+    return resolved_vars
+
+
+def _resolve_iscsi_boot_sensitive_vars(item, schema):
+    """Resolve and validate iscsi_boot password."""
+    if not isinstance(item, dict):
+        return {}
+    sensitive_properties = _get_sensitive_schema_properties(schema)
+    resolved_vars = {}
+    _resolve_sensitive_identifier(
+        item.get('password'),
+        'iscsi_boot_password',
+        'iscsi_boot_password',
+        'iscsi_boot.password',
+        sensitive_properties, resolved_vars,
+    )
+    return resolved_vars
+
+
+def _resolve_ldap_sensitive_vars(item, schema):
+    """Resolve and validate ldap binding_parameters password."""
+    if not isinstance(item, dict):
+        return {}
+    sensitive_properties = _get_sensitive_schema_properties(schema)
+    resolved_vars = {}
+    binding_parameters = item.get('binding_parameters')
+    if isinstance(binding_parameters, dict):
+        _resolve_sensitive_identifier(
+            binding_parameters.get('password'),
+            'binding_parameters_password',
+            'ldap_binding_password',
+            'ldap.binding_parameters.password',
+            sensitive_properties, resolved_vars,
+        )
+    return resolved_vars
+
+
+def _resolve_local_user_sensitive_vars(item, schema):
+    """Resolve and validate local_user passwords for all users."""
+    if not isinstance(item, dict):
+        return {}
+    sensitive_properties = _get_sensitive_schema_properties(schema)
+    resolved_vars = {}
+    users = item.get('users')
+    if isinstance(users, list):
+        for index, user in enumerate(users, start=1):
+            if not isinstance(user, dict):
+                continue
+            password_var_id = user.get('password')
+            _resolve_sensitive_identifier(
+                password_var_id,
+                'local_user_password',
+                'local_user_password',
+                f'local_user.users[{index}].password',
+                sensitive_properties, resolved_vars,
+            )
+
+            if isinstance(password_var_id, int) and password_var_id > 0:
+                env_var_name = f'local_user_password_{password_var_id}'
+                resolved_password = resolved_vars.get(env_var_name)
+                username = user.get('username')
+                if resolved_password not in (None, '') and username not in (None, ''):
+                    username_text = str(username)
+                    if username_text and username_text.lower() in str(resolved_password).lower():
+                        raise ValueError(
+                            f"Environment variable '{env_var_name}' for local_user.users[{index}].password "
+                            "violates local user password policy: password must not contain the username. "
+                            "Value is sensitive and hidden."
+                        )
+    return resolved_vars
+
+
+def _resolve_mac_sec_sensitive_vars(item, schema):
+    """Resolve mac_sec key chain secrets (no schema entry; checks non-empty only)."""
+    if not isinstance(item, dict):
+        return {}
+    sensitive_properties = _get_sensitive_schema_properties(schema)
+    resolved_vars = {}
+    for chain_key, env_prefix in (
+        ('mac_sec_primary_key_chain', 'mac_sec_primary_key_chain_secret'),
+        ('mac_sec_fallback_key_chain', 'mac_sec_fallback_key_chain_secret'),
+    ):
+        chain = item.get(chain_key)
+        if not isinstance(chain, dict):
+            continue
+        add_keys = chain.get('add_key')
+        if not isinstance(add_keys, list):
+            continue
+        for index, key_entry in enumerate(add_keys, start=1):
+            if not isinstance(key_entry, dict):
+                continue
+            _resolve_sensitive_identifier(
+                key_entry.get('secret'),
+                env_prefix,
+                None,  # No schema entry in abstract.sensitive_variables
+                f'mac_sec.{chain_key}.add_key[{index}].secret',
+                sensitive_properties, resolved_vars,
+            )
+    return resolved_vars
+
+
+def _resolve_persistent_memory_sensitive_vars(item, schema):
+    """Resolve and validate persistent_memory passphrase."""
+    if not isinstance(item, dict):
+        return {}
+    sensitive_properties = _get_sensitive_schema_properties(schema)
+    resolved_vars = {}
+    _resolve_sensitive_identifier(
+        item.get('passphrase'),
+        'persistent_passphrase',
+        'persistent_passphrase',
+        'persistent_memory.passphrase',
+        sensitive_properties, resolved_vars,
+    )
+    return resolved_vars
+
+
+def _resolve_switch_control_sensitive_vars(item, schema):
+    """Resolve switch_control aes_primary_key (no schema entry; checks non-empty only)."""
+    if not isinstance(item, dict):
+        return {}
+    sensitive_properties = _get_sensitive_schema_properties(schema)
+    resolved_vars = {}
+    _resolve_sensitive_identifier(
+        item.get('aes_primary_key'),
+        'switch_control_aes_primary_key',
+        None,  # No schema entry in abstract.sensitive_variables
+        'switch_control.aes_primary_key',
+        sensitive_properties, resolved_vars,
+    )
+    return resolved_vars
+
+
+def _resolve_vmedia_sensitive_vars(item, schema):
+    """Resolve and validate vmedia passwords for all add_virtual_media mappings."""
+    if not isinstance(item, dict):
+        return {}
+    sensitive_properties = _get_sensitive_schema_properties(schema)
+    resolved_vars = {}
+    add_virtual_media = item.get('add_virtual_media')
+    if isinstance(add_virtual_media, list):
+        for index, mapping in enumerate(add_virtual_media, start=1):
+            if not isinstance(mapping, dict):
+                continue
+            _resolve_sensitive_identifier(
+                mapping.get('password'),
+                'vmedia_password',
+                'vmedia_password',
+                f'virtual_media.add_virtual_media[{index}].password',
+                sensitive_properties, resolved_vars,
+            )
+    return resolved_vars
+
+
+
+
 def _expand_scp_vhbas(vhbas):
     """Expand schema vhbas entries into module vhbas entries.
 
@@ -1006,6 +1445,25 @@ def merge_schema_defaults(item, schema, definition_key):
     merged.update(defaults)
     merged.update(item)
 
+    # Resolve sensitive variable identifiers from the original model item
+    # (not defaults), validate against abstract.sensitive_variables, and
+    # expose resolved environment values for template/module consumption.
+    _sensitive_resolvers = {
+        'intersight.firmware_authenticate':  _resolve_cco_sensitive_vars,
+        'intersight.drive_security':         _resolve_drive_security_sensitive_vars,
+        'intersight.ipmi_over_lan':          _resolve_ipmi_sensitive_vars,
+        'intersight.iscsi_boot':             _resolve_iscsi_boot_sensitive_vars,
+        'intersight.ldap':                   _resolve_ldap_sensitive_vars,
+        'intersight.local_user':             _resolve_local_user_sensitive_vars,
+        'intersight.mac_sec':                _resolve_mac_sec_sensitive_vars,
+        'intersight.persistent_memory':      _resolve_persistent_memory_sensitive_vars,
+        'intersight.snmp':                   _resolve_snmp_sensitive_vars,
+        'intersight.switch_control':         _resolve_switch_control_sensitive_vars,
+        'intersight.virtual_media':          _resolve_vmedia_sensitive_vars,
+    }
+    if definition_key in _sensitive_resolvers and isinstance(item, dict):
+        merged['_resolved_sensitive_vars'] = _sensitive_resolvers[definition_key](item, schema)
+
     # For System QoS policies, optionally replace classes with schema templates
     # and enforce MTU on every class based on jumbo_mtu.
     if definition_key == 'intersight.system_qos' and isinstance(merged, dict):
@@ -1073,6 +1531,9 @@ def to_module_params(item, module_name):
             result[new_key] = value
         else:
             result[key] = value
+
+    # Internal helper payloads should never be forwarded to modules.
+    result.pop('_resolved_sensitive_vars', None)
 
     # ---- Module-specific complex expansions ----------------------------------
 
@@ -1222,24 +1683,25 @@ def to_module_params(item, module_name):
             result['certificates'] = processed_certs
 
     elif module_name == 'intersight_drive_security_policy':
-        # Resolve sensitive variable identifiers to environment values and map
-        # schema structures to module-native manual_key/remote_key dictionaries.
-        def _resolve_sensitive_value(var_id, env_prefix):
+        # Use pre-validated sensitive vars resolved in merge_schema_defaults.
+        resolved_vars = result.get('_resolved_sensitive_vars', {})
+
+        def _get_resolved(var_id, env_prefix):
             if not isinstance(var_id, int) or var_id <= 0:
                 return None
-            return os.environ.get(f'{env_prefix}_{var_id}')
+            return resolved_vars.get(f'{env_prefix}_{var_id}')
 
         manual_key = result.get('manual_key')
         if isinstance(manual_key, dict):
             new_manual = {}
 
             existing_var_id = manual_key.get('current_security_key_passphrase')
-            existing_value = _resolve_sensitive_value(existing_var_id, 'drive_security_current_security_key_passphrase')
+            existing_value = _get_resolved(existing_var_id, 'drive_security_current_security_key_passphrase')
             if existing_value not in (None, ''):
                 new_manual['existing_key'] = str(existing_value)
 
             new_var_id = manual_key.get('new_security_key_passphrase')
-            new_value = _resolve_sensitive_value(new_var_id, 'drive_security_new_security_key_passphrase')
+            new_value = _get_resolved(new_var_id, 'drive_security_new_security_key_passphrase')
             if new_value not in (None, ''):
                 new_manual['new_key'] = str(new_value)
 
@@ -1250,12 +1712,12 @@ def to_module_params(item, module_name):
             new_remote = {}
 
             existing_var_id = remote_key.get('current_security_key_passphrase')
-            existing_value = _resolve_sensitive_value(existing_var_id, 'drive_security_current_security_key_passphrase')
+            existing_value = _get_resolved(existing_var_id, 'drive_security_current_security_key_passphrase')
             if existing_value not in (None, ''):
                 new_remote['existing_key'] = str(existing_value)
 
             cert_var_id = remote_key.get('server_public_root_ca_certificate')
-            cert_value = _resolve_sensitive_value(cert_var_id, 'drive_security_server_ca_certificate')
+            cert_value = _get_resolved(cert_var_id, 'drive_security_server_ca_certificate')
             if cert_value in (None, ''):
                 if isinstance(cert_var_id, int) and cert_var_id > 0:
                     cert_value = os.environ.get(
@@ -1295,7 +1757,7 @@ def to_module_params(item, module_name):
                 if username not in (None, ''):
                     new_remote['username'] = str(username)
                 password_var_id = auth.get('password')
-                password_value = _resolve_sensitive_value(password_var_id, 'drive_security_authentication_password')
+                password_value = _get_resolved(password_var_id, 'drive_security_authentication_password')
                 if password_value not in (None, ''):
                     new_remote['password'] = str(password_value)
 
@@ -1541,17 +2003,15 @@ def to_module_params(item, module_name):
                 result['initiator_static_ipv4_secondary_dns'] = static_ipv4['secondary_dns']
 
         # Map schema auth fields to module-native chap/mutual_chap dictionaries.
-        # Password is a Sensitive Variable Identifier (integer), resolve from environment.
+        # Password is resolved and validated via _resolved_sensitive_vars.
         auth_mode = item.get('authentication')
         username = item.get('username')
         password_var_id = item.get('password')
-        
-        # Resolve password from environment variable based on variable ID
+
+        resolved_vars = result.get('_resolved_sensitive_vars', {})
         password_value = None
         if isinstance(password_var_id, int) and password_var_id > 0:
-            # Environment variable format: iscsi_boot_password_<id>
-            env_var_name = f'iscsi_boot_password_{password_var_id}'
-            password_value = os.environ.get(env_var_name)
+            password_value = resolved_vars.get(f'iscsi_boot_password_{password_var_id}')
         
         if isinstance(auth_mode, str):
             mode = auth_mode.lower()

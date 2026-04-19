@@ -1,13 +1,179 @@
 ---
-{{
-  item.1
-  | merge_schema_defaults(intersight_schema, 'intersight.lan_connectivity')
-  | to_module_params('intersight_lan_connectivity_policy')
-  | combine({
-      'description': item.1.description | default(omit),
-      'name': policy_name_prefix.lan_connectivity | default(policy_name_prefix.default | default(''))
-               ~ item.1.name
-               ~ policy_name_suffix.lan_connectivity | default(policy_name_suffix.default | default('')),
-      'organization': item.0.key
-    })
-}}
+{% set _lcp = item.1 %}
+{% set vnics = _lcp.vnics | default([]) %}
+{% set _iqn_allocation_type = _lcp.iqn_allocation_type | default('None') %}
+enable_azure_stack_host_qos: "{{ _lcp.enable_azure_stack_host_qos | default(False) }}"
+{% if  _lcp.iqn_pool is defined %}
+iqn_allocation_type: "Pool"
+iqn_pool_name:
+  name: "{{ _lcp.iqn_pool }}"
+  organization: "{{ item.0.key }}"
+{% elif _lcp.iqn_static_identifier is defined %}
+iqn_allocation_type: "Static"
+static_iqn_name: "{{ _lcp.iqn_static_identifier }}"
+{% else %}
+iqn_allocation_type: "None"
+{% endif %}
+name: "{{ policy_name_prefix.lan_connectivity | default(policy_name_prefix.default | default('')) ~ item.1.name ~ policy_name_suffix.lan_connectivity | default(policy_name_suffix.default | default('')) }}"
+organization: "{{ item.0.key }}"
+{% if _lcp.target_platform | default('FIAttached') == 'FIAttached' %}
+placement_mode: "{{ item.1.vnic_placement_mode | default('custom') }}"
+{% endif %}
+target_platform: "{{ item.1.target_platform | default('FIAttached') }}"
+{% if vnics | length > 0 %}
+vnics:
+{% for vnic in vnics %}
+{% set _vnic_names = vnic.names | default([]) %}
+{% set placement = vnic.placement | default({}) %}
+{% for idx in range(_vnic_names | length) %}
+  - name: "{{ _vnic_names[idx] }}"
+    cdn_source: {% if vnic.cdn_values is defined %}"user"{% else %}"vnic"{% endif %}
+{% if vnic.cdn_values is defined %}
+    cdn_value: "{{ vnic.cdn_values[idx] if vnic.cdn_values | length > idx else vnic.cdn_values[0] }}"
+{% endif %}
+{% if _lcp.target_platform | default('FIAttached') == 'FIAttached' and (placement == {} or placement.pci_order is not defined) %}
+    auto_vnic_placement_enabled: true
+{% elif _lcp.target_platform | default('FIAttached') == 'FIAttached' %}
+{% if placement.automatic_pci_link_assignment | default(false) == true or placement.pci_links | default([]) | length != _vnic_names | length %}
+    auto_pci_link: true
+{% elif placement.automatic_pci_link_assignment | default(false) == false and placement.pci_links is not defined %}
+    auto_pci_link: false
+    pci_link_assignment_mode: "Load-Balanced"
+{% elif placement.pci_links | default([]) | length == _vnic_names | length %}
+    auto_pci_link: false
+    pci_link: {{ placement.pci_links[idx] }}
+    pci_link_assignment_mode: "Custom"
+{% endif %}
+{% if placement.automatic_slot_id_assignment | default(false) == true or placement.slot_ids is not defined %}
+    auto_slot_id: true
+{% else %}
+    placement_slot_id: {{ placement.slot_ids[idx] if placement.slot_ids | length > idx else placement.slot_ids[0] }}
+{% endif %}
+{% if placement.pci_order is defined and placement.pci_order | length > 0 %}
+    order: {{ placement.pci_order[idx] if placement.pci_order | length > idx else placement.pci_order[0] }}
+{% endif %}
+    switch_id: {% if placement.switch_ids is defined %}{{ placement.switch_ids[idx] if placement.switch_ids | length > idx else placement.switch_ids[0] }}{% elif idx == 0 %}"A"{% else %}"B"{% endif %}
+{% endif %}
+    uplink_port: {% if placement.uplink_ports is defined and placement.uplink_ports | default([]) | length == _vnic_names | length %}{{ placement.uplink_ports[idx] }}{% else %}0{% endif %}
+    enable_failover: {% if vnic.enable_failover is defined %}{{ vnic.enable_failover }}{% elif _vnic_names | length > 1 %}true{% else %}false{% endif %}
+{% set _eth_adapter_policy = vnic.ethernet_adapter_policy | default('default') %}
+{% set _eth_adapter_parts = _eth_adapter_policy.split('/') %}
+    eth_adapter_policy_name:
+            name: "{{ _eth_adapter_parts[-1] }}"
+            organization: "{{ _eth_adapter_parts[0] if _eth_adapter_parts | length > 1 else item.0.key }}"
+{% set _eth_qos_policy = vnic.ethernet_qos_policy | default('default') %}
+{% set _eth_qos_parts = _eth_qos_policy.split('/') %}
+    eth_qos_policy_name:
+            name: "{{ _eth_qos_parts[-1] }}"
+            organization: "{{ _eth_qos_parts[0] if _eth_qos_parts | length > 1 else item.0.key }}"
+{% if item.1.target_platform | default('Standalone') == 'FIAttached' %}
+{% set _eth_network_control_policy = vnic.ethernet_network_control_policy | default('default') %}
+{% set _eth_network_control_parts = _eth_network_control_policy.split('/') %}
+    fabric_eth_network_control_policy_name:
+            name: "{{ _eth_network_control_parts[-1] }}"
+            organization: "{{ _eth_network_control_parts[0] if _eth_network_control_parts | length > 1 else item.0.key }}"
+{% else %}
+{% set _eth_network_policy = vnic.ethernet_network_policy | default('default') %}
+{% set _eth_network_parts = _eth_network_policy.split('/') %}
+    eth_network_policy_name:
+            name: "{{ _eth_network_parts[-1] }}"
+            organization: "{{ _eth_network_parts[0] if _eth_network_parts | length > 1 else item.0.key }}"
+{% endif %}
+{% if vnic.ethernet_network_group_policies is defined and vnic.ethernet_network_group_policies | length > 0 %}
+{% set _eng = vnic.ethernet_network_group_policies %}
+{% if _eng | length > 1 and _vnic_names | length == 2 %}
+{% set _eng_mid = (_eng | length // 2) %}
+{% set _eng_for_name = _eng[:_eng_mid] if idx == 0 else _eng[_eng_mid:] %}
+{% else %}
+{% set _eng_for_name = _eng %}
+{% endif %}
+    fabric_eth_network_group_policies:
+{% for eng in _eng_for_name %}
+{% set _eng_parts = eng.split('/') %}
+      - name: "{{ _eng_parts[-1] }}"
+        organization: "{{ _eng_parts[0] if _eng_parts | length > 1 else item.0.key }}"
+{% endfor %}
+{% endif %}
+{% if vnic.iscsi_boot_policies is defined and vnic.iscsi_boot_policies | length == _vnic_names | length %}
+{% set _iscsi_boot_policy = vnic.iscsi_boot_policies[idx] if vnic.iscsi_boot_policies | length > idx else vnic.iscsi_boot_policies[0] %}
+{% set _iscsi_boot_parts = _iscsi_boot_policy.split('/') %}
+    iscsi_boot_policy_name:
+      - name: "{{ _iscsi_boot_parts[-1] }}"
+        organization: "{{ _iscsi_boot_parts[0] if _iscsi_boot_parts | length > 1 else item.0.key }}"
+{% endif %}
+{% if vnic.mac_addresses_static is defined and vnic.mac_addresses_static | length  == _vnic_names | length %}
+    mac_address_type: "static"
+    static_mac_address: "{{ vnic.mac_addresses_static[idx] if vnic.mac_addresses_static | length > idx else vnic.mac_addresses_static[0] }}"
+{% else %}
+{% set _mac_pool = vnic.mac_address_pools[idx] if vnic.mac_address_pools | length > idx else vnic.mac_address_pools[0] | default('default') %}
+    mac_address_type: "pool"
+    mac_pool_name:
+      name: "{{ _mac_pool.split('/')[-1] }}"
+      organization: "{{ _mac_pool.split('/')[0] if _mac_pool.split('/') | length > 1 else item.0.key }}"
+{% endif %}
+{% if vnic.pin_group_names is defined and vnic.pin_group_names | length > 0 %}
+    ping_group_name: "{{ vnic.pin_group_names[idx] if vnic.pin_group_names | length > idx else vnic.pin_group_names[0] }}"
+{% endif %}
+{% if vnic.sriov is defined %}
+    connection_type: "sriov"
+{% elif vnic.usnic is defined %}
+    connection_type: "usnic"
+{% elif vnic.vmq is defined %}
+    connection_type: "vmq"
+{% else %}
+    connection_type: "none"
+{% endif %}
+{% if vnic.sriov is defined %}
+    sriov:
+      comp_count_per_vf: {{ vnic.sriov.completion_queue_count_per_vf | default(5) }}
+      enabled: true
+      int_count_per_vf: {{ vnic.sriov.interrupt_count_per_vf | default(8) }}
+      rx_count_per_vf: {{ vnic.sriov.receive_queue_count_per_vf | default(4) }}
+      tx_count_per_vf: {{ vnic.sriov.transmit_queue_count_per_vf | default(1) }}
+      vf_count: {{ vnic.sriov.number_of_vfs | default(64) }}
+{% else %}
+    sriov:
+      comp_count_per_vf: 5
+      enabled: false
+      int_count_per_vf: 8
+      rx_count_per_vf: 4
+      tx_count_per_vf: 1
+      vf_count: 64
+{% endif %}
+{% if vnic.usnic is defined and vnic.sriov is not defined %}
+{% set _usnic_adapter_policy = vnic.usnic.usnic_adapter_policy | default('default') %}
+    usnic_settings:
+      cos: {% if _lcp.target_platform | default('FIAttached') == 'Standalone' %}{{ vnic.usnic.class_of_service | default(5) }}{% else %}5{% endif %}
+      count: "{{ vnic.usnic.number_of_usnics | default(0) }}"
+      usnic_adapter_policy:
+        name: "{{ _usnic_adapter_policy.split('/')[-1] }}"
+        organization: "{{ _usnic_adapter_policy.split('/')[0] if _usnic_adapter_policy.split('/') | length > 1 else item.0.key }}"
+{% else %}
+    usnic_settings:
+      cos: 5
+      count: 0
+      usnic_adapter_policy_name: ""
+{% endif %}
+{% if vnic.vmq is defined and vnic.usnic is not defined and vnic.sriov is not defined %}
+{% set _vmmq_adapter_policy = vnic.vmq.vmmq_adapter_policy | default('default') %}
+    vmq_settings:
+      enabled: true
+      multi_queue_support: {{ vnic.vmq.enable_virtual_machine_multi_queue | default(false) }}
+      num_interrupts: "{{ vnic.vmq.number_of_interrupts | default(16) }}"
+      num_sub_vnics: "{{ vnic.vmq.number_of_sub_vnics | default(64) }}"
+      num_vmqs: "{{ vnic.vmq.number_of_virtual_machine_queues | default(4) }}"
+      vmmq_adapter_policy_name:
+        name: "{{ _vmmq_adapter_policy.split('/')[-1] }}"
+        organization: "{{ _vmmq_adapter_policy.split('/')[0] if _vmmq_adapter_policy.split('/') | length > 1 else item.0.key }}"
+{% else %}
+    vmq_settings:
+      enabled: false
+      multi_queue_support: false
+      num_interrupts: 16
+      num_sub_vnics: 64
+      num_vmqs: 4
+      vmmq_adapter_policy_name: ""
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endif %}
