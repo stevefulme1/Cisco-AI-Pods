@@ -9,6 +9,7 @@ pure.json
 backup/
 netapp/trident-installer/
 openshift/install/assisted-installer/
+qa/
 splunk_ai_pods/client/
 splunk_ai_pods/signer/
 script_vars/
