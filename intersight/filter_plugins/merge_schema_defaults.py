@@ -1437,9 +1437,27 @@ def merge_schema_defaults(item, schema, definition_key):
         templates = definitions.get(template_def_key, {})
         template_map = templates.get('properties', {}) if isinstance(templates, dict) else {}
         if isinstance(template_name, str) and isinstance(template_map, dict):
-            template_values = template_map.get(template_name)
-            if isinstance(template_values, dict):
-                defaults.update(template_values)
+            # BIOS templates support optional "-Tpm"/"-tpm" suffix. Resolve
+            # the base template and merge the shared TPM template values.
+            if definition_key == 'intersight.bios':
+                resolved_template_name = template_name
+                merge_tpm_defaults = False
+                if template_name.lower().endswith('-tpm'):
+                    resolved_template_name = re.sub(r'(?i)-tpm$', '', template_name)
+                    merge_tpm_defaults = True
+
+                template_values = template_map.get(resolved_template_name)
+                if isinstance(template_values, dict):
+                    defaults.update(template_values)
+
+                if merge_tpm_defaults:
+                    tpm_template_values = template_map.get('tpm')
+                    if isinstance(tpm_template_values, dict):
+                        defaults.update(tpm_template_values)
+            else:
+                template_values = template_map.get(template_name)
+                if isinstance(template_values, dict):
+                    defaults.update(template_values)
 
     merged = {}
     merged.update(defaults)

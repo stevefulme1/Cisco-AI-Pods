@@ -27,10 +27,30 @@
       ansible.builtin.assert:
         that:
           - run_from_all | default(false) | bool
-        fail_msg: "Run configure_intersight_all.yaml instead of this stage playbook directly."
+        fail_msg: "Run configure_intersight.yaml instead of this stage playbook directly."
+      tags:
+        - &profiles_stage_tags profiles
+        - profiles.domain
+        - profiles.chassis
+        - profiles.server
+        - templates.server
 
     - name: Load common authentication and model prelude
-      ansible.builtin.include_tasks: common_prelude.yaml
+      ansible.builtin.include_tasks:
+        file: common_prelude.yaml
+        apply:
+          tags:
+            - *profiles_stage_tags
+            - profiles.domain
+            - profiles.chassis
+            - profiles.server
+            - templates.server
+      tags:
+        - *profiles_stage_tags
+        - profiles.domain
+        - profiles.chassis
+        - profiles.server
+        - templates.server
 
     - name: Collect profile and template name prefix/suffix
       ansible.builtin.set_fact:
@@ -38,9 +58,29 @@
         profile_name_suffix: "{{ merged_model.intersight.profiles.name_suffix | default({}) }}"
         template_name_prefix: "{{ merged_model.intersight.templates.name_prefix | default({}) }}"
         template_name_suffix: "{{ merged_model.intersight.templates.name_suffix | default({}) }}"
+      tags:
+        - *profiles_stage_tags
+        - profiles.domain
+        - profiles.chassis
+        - profiles.server
+        - templates.server
 
     - name: Resolve profile dependencies
-      ansible.builtin.include_tasks: tasks/profiles_lookups.yaml
+      ansible.builtin.include_tasks:
+        file: tasks/profiles_lookups.yaml
+        apply:
+          tags:
+            - *profiles_stage_tags
+            - profiles.domain
+            - profiles.chassis
+            - profiles.server
+            - templates.server
+      tags:
+        - *profiles_stage_tags
+        - profiles.domain
+        - profiles.chassis
+        - profiles.server
+        - templates.server
 
     - name: Configure Domain profiles
       cisco.intersight.intersight_domain:
@@ -50,9 +90,9 @@
         description: "{{ item.1.description | default(omit) }}"
         name: |-
           {{
-            profile_name_prefix.domain | default(profile_name_prefix.default | default(''))
+            item.0.value.profiles.name_prefix.domain | default(item.0.value.profiles.name_prefix.default | default(profile_name_prefix.domain | default(profile_name_prefix.default | default(''))))
             ~ item.1.name
-            ~ profile_name_suffix.domain | default(profile_name_suffix.default | default(''))
+            ~ item.0.value.profiles.name_suffix.domain | default(item.0.value.profiles.name_suffix.default | default(profile_name_suffix.domain | default(profile_name_suffix.default | default(''))))
           }}
         network_connectivity_policy: "{{ item.1.network_connectivity_policy | default(omit) }}"
         ntp_policy: "{{ item.1.ntp_policy | default(omit) }}"
@@ -72,6 +112,8 @@
         }}
       loop_control:
         label: "{{ item.0.key ~ '/' ~ item.1.name }}"
+      tags:
+        - profiles.domain
 
     - name: Configure Chassis profiles (one profile per target)
       cisco.intersight.intersight_chassis_profile:
@@ -81,9 +123,9 @@
         imc_access_policy: "{{ item.0.1.imc_access_policy | default(omit) }}"
         name: |-
           {{
-            profile_name_prefix.chassis | default(profile_name_prefix.default | default(''))
+            item.0.0.value.profiles.name_prefix.chassis | default(item.0.0.value.profiles.name_prefix.default | default(profile_name_prefix.chassis | default(profile_name_prefix.default | default(''))))
             ~ item.1.name
-            ~ profile_name_suffix.chassis | default(profile_name_suffix.default | default(''))
+            ~ item.0.0.value.profiles.name_suffix.chassis | default(item.0.0.value.profiles.name_suffix.default | default(profile_name_suffix.chassis | default(profile_name_suffix.default | default(''))))
           }}
         organization: "{{ item.0.0.key }}"
         power_policy: "{{ item.0.1.power_policy | default(omit) }}"
@@ -99,6 +141,8 @@
         }}
       loop_control:
         label: "{{ item.0.0.key ~ '/' ~ item.1.name }}"
+      tags:
+        - profiles.chassis
 
     - name: Configure Server profile templates
       cisco.intersight.intersight_server_profile_template:
@@ -114,9 +158,9 @@
         local_user_policy: "{{ item.1.local_user_policy | default(omit) }}"
         name: |-
           {{
-            template_name_prefix.server | default(template_name_prefix.default | default(''))
+            item.0.value.templates.name_prefix.server | default(item.0.value.templates.name_prefix.default | default(template_name_prefix.server | default(template_name_prefix.default | default(''))))
             ~ item.1.name
-            ~ template_name_suffix.server | default(template_name_suffix.default | default(''))
+            ~ item.0.value.templates.name_suffix.server | default(item.0.value.templates.name_suffix.default | default(template_name_suffix.server | default(template_name_suffix.default | default(''))))
           }}
         organization: "{{ item.0.key }}"
         power_policy: "{{ item.1.power_policy | default(omit) }}"
@@ -136,6 +180,8 @@
         }}
       loop_control:
         label: "{{ item.0.key ~ '/' ~ item.1.name }}"
+      tags:
+        - templates.server
 
     - name: Build server template lookup per organization
       ansible.builtin.set_fact:
@@ -146,9 +192,9 @@
               item.value.templates.server | default([])
               | map('combine', {
                   'prefixed_name': (
-                    template_name_prefix.server | default(template_name_prefix.default | default(''))
+                    item.value.templates.name_prefix.server | default(item.value.templates.name_prefix.default | default(template_name_prefix.server | default(template_name_prefix.default | default(''))))
                     ~ item_server.name
-                    ~ template_name_suffix.server | default(template_name_suffix.default | default(''))
+                    ~ item.value.templates.name_suffix.server | default(item.value.templates.name_suffix.default | default(template_name_suffix.server | default(template_name_suffix.default | default(''))))
                   )
                 }
               )
@@ -159,15 +205,17 @@
       loop: "{{ organizations_map | dict2items }}"
       vars:
         item_server: "{{ item.value.templates.server | default([]) | first | default({}) }}"
+      tags:
+        - profiles.server
 
     - name: Configure Server profiles from associated templates (pre-assign unsupported)
       cisco.intersight.intersight_server_profile:
         <<: *api_info
         name: |-
           {{
-            profile_name_prefix.server | default(profile_name_prefix.default | default(''))
+            item.0.0.value.profiles.name_prefix.server | default(item.0.0.value.profiles.name_prefix.default | default(profile_name_prefix.server | default(profile_name_prefix.default | default(''))))
             ~ item.1.name
-            ~ profile_name_suffix.server | default(profile_name_suffix.default | default(''))
+            ~ item.0.0.value.profiles.name_suffix.server | default(item.0.0.value.profiles.name_suffix.default | default(profile_name_suffix.server | default(profile_name_suffix.default | default(''))))
           }}
         organization: "{{ item.0.0.key }}"
         target_platform: "{{ item.0.1.target_platform | default('FIAttached') }}"
@@ -204,9 +252,13 @@
         }}
       loop_control:
         label: "{{ item.0.0.key ~ '/' ~ item.1.name }}"
+      tags:
+        - profiles.server
 
     - name: Report profile module gaps compared to Terraform model
       ansible.builtin.debug:
         msg:
           - "Server profile pre-assign by chassis/slot is not currently implemented by cisco.intersight.intersight_server_profile."
           - "This playbook creates profile names from targets and applies policies from ucs_server_profile_template where possible."
+      tags:
+        - *profiles_stage_tags

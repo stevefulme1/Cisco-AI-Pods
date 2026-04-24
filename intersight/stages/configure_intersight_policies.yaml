@@ -18,14 +18,106 @@
     INTERSIGHT_API_PRIVATE_KEY: "{{ intersight_api_private_key }}"
     INTERSIGHT_API_URI: "{{ intersight_api_uri }}"
   tasks:
-    - name: Setup policy stage
-      ansible.builtin.include_tasks: tasks/setup.yaml
+    - name: Require top-level orchestration playbook
+      ansible.builtin.assert:
+        that:
+          - run_from_all | default(false) | bool
+        fail_msg: "Run configure_intersight.yaml instead of this stage playbook directly."
+      tags: &policies_stage_tags
+        - policies
+        - policies.adapter_configuration
+        - policies.bios
+        - policies.boot_order
+        - policies.certificate_management
+        - policies.device_connector
+        - policies.drive_security
+        - policies.ethernet_adapter
+        - policies.ethernet_network_control
+        - policies.ethernet_network_group
+        - policies.ethernet_qos
+        - policies.fibre_channel_adapter
+        - policies.fibre_channel_network
+        - policies.fibre_channel_qos
+        - policies.fc_zone
+        - policies.firmware
+        - policies.flow_control
+        - policies.imc_access
+        - policies.ipmi_over_lan
+        - policies.iscsi_adapter
+        - policies.iscsi_boot
+        - policies.iscsi_static_target
+        - policies.lan_connectivity
+        - policies.ldap
+        - policies.link_aggregation
+        - policies.link_control
+        - policies.local_user
+        - policies.multicast
+        - policies.network_connectivity
+        - policies.ntp
+        - policies.port
+        - policies.power
+        - policies.san_connectivity
+        - policies.smtp
+        - policies.snmp
+        - policies.ssh
+        - policies.storage
+        - policies.switch_control
+        - policies.syslog
+        - policies.system_qos
+        - policies.thermal
+        - policies.vhba_template
+        - policies.vlan
+        - policies.virtual_kvm
+        - policies.virtual_media
+        - policies.vnic_template
 
-    - name: Configure policy resources part A
+    - name: Load common authentication and model prelude
+      ansible.builtin.include_tasks:
+        file: common_prelude.yaml
+        apply:
+          tags: *policies_stage_tags
+      tags: *policies_stage_tags
+
+    - name: Configure policy resources part A per organization
       ansible.builtin.include_tasks: tasks/policies_part_a.yaml
+      loop: "{{ merged_model.intersight.organizations | default({}) | dict2items }}"
+      loop_control:
+        loop_var: org_item
+        label: "{{ org_item.key }}"
+      vars:
+        organizations_map: "{{ {org_item.key: org_item.value} }}"
+        policy_name_prefix: "{{ org_item.value.policies.name_prefix | default({}) }}"
+        policy_name_suffix: "{{ org_item.value.policies.name_suffix | default({}) }}"
+      tags: *policies_stage_tags
 
     - name: Resolve policy dependencies
-      ansible.builtin.include_tasks: tasks/policies_lookups.yaml
+      ansible.builtin.include_tasks:
+        file: tasks/policies_lookups.yaml
+        apply:
+          tags: *policies_stage_tags
+      when: >-
+        ('all' in ansible_run_tags)
+        or ('policies' in ansible_run_tags)
+        or ((ansible_run_tags | intersect([
+          'policies.imc_access',
+          'policies.iscsi_boot',
+          'policies.lan_connectivity',
+          'policies.port',
+          'policies.san_connectivity',
+          'policies.vhba_template',
+          'policies.vlan',
+          'policies.vnic_template'
+        ])) | length > 0)
+      tags: *policies_stage_tags
 
-    - name: Configure policy resources part B
+    - name: Configure policy resources part B per organization
       ansible.builtin.include_tasks: tasks/policies_part_b.yaml
+      loop: "{{ merged_model.intersight.organizations | default({}) | dict2items }}"
+      loop_control:
+        loop_var: org_item
+        label: "{{ org_item.key }}"
+      vars:
+        organizations_map: "{{ {org_item.key: org_item.value} }}"
+        policy_name_prefix: "{{ org_item.value.policies.name_prefix | default({}) }}"
+        policy_name_suffix: "{{ org_item.value.policies.name_suffix | default({}) }}"
+      tags: *policies_stage_tags

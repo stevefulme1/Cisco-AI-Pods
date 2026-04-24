@@ -21,7 +21,7 @@
       ansible.builtin.assert:
         that:
           - run_from_all | default(false) | bool
-        fail_msg: "Run configure_intersight_all.yaml instead of this stage playbook directly."
+        fail_msg: "Run configure_intersight.yaml instead of this stage playbook directly."
 
     - name: Load common authentication and model prelude
       ansible.builtin.include_tasks: common_prelude.yaml

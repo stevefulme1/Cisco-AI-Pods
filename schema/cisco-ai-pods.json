@@ -3,6 +3,486 @@
     "$ref": "#/definitions/cisco_ai_pods",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "definitions": {
+        "converged_pop_list": {
+            "description": "Policies to Exclude from the Wizard.",
+            "intersight_type": "not_applicable",
+            "intersight_uri": "not_applicable",
+            "object_type": "not_applicable",
+            "title": "ezci",
+            "properties": {
+                "azure_stack": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of Policies to Exclude from AzureStack HCI.",
+                    "title": "azure_stack",
+                    "enum": [
+                        "adapter_configuration",
+                        "certificate_management",
+                        "device_connector",
+                        "drive_security",
+                        "ethernet_adapter",
+                        "ethernet_network_control",
+                        "ethernet_network",
+                        "ethernet_qos",
+                        "fc_zone",
+                        "fibre_channel_adapter",
+                        "fibre_channel_network",
+                        "fibre_channel_qos",
+                        "ipmi_over_lan",
+                        "iscsi_adapter",
+                        "iscsi_boot",
+                        "iscsi_static_target",
+                        "lan_connectivity",
+                        "ldap",
+                        "persistent_memory",
+                        "san_connectivity",
+                        "sd_card",
+                        "server",
+                        "server_profile_templates",
+                        "smtp"
+                    ]
+                },
+                "domain": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of Policies to Exclude when deployment is IMM Domain.",
+                    "title": "domain",
+                    "enum": [
+                        "certificate_management",
+                        "drive_security",
+                        "ethernet_network_control",
+                        "ethernet_network_group",
+                        "sd_card",
+                        "storage"
+                    ]
+                },
+                "fc": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of Fibre-Channel Policies to Exclude when not using Fibre-Channel.",
+                    "title": "fc",
+                    "enum": [
+                        "fc_zone",
+                        "fibre_channel_adapter",
+                        "fibre_channel_network",
+                        "fibre_channel_qos",
+                        "san_connectivity"
+                    ]
+                },
+                "iscsi": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of iSCSI Policies to Exclude when not using iSCSI.",
+                    "title": "fc",
+                    "enum": [
+                        "iscsi_adapter",
+                        "iscsi_boot",
+                        "iscsi_static_target"
+                    ]
+                }
+            }
+        },
+        "nxos_timezone": {
+            "NorthAmerica": {
+                "description": "List of North American Countries.",
+                "type": "list_of_values",
+                "enum": [
+                    "CA",
+                    "GL",
+                    "US"
+                ],
+                "default": "US",
+                "x-omitempty": true
+            },
+            "SouthAmerica": {
+                "description": "List of South American Countries.",
+                "type": "list_of_values",
+                "enum": [
+                    "AR",
+                    "BO",
+                    "BR",
+                    "CL",
+                    "CO",
+                    "EC",
+                    "GF",
+                    "GY",
+                    "PE",
+                    "PY",
+                    "UY",
+                    "VE"
+                ],
+                "default": "BR",
+                "x-omitempty": true
+            },
+            "map": {
+                "Africa": {
+                    "+0000": {
+                        "daylight": "",
+                        "standard": "clock timezone GMT 0 0"
+                    },
+                    "+0100": {
+                        "daylight": "",
+                        "standard": "clock timezone CET 1 0"
+                    },
+                    "+0200": {
+                        "daylight": "",
+                        "standard": "clock timezone SAST 2 0"
+                    },
+                    "+0300": {
+                        "daylight": "",
+                        "standard": "clock timezone EAT 3 0"
+                    }
+                },
+                "Antarctica": {
+                    "-0300": {
+                        "daylight": "",
+                        "standard": "clock timezone ART -3 0"
+                    },
+                    "+0300": {
+                        "daylight": "",
+                        "standard": "clock timezone AQT 3 0"
+                    },
+                    "+0500": {
+                        "daylight": "",
+                        "standard": "clock timezone MAWT 5 0"
+                    },
+                    "+0600": {
+                        "daylight": "",
+                        "standard": "clock timezone VOST 6 0"
+                    },
+                    "+0700": {
+                        "daylight": "",
+                        "standard": "clock timezone DAVT 7 0"
+                    },
+                    "+0900": {
+                        "daylight": "",
+                        "standard": "clock timezone AQT 9 0"
+                    },
+                    "+1000": {
+                        "daylight": "",
+                        "standard": "clock timezone DDUT 10 0"
+                    },
+                    "+1100": {
+                        "daylight": "",
+                        "standard": "clock timezone AQT 11 0"
+                    }
+                },
+                "Asia": {
+                    "-0400": {
+                        "daylight": "clock summer-time ADT 2 Sunday March 2:00 1 Sunday November 2:00 60",
+                        "standard": "clock timezone AST -4 0"
+                    },
+                    "-0300": {
+                        "daylight": "",
+                        "standard": "clock timezone FKST -3 0"
+                    },
+                    "-0200": {
+                        "daylight": "",
+                        "standard": "clock timezone GST -2 0"
+                    },
+                    "-0100": {
+                        "daylight": "",
+                        "standard": "clock timezone CVT -1 0"
+                    },
+                    "+0000": {
+                        "daylight": "clock summer-time IDT last Sunday March 2:00 last Sunday October 2:00 60",
+                        "standard": "clock timezone IST 2 0"
+                    },
+                    "+0200": {
+                        "daylight": "clock summer-time IDT last Sunday March 2:00 last Sunday October 2:00 60",
+                        "standard": "clock timezone IST 2 0"
+                    },
+                    "+0300": {
+                        "daylight": "",
+                        "standard": "clock timezone AST 3 0"
+                    },
+                    "+0330": {
+                        "daylight": "clock summer-time IRDT 3 Wednesday Mar 00:00 4 Friday Sep 00:00 60",
+                        "standard": "clock timezone IRST 3 30"
+                    },
+                    "+0400": {
+                        "daylight": "",
+                        "standard": "clock timezone GST 4 0"
+                    },
+                    "+0430": {
+                        "daylight": "",
+                        "standard": "clock timezone AFT 4 30"
+                    },
+                    "+0500": {
+                        "daylight": "",
+                        "standard": "clock timezone PKT 5 0"
+                    },
+                    "+0530": {
+                        "daylight": "",
+                        "standard": "clock timezone IST 5 30"
+                    },
+                    "+0545": {
+                        "daylight": "",
+                        "standard": "clock timezone NPT 5 45"
+                    },
+                    "+0600": {
+                        "daylight": "",
+                        "standard": "clock timezone BST 6 0"
+                    },
+                    "+0630": {
+                        "daylight": "",
+                        "standard": "clock timezone MMT 6 30"
+                    },
+                    "+0700": {
+                        "daylight": "",
+                        "standard": "clock timezone ICT 7 0"
+                    },
+                    "+0800": {
+                        "daylight": "",
+                        "standard": "clock timezone HKT 8 0"
+                    },
+                    "+0900": {
+                        "daylight": "",
+                        "standard": "clock timezone KST 9 0"
+                    },
+                    "+1000": {
+                        "daylight": "",
+                        "standard": "clock timezone VLAT 10 0"
+                    },
+                    "+1100": {
+                        "daylight": "",
+                        "standard": "clock timezone SRET 11 0"
+                    },
+                    "+1200": {
+                        "daylight": "",
+                        "standard": "clock timezone ANAT 12 0"
+                    }
+                },
+                "Atlantic": {
+                    "-0000": {
+                        "daylight": "clock summer-time BST last Sunday March 1:00 last Sunday October 2:00 60",
+                        "standard": "clock timezone GMT 0 0"
+                    },
+                    "-0400": {
+                        "daylight": "clock summer-time CEST last Sunday March 2:00 last Sunday October 3:00 60",
+                        "standard": "clock timezone CET 1 0"
+                    },
+                    "-0300": {
+                        "daylight": "clock summer-time EEST last Sunday March 3:00 last Sunday October 4:00 60",
+                        "standard": "clock timezone EET 2 0"
+                    },
+                    "-0200": {
+                        "daylight": "",
+                        "standard": "clock timezone MSK 3 0"
+                    },
+                    "-0100": {
+                        "daylight": "clock summer-time AZOT last Sunday March 0:00 last Sunday October 0:00 60",
+                        "standard": "clock timezone AZOST 0 0"
+                    },
+                    "+0000": {
+                        "daylight": "clock summer-time WEST last Sunday March 0:00 last Sunday October 0:00 60",
+                        "standard": "clock timezone WET 0 0"
+                    }
+                },
+                "Australia": {
+                    "+0800": {
+                        "daylight": "",
+                        "standard": "clock timezone AWST 8 0"
+                    },
+                    "+0930": {
+                        "daylight": "clock summer-time LHDT 1 Sunday October 2:00 1 Sunday April 3:00 60",
+                        "standard": "clock timezone LHST 9 30"
+                    },
+                    "+1000": {
+                        "daylight": "clock summer-time AEDT 1 Sunday October 2:00 1 Sunday April 3:00 60",
+                        "standard": "clock timezone AEST 10 0"
+                    },
+                    "+1030": {
+                        "daylight": "clock summer-time ACDT 1 Sunday October 2:00 1 Sunday April 3:00 60",
+                        "standard": "clock timezone ACST 10 30"
+                    },
+                    "+1100": {
+                        "daylight": "",
+                        "standard": "clock timezone VUT 11"
+                    }
+                },
+                "CentralAmerica": {
+                    "-0800": {
+                        "daylight": "clock summer-time PDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
+                        "standard": "clock timezone PST -8 0"
+                    },
+                    "-0700": {
+                        "daylight": "clock summer-time MDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
+                        "standard": "clock timezone MST -7 0"
+                    },
+                    "-0600": {
+                        "daylight": "clock summer-time CDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
+                        "standard": "clock timezone CST -6 0"
+                    },
+                    "-0500": {
+                        "daylight": "clock summer-time EDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
+                        "standard": "clock timezone EST -5 0"
+                    },
+                    "-0400": {
+                        "daylight": "",
+                        "standard": "clock timezone AST -4 0"
+                    },
+                    "-0300": {
+                        "daylight": "clock summer-time PMDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
+                        "standard": "clock timezone PMST -3 0"
+                    }
+                },
+                "Europe": {
+                    "+0000": {
+                        "daylight": "clock summer-time BST last Sunday March 1:00 last Sunday October 2:00 60",
+                        "standard": "clock timezone GMT"
+                    },
+                    "+0100": {
+                        "daylight": "clock summer-time CEST last Sunday March 2:00 last Sunday October 3:00 60",
+                        "standard": "clock timezone CET 1 0"
+                    },
+                    "+0200": {
+                        "daylight": "clock summer-time EEST last Sunday March 3:00 last Sunday October 4:00 60",
+                        "standard": "clock timezone EET 2 0"
+                    },
+                    "+0300": {
+                        "daylight": "",
+                        "standard": "clock timezone MSK 3 0"
+                    },
+                    "+0400": {
+                        "daylight": "",
+                        "standard": "clock timezone SAMT 4 0"
+                    }
+                },
+                "Indian": {
+                    "+0400": {
+                        "daylight": "",
+                        "standard": "clock timezone MUS 4 0"
+                    },
+                    "+0500": {
+                        "daylight": "",
+                        "standard": "clock timezone TFT 5 0"
+                    },
+                    "+0600": {
+                        "daylight": "",
+                        "standard": "clock timezone IOT 6 0"
+                    },
+                    "+0630": {
+                        "daylight": "",
+                        "standard": "clock timezone CCT 6 30"
+                    },
+                    "+0700": {
+                        "daylight": "",
+                        "standard": "clock timezone CXT 7 0"
+                    }
+                },
+                "NorthAmerica": {
+                    "-0900": {
+                        "daylight": "clock summer-time AKDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
+                        "standard": "clock timezone AKST -9 0"
+                    },
+                    "-0800": {
+                        "daylight": "clock summer-time PDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
+                        "standard": "clock timezone PST -8 0"
+                    },
+                    "-0700": {
+                        "daylight": "clock summer-time MDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
+                        "standard": "clock timezone MST -7 0"
+                    },
+                    "-0600": {
+                        "daylight": "clock summer-time CDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
+                        "standard": "clock timezone CST -6 0"
+                    },
+                    "-0500": {
+                        "daylight": "clock summer-time EDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
+                        "standard": "clock timezone EST -5 0"
+                    },
+                    "-0400": {
+                        "daylight": "clock summer-time ADT 2 Sunday March 2:00 1 Sunday November 2:00 60",
+                        "standard": "clock timezone AST -4 0"
+                    },
+                    "-0330": {
+                        "daylight": "clock summer-time NDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
+                        "standard": "clock timezone NFT -3 30"
+                    },
+                    "-0100": {
+                        "daylight": "",
+                        "standard": "clock timezone EGT -1 0"
+                    },
+                    "+0000": {
+                        "daylight": "",
+                        "standard": "clock timezone GMT 0 0"
+                    }
+                },
+                "Pacific": {
+                    "-1100": {
+                        "daylight": "",
+                        "standard": "clock timezone BST -11 0"
+                    },
+                    "-1000": {
+                        "daylight": "",
+                        "standard": "clock timezone HST -10 0"
+                    },
+                    "-0930": {
+                        "daylight": "",
+                        "standard": "clock timezone MART -9 30"
+                    },
+                    "-0900": {
+                        "daylight": "",
+                        "standard": "clock timezone GAMT -9 0"
+                    },
+                    "-0800": {
+                        "daylight": "",
+                        "standard": "clock timezone PST -8 0"
+                    },
+                    "-0600": {
+                        "daylight": "",
+                        "standard": "clock timezone GALT -6 0"
+                    },
+                    "-0500": {
+                        "daylight": "clock summer-time EADT 1 Sunday October 2:00 1 Sunday April 3:00 60",
+                        "standard": "clock timezone EAST -6 0"
+                    },
+                    "+0900": {
+                        "daylight": "",
+                        "standard": "clock timezone PWT 9 0"
+                    },
+                    "+1000": {
+                        "daylight": "",
+                        "standard": "clock timezone GUT 10 0"
+                    },
+                    "+1100": {
+                        "daylight": "",
+                        "standard": "clock timezone PONT 11 0"
+                    },
+                    "+1200": {
+                        "daylight": "",
+                        "standard": "clock timezone FJI 12 0"
+                    },
+                    "+1300": {
+                        "daylight": "",
+                        "standard": "clock timezone WST 13 0"
+                    },
+                    "+1400": {
+                        "daylight": "",
+                        "standard": "clock timezone LINT 14 0"
+                    }
+                },
+                "SouthAmerica": {
+                    "-0500": {
+                        "daylight": "",
+                        "standard": "clock timezone PET -5"
+                    },
+                    "-0400": {
+                        "daylight": "",
+                        "standard": "clock timezone BOT -4"
+                    },
+                    "-0300": {
+                        "daylight": "",
+                        "standard": "clock timezone BRT -3"
+                    },
+                    "-0200": {
+                        "daylight": "",
+                        "standard": "clock timezone FNT -3"
+                    }
+                }
+            }
+        },
         "abstract.dns_1123_label": {
             "default": "example",
             "description": "The default value is `example`.  Most Objects (Namespaces, Pods, Services, Routes): OpenShift Limits this to 49 characters max.",
@@ -996,7 +1476,6 @@
             ],
             "description": "This dictionary defines the Intersight deployment settings.\n\nRequired Fields are:\n  * `organizations`\n\nOptional Fields are:\n  * `global_settings`",
             "required": [
-                "organizations"
             ],
             "title": "Intersight deployment settings",
             "type": "object",
@@ -11583,6 +12062,362 @@
             "type": "object",
             "unevaluatedProperties": false
         },
+        "intersight.ezimm_class": {
+            "description": "Folder/YAML Structure for the ezimm Folder Structure.",
+            "intersight_type": "not_applicable",
+            "intersight_uri": "not_applicable",
+            "object_type": "not_applicable",
+            "title": "ezimm",
+            "properties": {
+                "classes": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of Folders in the YAML Structure for ezimm.",
+                    "title": "classes",
+                    "enum": [
+                        "netapp",
+                        "policies",
+                        "pools",
+                        "profiles",
+                        "storage",
+                        "templates",
+                        "wizard"
+                    ]
+                },
+                "compute": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the compute.ezi.yaml file.",
+                    "directory": "policies",
+                    "title": "compute",
+                    "enum": [
+                        "bios",
+                        "boot_order",
+                        "firmware",
+                        "firmware_authenticate",
+                        "persistent_memory",
+                        "virtual_media"
+                    ]
+                },
+                "domain": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the policies/domain.ezi.yaml file.",
+                    "directory": "policies",
+                    "title": "domain",
+                    "enum": [
+                        "flow_control",
+                        "link_aggregation",
+                        "link_control",
+                        "switch_control",
+                        "system_qos"
+                    ]
+                },
+                "environment": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the environment.ezi.yaml file.",
+                    "directory": "policies",
+                    "title": "environment",
+                    "enum": [
+                        "power",
+                        "thermal"
+                    ]
+                },
+                "ethernet": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the ethernet.ezi.yaml file.",
+                    "directory": "policies",
+                    "title": "ethernet",
+                    "enum": [
+                        "adapter_configuration",
+                        "ethernet_adapter",
+                        "ethernet_network",
+                        "ethernet_network_control",
+                        "ethernet_network_group",
+                        "ethernet_qos",
+                        "iscsi_adapter",
+                        "iscsi_boot",
+                        "iscsi_static_target"
+                    ]
+                },
+                "fibre_channel": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the fibre_channel.ezi.yaml file.",
+                    "directory": "policies",
+                    "title": "fibre_channel",
+                    "enum": [
+                        "fc_zone",
+                        "fibre_channel_adapter",
+                        "fibre_channel_network",
+                        "fibre_channel_qos"
+                    ]
+                },
+                "lan_connectivity": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the lan_connectivity.ezi.yaml file.",
+                    "directory": "policies",
+                    "title": "lan_connectivity",
+                    "enum": [
+                        "lan_connectivity"
+                    ]
+                },
+                "management": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the management.ezi.yaml file.",
+                    "directory": "policies",
+                    "title": "management",
+                    "enum": [
+                        "certificate_management",
+                        "device_connector",
+                        "imc_access",
+                        "ipmi_over_lan",
+                        "ldap",
+                        "local_user",
+                        "network_connectivity",
+                        "ntp",
+                        "serial_over_lan",
+                        "smtp",
+                        "snmp",
+                        "ssh",
+                        "syslog",
+                        "virtual_kvm"
+                    ]
+                },
+                "name_pfx_sfx": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the name_pfx_sfx.ezi.yaml file.",
+                    "title": "name_pfx_sfx",
+                    "enum": [
+                        "name_prefix",
+                        "name_suffix"
+                    ]
+                },
+                "netapp": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the netapp folder.",
+                    "directory": "netapp",
+                    "title": "netapp",
+                    "enum": [
+                        "netapp"
+                    ]
+                },
+                "policies": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the policies folder.",
+                    "directory": "policies",
+                    "title": "policies",
+                    "enum": [
+                        "compute",
+                        "domain",
+                        "environment",
+                        "ethernet",
+                        "fibre_channel",
+                        "lan_connectivity",
+                        "management",
+                        "name_pfx_sfx",
+                        "policies.templates",
+                        "port",
+                        "san_connectivity",
+                        "storage",
+                        "vlan",
+                        "vsan"
+                    ]
+                },
+                "policis.templates": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the policies/templates.ezi.yaml file.",
+                    "directory": "policies",
+                    "title": "templates",
+                    "enum": [
+                        "vhba_template",
+                        "vnic_template"
+                    ]
+                },
+                "pools": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the pools folder.",
+                    "directory": "pools",
+                    "title": "pools",
+                    "enum": [
+                        "name_pfx_sfx",
+                        "pools.pools"
+                    ]
+                },
+                "pools.pools": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the pools.ezi.yaml file.",
+                    "title": "pools",
+                    "enum": [
+                        "ip",
+                        "iqn",
+                        "mac",
+                        "resource",
+                        "uuid",
+                        "wwnn",
+                        "wwpn"
+                    ]
+                },
+                "port": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the port.ezi.yaml file.",
+                    "title": "port",
+                    "enum": [
+                        "port"
+                    ]
+                },
+                "profiles": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the profiles folder.",
+                    "directory": "profiles",
+                    "title": "profiles",
+                    "enum": [
+                        "name_pfx_sfx",
+                        "profiles.chassis",
+                        "profiles.domain",
+                        "profiles.server"
+                    ]
+                },
+                "profiles.chassis": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the profiles/chassis.ezi.yaml file.",
+                    "directory": "profiles",
+                    "title": "chassis",
+                    "enum": [
+                        "chassis"
+                    ]
+                },
+                "profiles.domain": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the profiles/domain.ezi.yaml file.",
+                    "directory": "profiles",
+                    "title": "domain",
+                    "enum": [
+                        "domain"
+                    ]
+                },
+                "profiles.server": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the profiles/server.ezi.yaml file.",
+                    "directory": "profiles",
+                    "title": "server",
+                    "enum": [
+                        "server"
+                    ]
+                },
+                "san_connectivity": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the san_connectivity.ezi.yaml file.",
+                    "title": "san_connectivity",
+                    "enum": [
+                        "san_connectivity"
+                    ]
+                },
+                "storage": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the storage.ezi.yaml file.",
+                    "directory": "storage",
+                    "title": "storage",
+                    "enum": [
+                        "sd_card",
+                        "storage"
+                    ]
+                },
+                "templates": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the templates.ezi.yaml file.",
+                    "directory": "templates",
+                    "title": "templates",
+                    "enum": [
+                        "name_pfx_sfx",
+                        "templates.chassis",
+                        "templates.domain",
+                        "templates.server"
+                    ]
+                },
+                "templates.chassis": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the templates/chassis.ezi.yaml file.",
+                    "directory": "templates",
+                    "title": "chassis",
+                    "enum": [
+                        "chassis"
+                    ]
+                },
+                "templates.domain": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the templates/domain.ezi.yaml file.",
+                    "directory": "templates",
+                    "title": "domain",
+                    "enum": [
+                        "domain"
+                    ]
+                },
+                "templates.server": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the templates/server.ezi.yaml file.",
+                    "directory": "templates",
+                    "title": "server",
+                    "enum": [
+                        "server"
+                    ]
+                },
+                "vlan": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the vlan.ezi.yaml file.",
+                    "directory": "policies",
+                    "title": "vlan",
+                    "enum": [
+                        "multicast",
+                        "vlan"
+                    ]
+                },
+                "vsan": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the vsan.ezi.yaml file.",
+                    "directory": "policies",
+                    "title": "vsan",
+                    "enum": [
+                        "vsan"
+                    ]
+                },
+                "wizard": {
+                    "type": "string",
+                    "default": "",
+                    "description": "List of objects in the wizard folder.",
+                    "directory": "wizard",
+                    "title": "wizard",
+                    "enum": [
+                        "server_profiles",
+                        "setup",
+                        "os_configuration"
+                    ]
+                }
+            }
+        },
         "intersight.fc_zone": {
             "allOf": [
                 {
@@ -12556,6 +13391,11 @@
             "additionalProperties": false,
             "description": "Global Settings for Terraform Module Setup.",
             "properties": {
+                "include_script_tags": {
+                    "default": true,
+                    "description": "Include script tags in the output.",
+                    "type": "boolean"
+                },
                 "intersight_fqdn": {
                     "default": "intersight.com",
                     "description": "The default value is `intersight.com`.  Intersight Fully Qualified Domain Name.",
@@ -13720,17 +14560,6 @@
                                     "title": "target_platform",
                                     "type": "string"
                                 },
-                                "vnic_placement_mode": {
-                                    "default": "custom",
-                                    "description": "The default value is `custom`.  The mode used for placement of vNICs on network adapters. It can either be Auto or Custom.\n\n  * `custom` - The placement of the vNICs / vHBAs on network adapters is manually chosen by the user.\n  * `auto` - The placement of the vNICs / vHBAs on network adapters is automatically determined by the system.",
-                                    "enum": [
-                                        "custom",
-                                        "auto"
-                                    ],
-                                    "intersight_api": "PlacementMode",
-                                    "title": "vnic_placement_mode",
-                                    "type": "string"
-                                },
                                 "vnics": {
                                     "description": "List of vNICs for Standalone Servers to add to the LAN Connectivity policy.\n\nRequired Attributes:\n  * `ethernet_adapter_policy`\n  * `ethernet_network_policies`\n  * `ethernet_qos_policy`\n  * `names`\n  * `placement`\n\nOptional Attributes:\n  * `cdn_values`\n  * `iscsi_boot_policies`\n  * `sriov`\n  * `usnic`\n  * `vmq`",
                                     "intersight_uri": "vnic/EthIfs",
@@ -13751,7 +14580,7 @@
                                         ]
                                     },
                                     "maxItems": 256,
-                                    "minItems": 1,
+                                    "minItems": 2,
                                     "object_type": "vnic.EthIf",
                                     "title": "vnics - Vnics - Intersight Uri: vnic/EthIfs",
                                     "type": "array",
@@ -13931,7 +14760,7 @@
                             "default"
                         ]
                     },
-                    "maxItems": 255,
+                    "maxItems": 16,
                     "minItems": 1,
                     "object_type": "fabric.EthNetworkGroupPolicy",
                     "title": "ethernet_network_group_policies - Ethernet Network Group Policies",
@@ -13980,7 +14809,7 @@
                             "default"
                         ]
                     },
-                    "maxItems": 255,
+                    "maxItems": 16,
                     "minItems": 1,
                     "object_type": "fabric.NetFlowMonitor",
                     "title": "flow_monitor_policies - Netflow Configuration > Flow Monitor Policies",
@@ -18315,6 +19144,19 @@
                     "minLength": 0,
                     "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
                     "title": "multicast",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "netflow_configuration": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the NetFlow Configuration Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "netflow_configuration",
                     "type": "string",
                     "examples": [
                         ""
@@ -26842,38 +27684,70 @@
             "description": "",
             "intersight_api": "Tags",
             "object_type": "mo.Tag",
+            "allOf": [
+                {
+                    "if": {
+                        "required": [
+                            "type"
+                        ],
+                        "properties": {
+                            "type": {
+                                "const": "PathTag"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "key"
+                        ]
+                    },
+                    "else": {
+                        "required": [
+                            "key",
+                            "value"
+                        ]
+                    }
+                }
+            ],
             "properties": {
                 "key": {
                     "default": "key",
                     "description": "The default value is `key`.  The tag key for which usage information is provided.",
+                    "examples": [
+                        "key"
+                    ],
                     "intersight_api": "Key",
                     "maxLength": 356,
                     "minLength": 1,
-                    "pattern": "^[\\S]+$",
+                    "pattern": "^.*$",
                     "title": "key",
-                    "type": "string",
-                    "examples": [
-                        "key"
-                    ]
+                    "type": "string"
+                },
+                "type": {
+                    "default": "KeyValue",
+                    "description": "The default value is `KeyValue`.  An enum type that defines the type of tag. Supported values are `PathTag` and `KeyValue`.\n  * `KeyValue` - KeyValue type of tag. Key is required for these tags. Value is required for these tags.\n  * `PathTag` - Key contain path information. Value is not present for these tags. The path is created by using the \\'/\\' character as a delimiter.For example, if the tag is \"A/B/C\", then \"A\" is the parent tag, \"B\" is the child tag of \"A\" and \"C\" is the child tag of \"B\".'",
+                    "intersight_api": "Type",
+                    "enum": [
+                        "PathTag",
+                        "KeyValue"
+                    ],
+                    "title": "type",
+                    "type": "string"
                 },
                 "value": {
                     "default": "value",
                     "description": "The default value is `value`.  The tag value that has been assigned to this Key.",
+                    "examples": [
+                        "value"
+                    ],
                     "intersight_api": "Value",
                     "maxLength": 256,
                     "minLength": 1,
-                    "pattern": "^[\\S]+$",
+                    "pattern": "^.*$",
                     "title": "value",
-                    "type": "string",
-                    "examples": [
-                        "value"
-                    ]
+                    "type": "string"
                 }
             },
-            "required": [
-                "key",
-                "value"
-            ],
             "title": "tags",
             "type": "object"
         },
@@ -33191,5 +34065,13 @@
         }
     },
     "description": "JSON Schema for Cisco AI Pods.",
-    "title": "Cisco AI Pods"
+    "contact": {
+        "email": "tyscott@cisco.com"
+    },
+    "license": {
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT"
+    },
+    "title": "Cisco AI Pods - JSON Schema",
+    "version": "2.1.1"
 }

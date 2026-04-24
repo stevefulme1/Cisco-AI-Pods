@@ -6,23 +6,38 @@
       - intersight_api_private_key | length > 0
     fail_msg: >-
       Set intersight_api_key_id and intersight_secret_key before running this playbook.
+  tags:
+    - always
+
+- name: Set shared module validation flag
+  ansible.builtin.set_fact:
+    module_validate_certs: "{{ intersight_validate_certs | default(true) | bool }}"
+  tags:
+    - always
 
 - name: Initialize merged model
   ansible.builtin.set_fact:
     merged_model: {}
+  tags:
+    - always
 
 - name: Merge model files
   ansible.builtin.set_fact:
     merged_model: "{{ merged_model | combine((lookup('ansible.builtin.file', item) | from_yaml), recursive=True, list_merge='append') }}"
   loop: "{{ model_files }}"
+  tags:
+    - always
 
 - name: Validate all sensitive environment variables against model
+  tags:
+    - always
   block:
     - name: Create temporary directory for validation
       ansible.builtin.tempfile:
         state: directory
         prefix: ansible_validation_
       register: temp_dir
+      check_mode: false
 
     - name: Save merged model to temporary file
       ansible.builtin.copy:
@@ -30,6 +45,7 @@
         dest: "{{ temp_dir.path }}/merged_model.json"
         mode: '0644'
       changed_when: false
+      when: temp_dir.path is defined
 
     - name: Run sensitive variables validator
       ansible.builtin.command:
@@ -39,16 +55,17 @@
       changed_when: false
       register: validation_result
       failed_when: validation_result.rc != 0
+      when: temp_dir.path is defined
 
     - name: Display validation results
       ansible.builtin.debug:
         msg: "{{ validation_result.stdout }}"
-      when: validation_result.stdout is defined and validation_result.stdout | length > 0
+      when: validation_result is defined and validation_result.stdout is defined and validation_result.stdout | length > 0
 
     - name: Display validation errors
       ansible.builtin.debug:
         msg: "{{ validation_result.stderr }}"
-      when: validation_result.stderr is defined and validation_result.stderr | length > 0
+      when: validation_result is defined and validation_result.stderr is defined and validation_result.stderr | length > 0
 
   always:
     - name: Clean up temporary directory
@@ -56,7 +73,10 @@
         path: "{{ temp_dir.path }}"
         state: absent
       when: temp_dir.path is defined
+      check_mode: false
 
 - name: Collect organizations map
   ansible.builtin.set_fact:
     organizations_map: "{{ merged_model.intersight.organizations | default({}) }}"
+  tags:
+    - always

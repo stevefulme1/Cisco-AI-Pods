@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/Cisco-AI-Pods/schema/cisco-ai-pods.json --- IGNORE ---
+# =======================================
+#   Global Settings
+# =======================================
+intersight:
+  global_settings:
+    intersight_fqdn: intersight.com
+    tags:
+      - key: "Module"
+        value: "easy-imm"
+      - key: "Version"
+        value: "4.2.11-20250512205939815"

@@ -12,6 +12,8 @@
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.iscsi_boot', {'skip_missing': True}) }}"
   loop_control:
     label: "{{ item.0.key ~ '/' ~ item.1.name }}"
+  tags:
+    - policies.iscsi_boot
 
 - name: Configure LAN Connectivity policies
   # noqa: args[module]
@@ -26,6 +28,8 @@
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.lan_connectivity', {'skip_missing': True}) }}"
   loop_control:
     label: "{{ item.0.key ~ '/' ~ item.1.name }}"
+  tags:
+    - policies.lan_connectivity
 
 - name: Build Port policy payloads  # noqa jinja[invalid]
   ansible.builtin.set_fact:
@@ -48,6 +52,8 @@
         | list
       }}
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.port', {'skip_missing': True}) }}"
+  tags:
+    - policies.port
 
 - name: Configure Port policies
   # noqa: args[module]
@@ -62,6 +68,8 @@
   loop: "{{ expanded_port_policy_payloads | default([]) }}"
   loop_control:
     label: "{{ (item.organization | default('global')) ~ '/' ~ (item.name | default(item.key | default(item | string))) }}"
+  tags:
+    - policies.port
 
 - name: Configure SAN Connectivity policies
   # noqa: args[module]
@@ -76,6 +84,8 @@
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.san_connectivity', {'skip_missing': True}) }}"
   loop_control:
     label: "{{ item.0.key ~ '/' ~ item.1.name }}"
+  tags:
+    - policies.san_connectivity
 
 - name: Configure vHBA Template policies
   # noqa: args[module]
@@ -90,6 +100,8 @@
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.vhba_template', {'skip_missing': True}) }}"
   loop_control:
     label: "{{ item.0.key ~ '/' ~ item.1.name }}"
+  tags:
+    - policies.vhba_template
 
 - name: Configure VLAN policies
   # noqa: args[module]
@@ -104,6 +116,8 @@
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.vlan', {'skip_missing': True}) }}"
   loop_control:
     label: "{{ item.0.key ~ '/' ~ item.1.name }}"
+  tags:
+    - policies.vlan
 
 - name: Configure vNIC Template policies
   # noqa: args[module]
@@ -118,6 +132,8 @@
   loop: "{{ query('ansible.builtin.subelements', organizations_map | dict2items, 'value.policies.vnic_template', {'skip_missing': True}) }}"
   loop_control:
     label: "{{ item.0.key ~ '/' ~ item.1.name }}"
+  tags:
+    - policies.vnic_template
 
 - name: Report unsupported policy types in this module set
   ansible.builtin.debug:
@@ -125,3 +141,5 @@
       - "Skipping unsupported policy type 'scrub' (no dedicated cisco.intersight module)."
       - "Skipping unsupported policy type 'serial_over_lan' (no dedicated cisco.intersight module)."
       - "Skipping unsupported policy type 'ethernet_network' (no dedicated cisco.intersight module)."
+  tags:
+    - always

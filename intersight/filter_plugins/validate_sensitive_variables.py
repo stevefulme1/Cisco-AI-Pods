@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 # Schema path (relative to filter_plugins directory)
-_SCHEMA_PATH = Path(__file__).parent.parent.parent / "schema" / "cisco-ai-pods.json"
+_SCHEMA_PATH = Path(__file__).resolve().parent.parent.parent / "schema" / "cisco-ai-pods.json"
 
 # Sensitive variable patterns indexed by prefix
 # Maps env_prefix -> (schema_key, description)

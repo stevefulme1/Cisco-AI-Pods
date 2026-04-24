@@ -1,141 +1,460 @@
----
-{% set _prefix = policy_name_prefix.bios | default(policy_name_prefix.default | default('')) %}
-{% set _suffix = policy_name_suffix.bios | default(policy_name_suffix.default | default('')) %}
-{% set _skip_keys = ['bios_template', 'description', 'name', 'tags'] %}
-{% set _valid_params = [
-    'acs_control_gpu1state', 'acs_control_gpu2state', 'acs_control_gpu3state',
-    'acs_control_gpu4state', 'acs_control_gpu5state', 'acs_control_gpu6state',
-    'acs_control_gpu7state', 'acs_control_gpu8state', 'acs_control_slot11state',
-    'acs_control_slot12state', 'acs_control_slot13state', 'acs_control_slot14state',
-    'adaptive_refresh_mgmt_level', 'adjacent_cache_line_prefetch', 'advanced_mem_test',
-    'all_usb_devices', 'altitude', 'aspm_support', 'assert_nmi_on_perr',
-    'assert_nmi_on_serr', 'auto_cc_state', 'autonumous_cstate_enable', 'baud_rate',
-    'bme_dma_mitigation', 'boot_option_num_retry', 'boot_option_re_cool_down',
-    'boot_option_retry', 'boot_performance_mode', 'burst_and_postponed_refresh',
-    'c1auto_demotion', 'c1auto_un_demotion', 'cbs_cmn_apbdis', 'cbs_cmn_cpu_cpb',
-    'cbs_cmn_cpu_gen_downcore_ctrl', 'cbs_cmn_cpu_global_cstate_ctrl',
-    'cbs_cmn_cpu_l1stream_hw_prefetcher', 'cbs_cmn_cpu_l2stream_hw_prefetcher',
-    'cbs_cmn_cpu_smee', 'cbs_cmn_cpu_streaming_stores_ctrl',
-    'cbs_cmn_determinism_slider', 'cbs_cmn_efficiency_mode_en',
-    'cbs_cmn_fixed_soc_pstate', 'cbs_cmn_gnb_nb_iommu', 'cbs_cmn_gnb_smu_df_cstates',
-    'cbs_cmn_gnb_smucppc', 'cbs_cmn_mem_ctrl_bank_group_swap_ddr4',
-    'cbs_cmn_mem_map_bank_interleave_ddr4', 'cbs_cmnc_tdp_ctl', 'cbs_cpu_ccd_ctrl_ssp',
-    'cbs_cpu_core_ctrl', 'cbs_cpu_smt_ctrl', 'cbs_dbg_cpu_snp_mem_cover',
-    'cbs_dbg_cpu_snp_mem_size_cover', 'cbs_df_cmn_acpi_srat_l3numa',
-    'cbs_df_cmn_dram_nps', 'cbs_df_cmn_mem_intlv', 'cbs_df_cmn_mem_intlv_size',
-    'cbs_sev_snp_support', 'cdn_enable', 'cdn_support', 'channel_inter_leave',
-    'cisco_adaptive_mem_training', 'cisco_debug_level', 'cisco_oprom_launch_optimization',
-    'cisco_xgmi_max_speed', 'cke_low_policy', 'closed_loop_therm_throtl', 'cmci_enable',
-    'config_tdp', 'config_tdp_level', 'console_redirection', 'core_multi_processing',
-    'cpu_energy_performance', 'cpu_frequency_floor', 'cpu_pa_limit',
-    'cpu_perf_enhancement', 'cpu_performance', 'cpu_power_management', 'cr_qos',
-    'crfastgo_config', 'dcpmm_firmware_downgrade', 'demand_scrub', 'direct_cache_access',
-    'dma_ctrl_opt_in', 'dram_clock_throttling', 'dram_refresh_rate',
-    'dram_sw_thermal_throttling', 'eadr_support', 'edpc_en', 'enable_clock_spread_spec',
-    'enable_mktme', 'enable_rmt', 'enable_sgx', 'enable_tme', 'energy_efficient_turbo',
-    'eng_perf_tuning', 'enhanced_intel_speed_step_tech', 'epoch_update', 'epp_enable',
-    'epp_profile', 'error_check_scrub', 'execute_disable_bit', 'extended_apic',
-    'flow_control', 'frb2enable', 'hardware_prefetch', 'hwpm_enable', 'imc_interleave',
-    'intel_dynamic_speed_select', 'intel_hyper_threading_tech', 'intel_speed_select',
-    'intel_turbo_boost_tech', 'intel_virtualization_technology', 'intel_vt_for_directed_io',
-    'intel_vtd_coherency_support', 'intel_vtd_interrupt_remapping',
-    'intel_vtd_pass_through_dma_support', 'intel_vtdats_support', 'ioh_error_enable',
-    'ioh_resource', 'ip_prefetch', 'ipv4http', 'ipv4pxe', 'ipv6http', 'ipv6pxe',
-    'kti_prefetch', 'legacy_os_redirection', 'legacy_usb_support', 'llc_alloc',
-    'llc_prefetch', 'lom_port0state', 'lom_port1state', 'lom_port2state', 'lom_port3state',
-    'lom_ports_all_state', 'lv_ddr_mode', 'make_device_non_bootable',
-    'memory_bandwidth_boost', 'memory_inter_leave', 'memory_mapped_io_above4gb',
-    'memory_refresh_rate', 'memory_size_limit', 'memory_thermal_throttling',
-    'mirroring_mode', 'mmcfg_base', 'network_stack', 'numa_optimized',
-    'nvmdimm_perform_config', 'onboard10gbit_lom', 'onboard_gbit_lom',
-    'onboard_scu_storage_support', 'onboard_scu_storage_sw_stack', 'operation_mode',
-    'os_boot_watchdog_timer', 'os_boot_watchdog_timer_policy',
-    'os_boot_watchdog_timer_timeout', 'out_of_band_mgmt_port', 'package_cstate_limit',
-    'panic_high_watermark', 'partial_cache_line_sparing', 'partial_mirror_mode_config',
-    'partial_mirror_percent', 'partial_mirror_value1', 'partial_mirror_value2',
-    'partial_mirror_value3', 'partial_mirror_value4', 'patrol_scrub',
-    'patrol_scrub_duration', 'pc_ie_ras_support', 'pc_ie_ssd_hot_plug_support',
-    'pch_pcie_pll_ssc', 'pch_usb30mode', 'pci_option_ro_ms', 'pci_rom_clp',
-    'pcie_ari_support', 'pcie_pll_ssc', 'pcie_slot_mraid1link_speed',
-    'pcie_slot_mraid1option_rom', 'pcie_slot_mraid2link_speed', 'pcie_slot_mraid2option_rom',
-    'pcie_slot_mstorraid_link_speed', 'pcie_slot_mstorraid_option_rom',
-    'pcie_slot_nvme1link_speed', 'pcie_slot_nvme1option_rom', 'pcie_slot_nvme2link_speed',
-    'pcie_slot_nvme2option_rom', 'pcie_slot_nvme3link_speed', 'pcie_slot_nvme3option_rom',
-    'pcie_slot_nvme4link_speed', 'pcie_slot_nvme4option_rom', 'pcie_slot_nvme5link_speed',
-    'pcie_slot_nvme5option_rom', 'pcie_slot_nvme6link_speed', 'pcie_slot_nvme6option_rom',
-    'pcie_slots_cdn_enable', 'pop_support', 'post_error_pause', 'post_package_repair',
-    'processor_c1e', 'processor_c3report', 'processor_c6report', 'processor_cstate',
-    'psata', 'pstate_coord_type', 'putty_key_pad', 'pwr_perf_tuning', 'qpi_link_frequency',
-    'qpi_link_speed', 'qpi_snoop_mode', 'rank_inter_leave', 'redirection_after_post',
-    'sata_mode_select', 'select_memory_ras_configuration', 'select_ppr_type',
-    'serial_port_aenable', 'sev', 'sgx_auto_registration_agent', 'sgx_epoch0', 'sgx_epoch1',
-    'sgx_factory_reset', 'sgx_le_pub_key_hash0', 'sgx_le_pub_key_hash1',
-    'sgx_le_pub_key_hash2', 'sgx_le_pub_key_hash3', 'sgx_le_wr',
-    'sgx_package_info_in_band_access', 'sgx_qos', 'sha1pcr_bank', 'sha256pcr_bank',
-    'single_pctl_enable', 'slot10link_speed', 'slot10state', 'slot11link_speed',
-    'slot11state', 'slot12link_speed', 'slot12state', 'slot13state', 'slot14state',
-    'slot1link_speed', 'slot1state', 'slot2link_speed', 'slot2state', 'slot3link_speed',
-    'slot3state', 'slot4link_speed', 'slot4state', 'slot5link_speed', 'slot5state',
-    'slot6link_speed', 'slot6state', 'slot7link_speed', 'slot7state', 'slot8link_speed',
-    'slot8state', 'slot9link_speed', 'slot9state', 'slot_flom_link_speed',
-    'slot_front_nvme1link_speed', 'slot_front_nvme1option_rom', 'slot_front_nvme2link_speed',
-    'slot_front_nvme2option_rom', 'slot_front_nvme3link_speed', 'slot_front_nvme3option_rom',
-    'slot_front_nvme4link_speed', 'slot_front_nvme4option_rom', 'slot_front_nvme5link_speed',
-    'slot_front_nvme5option_rom', 'slot_front_nvme6link_speed', 'slot_front_nvme6option_rom',
-    'slot_front_nvme7link_speed', 'slot_front_nvme7option_rom', 'slot_front_nvme8link_speed',
-    'slot_front_nvme8option_rom', 'slot_front_nvme9link_speed', 'slot_front_nvme9option_rom',
-    'slot_front_nvme10link_speed', 'slot_front_nvme10option_rom',
-    'slot_front_nvme11link_speed', 'slot_front_nvme11option_rom',
-    'slot_front_nvme12link_speed', 'slot_front_nvme12option_rom',
-    'slot_front_slot5link_speed', 'slot_front_slot6link_speed',
-    'slot_gpu1state', 'slot_gpu2state', 'slot_gpu3state', 'slot_gpu4state',
-    'slot_gpu5state', 'slot_gpu6state', 'slot_gpu7state', 'slot_gpu8state',
-    'slot_hba_link_speed', 'slot_hba_state', 'slot_lom1link', 'slot_lom2link',
-    'slot_mezz_state', 'slot_mlom_link_speed', 'slot_mlom_state', 'slot_mraid_link_speed',
-    'slot_mraid_state', 'slot_n1state', 'slot_n2state', 'slot_n3state', 'slot_n4state',
-    'slot_n5state', 'slot_n6state', 'slot_n7state', 'slot_n8state', 'slot_n9state',
-    'slot_n10state', 'slot_n11state', 'slot_n12state', 'slot_n13state', 'slot_n14state',
-    'slot_n15state', 'slot_n16state', 'slot_n17state', 'slot_n18state', 'slot_n19state',
-    'slot_n20state', 'slot_n21state', 'slot_n22state', 'slot_n23state', 'slot_n24state',
-    'slot_raid_link_speed', 'slot_raid_state', 'slot_rear_nvme1link_speed',
-    'slot_rear_nvme1state', 'slot_rear_nvme2link_speed', 'slot_rear_nvme2state',
-    'slot_rear_nvme3link_speed', 'slot_rear_nvme3state', 'slot_rear_nvme4link_speed',
-    'slot_rear_nvme4state', 'slot_rear_nvme5state', 'slot_rear_nvme6state',
-    'slot_rear_nvme7state', 'slot_rear_nvme8state', 'slot_riser1link_speed',
-    'slot_riser1slot1link_speed', 'slot_riser1slot2link_speed', 'slot_riser1slot3link_speed',
-    'slot_riser2link_speed', 'slot_riser2slot4link_speed', 'slot_riser2slot5link_speed',
-    'slot_riser2slot6link_speed', 'slot_sas_state', 'slot_ssd_slot1link_speed',
-    'slot_ssd_slot2link_speed', 'smee', 'smt_mode', 'snc', 'snoopy_mode_for2lm',
-    'snoopy_mode_for_ad', 'sparing_mode', 'sr_iov', 'streamer_prefetch', 'svm_mode',
-    'terminal_type', 'tpm_control', 'tpm_pending_operation', 'tpm_ppi_required',
-    'tpm_support', 'tsme', 'txt_support', 'ucsm_boot_order_rule', 'ufs_disable',
-    'uma_based_clustering', 'upi_link_enablement', 'upi_power_management', 'usb_emul6064',
-    'usb_port_front', 'usb_port_internal', 'usb_port_kvm', 'usb_port_rear',
-    'usb_port_sd_card', 'usb_port_vmedia', 'usb_xhci_support', 'vga_priority',
-    'virtual_numa', 'vmd_enable', 'vol_memory_mode', 'work_load_config', 'x2apic_opt_out',
-    'xpt_prefetch', 'xpt_remote_prefetch'
-] %}
-{% set _schema_def = intersight_schema.definitions['intersight.bios'] %}
-{% set _defaults = {} %}
-{% for prop_name, prop_schema in _schema_def.get('allOf', [{}])[1].get('properties', {}).items() %}
-{% if prop_schema.get('default') is defined %}
-{% set _ = _defaults.update({prop_name: prop_schema.default}) %}
-{% endif %}
-{% endfor %}
-{% set _template_defaults = {} %}
-{% if item.1.get('bios_template') %}
-{% set _template_name = item.1.bios_template %}
-{% set _templates = intersight_schema.definitions['intersight.bios.templates'] %}
-{% if _templates.properties and _templates.properties[_template_name] %}
-{% set _template_defaults = _templates.properties[_template_name] %}
-{% endif %}
-{% endif %}
-{% set _merged = _defaults | combine(_template_defaults) | combine(item.1) %}
-description: "{{ _merged.description | default('') }}"
-name: "{{ _prefix ~ _merged.name ~ _suffix }}"
+# Organized BIOS Policy Template
+api_key_id: "{{ intersight_api_key_id }}"
+api_private_key: "{{ intersight_api_private_key }}"
+api_uri: "{{ intersight_api_uri }}"
+description: "{{ item.1.description | default('') }}"
+name: "{{ policy_name_prefix.bios | default('') ~ item.1.name }}"
 organization: "{{ item.0.key }}"
-{% for key, value in _merged.items() | sort %}
-{% if key not in _skip_keys and key in _valid_params %}
-{{ key }}: {{ value if value is not string else '"' ~ value ~ '"' }}
-{% endif %}
-{% endfor %}
+state: present
+validate_certs: "{{ module_validate_certs }}"
+
+    # #+++++++++++++++++++++++++++++++
+    # Advanced Section
+    # #+++++++++++++++++++++++++++++++
+    latency_optimized_mode: "{{ bios_settings.latency_optimized_mode | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # Boot Options Section
+    # #+++++++++++++++++++++++++++++++
+    boot_option_num_retry: "{{ bios_settings.boot_option_num_retry | default('platform-default') }}"
+    boot_option_re_cool_down: "{{ bios_settings.boot_option_re_cool_down | default('platform-default') }}"
+    boot_option_retry: "{{ bios_settings.boot_option_retry | default('platform-default') }}"
+    ipv4http: "{{ bios_settings.ipv4http | default('platform-default') }}"
+    ipv4pxe: "{{ bios_settings.ipv4pxe | default('platform-default') }}"
+    ipv6http: "{{ bios_settings.ipv6http | default('platform-default') }}"
+    ipv6pxe: "{{ bios_settings.ipv6pxe | default('platform-default') }}"
+    network_stack: "{{ bios_settings.network_stack | default('platform-default') }}"
+    onboard_scu_storage_support: "{{ bios_settings.onboard_scu_storage_support | default('platform-default') }}"
+    onboard_scu_storage_sw_stack: "{{ bios_settings.onboard_scu_storage_sw_stack | default('platform-default') }}"
+    pop_support: "{{ bios_settings.pop_support | default('platform-default') }}"
+    psata: "{{ bios_settings.psata | default('platform-default') }}"
+    sata_mode_select: "{{ bios_settings.sata_mode_select | default('platform-default') }}"
+    vmd_enable: "{{ bios_settings.vmd_enable | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # Intel Directed IO Section
+    # #+++++++++++++++++++++++++++++++
+    intel_vt_for_directed_io: "{{ bios_settings.intel_vt_for_directed_io | default('platform-default') }}"
+    intel_vtd_coherency_support: "{{ bios_settings.intel_vtd_coherency_support | default('platform-default') }}"
+    intel_vtd_interrupt_remapping: "{{ bios_settings.intel_vtd_interrupt_remapping | default('platform-default') }}"
+    intel_vtd_pass_through_dma_support: "{{ bios_settings.intel_vtd_pass_through_dma_support | default('platform-default') }}"
+    intel_vtdats_support: "{{ bios_settings.intel_vtdats_support | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # LOM and PCIe Slots Section
+    # #+++++++++++++++++++++++++++++++
+    acs_control_gpu1state: "{{ bios_settings.acs_control_gpu1state | default('platform-default') }}"
+    acs_control_gpu2state: "{{ bios_settings.acs_control_gpu2state | default('platform-default') }}"
+    acs_control_gpu3state: "{{ bios_settings.acs_control_gpu3state | default('platform-default') }}"
+    acs_control_gpu4state: "{{ bios_settings.acs_control_gpu4state | default('platform-default') }}"
+    acs_control_gpu5state: "{{ bios_settings.acs_control_gpu5state | default('platform-default') }}"
+    acs_control_gpu6state: "{{ bios_settings.acs_control_gpu6state | default('platform-default') }}"
+    acs_control_gpu7state: "{{ bios_settings.acs_control_gpu7state | default('platform-default') }}"
+    acs_control_gpu8state: "{{ bios_settings.acs_control_gpu8state | default('platform-default') }}"
+    acs_control_slot11state: "{{ bios_settings.acs_control_slot11state | default('platform-default') }}"
+    acs_control_slot12state: "{{ bios_settings.acs_control_slot12state | default('platform-default') }}"
+    acs_control_slot13state: "{{ bios_settings.acs_control_slot13state | default('platform-default') }}"
+    acs_control_slot14state: "{{ bios_settings.acs_control_slot14state | default('platform-default') }}"
+    cdn_support: "{{ bios_settings.cdn_support | default('platform-default') }}"
+    edpc_en: "{{ bios_settings.edpc_en | default('platform-default') }}"
+    enable_clock_spread_spec: "{{ bios_settings.enable_clock_spread_spec | default('platform-default') }}"
+    lom_port0state: "{{ bios_settings.lom_port0state | default('platform-default') }}"
+    lom_port1state: "{{ bios_settings.lom_port1state | default('platform-default') }}"
+    lom_port2state: "{{ bios_settings.lom_port2state | default('platform-default') }}"
+    lom_port3state: "{{ bios_settings.lom_port3state | default('platform-default') }}"
+    lom_ports_all_state: "{{ bios_settings.lom_ports_all_state | default('platform-default') }}"
+    onboard10gbit_lom: "{{ bios_settings.onboard10gbit_lom | default('platform-default') }}"
+    onboard_gbit_lom: "{{ bios_settings.onboard_gbit_lom | default('platform-default') }}"
+    pch_pcie_pll_ssc: "{{ bios_settings.pch_pcie_pll_ssc | default('platform-default') }}"
+    pcie_ari_support: "{{ bios_settings.pcie_ari_support | default('platform-default') }}"
+    pcie_pll_ssc: "{{ bios_settings.pcie_pll_ssc | default('platform-default') }}"
+    pcie_slot_mraid1link_speed: "{{ bios_settings.pcie_slot_mraid1link_speed | default('platform-default') }}"
+    pcie_slot_mraid1option_rom: "{{ bios_settings.pcie_slot_mraid1option_rom | default('platform-default') }}"
+    pcie_slot_mraid2link_speed: "{{ bios_settings.pcie_slot_mraid2link_speed | default('platform-default') }}"
+    pcie_slot_mraid2option_rom: "{{ bios_settings.pcie_slot_mraid2option_rom | default('platform-default') }}"
+    pcie_slot_mstorraid_link_speed: "{{ bios_settings.pcie_slot_mstorraid_link_speed | default('platform-default') }}"
+    pcie_slot_mstorraid_option_rom: "{{ bios_settings.pcie_slot_mstorraid_option_rom | default('platform-default') }}"
+    pcie_slot_nvme1link_speed: "{{ bios_settings.pcie_slot_nvme1link_speed | default('platform-default') }}"
+    pcie_slot_nvme1option_rom: "{{ bios_settings.pcie_slot_nvme1option_rom | default('platform-default') }}"
+    pcie_slot_nvme2link_speed: "{{ bios_settings.pcie_slot_nvme2link_speed | default('platform-default') }}"
+    pcie_slot_nvme2option_rom: "{{ bios_settings.pcie_slot_nvme2option_rom | default('platform-default') }}"
+    pcie_slot_nvme3link_speed: "{{ bios_settings.pcie_slot_nvme3link_speed | default('platform-default') }}"
+    pcie_slot_nvme3option_rom: "{{ bios_settings.pcie_slot_nvme3option_rom | default('platform-default') }}"
+    pcie_slot_nvme4link_speed: "{{ bios_settings.pcie_slot_nvme4link_speed | default('platform-default') }}"
+    pcie_slot_nvme4option_rom: "{{ bios_settings.pcie_slot_nvme4option_rom | default('platform-default') }}"
+    pcie_slot_nvme5link_speed: "{{ bios_settings.pcie_slot_nvme5link_speed | default('platform-default') }}"
+    pcie_slot_nvme5option_rom: "{{ bios_settings.pcie_slot_nvme5option_rom | default('platform-default') }}"
+    pcie_slot_nvme6link_speed: "{{ bios_settings.pcie_slot_nvme6link_speed | default('platform-default') }}"
+    pcie_slot_nvme6option_rom: "{{ bios_settings.pcie_slot_nvme6option_rom | default('platform-default') }}"
+    pcie_slots_cdn_enable: "{{ bios_settings.pcie_slots_cdn_enable | default('platform-default') }}"
+    slot10link_speed: "{{ bios_settings.slot10link_speed | default('platform-default') }}"
+    slot10state: "{{ bios_settings.slot10state | default('platform-default') }}"
+    slot11link_speed: "{{ bios_settings.slot11link_speed | default('platform-default') }}"
+    slot11state: "{{ bios_settings.slot11state | default('platform-default') }}"
+    slot12link_speed: "{{ bios_settings.slot12link_speed | default('platform-default') }}"
+    slot12state: "{{ bios_settings.slot12state | default('platform-default') }}"
+    slot13state: "{{ bios_settings.slot13state | default('platform-default') }}"
+    slot14state: "{{ bios_settings.slot14state | default('platform-default') }}"
+    slot1link_speed: "{{ bios_settings.slot1link_speed | default('platform-default') }}"
+    slot1state: "{{ bios_settings.slot1state | default('platform-default') }}"
+    slot2link_speed: "{{ bios_settings.slot2link_speed | default('platform-default') }}"
+    slot2state: "{{ bios_settings.slot2state | default('platform-default') }}"
+    slot3link_speed: "{{ bios_settings.slot3link_speed | default('platform-default') }}"
+    slot3state: "{{ bios_settings.slot3state | default('platform-default') }}"
+    slot4link_speed: "{{ bios_settings.slot4link_speed | default('platform-default') }}"
+    slot4state: "{{ bios_settings.slot4state | default('platform-default') }}"
+    slot5link_speed: "{{ bios_settings.slot5link_speed | default('platform-default') }}"
+    slot5state: "{{ bios_settings.slot5state | default('platform-default') }}"
+    slot6link_speed: "{{ bios_settings.slot6link_speed | default('platform-default') }}"
+    slot6state: "{{ bios_settings.slot6state | default('platform-default') }}"
+    slot7link_speed: "{{ bios_settings.slot7link_speed | default('platform-default') }}"
+    slot7state: "{{ bios_settings.slot7state | default('platform-default') }}"
+    slot8link_speed: "{{ bios_settings.slot8link_speed | default('platform-default') }}"
+    slot8state: "{{ bios_settings.slot8state | default('platform-default') }}"
+    slot9link_speed: "{{ bios_settings.slot9link_speed | default('platform-default') }}"
+    slot9state: "{{ bios_settings.slot9state | default('platform-default') }}"
+    slot_flom_link_speed: "{{ bios_settings.slot_flom_link_speed | default('platform-default') }}"
+    slot_front_nvme10link_speed: "{{ bios_settings.slot_front_nvme10link_speed | default('platform-default') }}"
+    slot_front_nvme10option_rom: "{{ bios_settings.slot_front_nvme10option_rom | default('platform-default') }}"
+    slot_front_nvme11link_speed: "{{ bios_settings.slot_front_nvme11link_speed | default('platform-default') }}"
+    slot_front_nvme11option_rom: "{{ bios_settings.slot_front_nvme11option_rom | default('platform-default') }}"
+    slot_front_nvme12link_speed: "{{ bios_settings.slot_front_nvme12link_speed | default('platform-default') }}"
+    slot_front_nvme12option_rom: "{{ bios_settings.slot_front_nvme12option_rom | default('platform-default') }}"
+    slot_front_nvme1link_speed: "{{ bios_settings.slot_front_nvme1link_speed | default('platform-default') }}"
+    slot_front_nvme1option_rom: "{{ bios_settings.slot_front_nvme1option_rom | default('platform-default') }}"
+    slot_front_nvme2link_speed: "{{ bios_settings.slot_front_nvme2link_speed | default('platform-default') }}"
+    slot_front_nvme2option_rom: "{{ bios_settings.slot_front_nvme2option_rom | default('platform-default') }}"
+    slot_front_nvme3link_speed: "{{ bios_settings.slot_front_nvme3link_speed | default('platform-default') }}"
+    slot_front_nvme3option_rom: "{{ bios_settings.slot_front_nvme3option_rom | default('platform-default') }}"
+    slot_front_nvme4link_speed: "{{ bios_settings.slot_front_nvme4link_speed | default('platform-default') }}"
+    slot_front_nvme4option_rom: "{{ bios_settings.slot_front_nvme4option_rom | default('platform-default') }}"
+    slot_front_nvme5link_speed: "{{ bios_settings.slot_front_nvme5link_speed | default('platform-default') }}"
+    slot_front_nvme5option_rom: "{{ bios_settings.slot_front_nvme5option_rom | default('platform-default') }}"
+    slot_front_nvme6link_speed: "{{ bios_settings.slot_front_nvme6link_speed | default('platform-default') }}"
+    slot_front_nvme6option_rom: "{{ bios_settings.slot_front_nvme6option_rom | default('platform-default') }}"
+    slot_front_nvme7link_speed: "{{ bios_settings.slot_front_nvme7link_speed | default('platform-default') }}"
+    slot_front_nvme7option_rom: "{{ bios_settings.slot_front_nvme7option_rom | default('platform-default') }}"
+    slot_front_nvme8link_speed: "{{ bios_settings.slot_front_nvme8link_speed | default('platform-default') }}"
+    slot_front_nvme8option_rom: "{{ bios_settings.slot_front_nvme8option_rom | default('platform-default') }}"
+    slot_front_nvme9link_speed: "{{ bios_settings.slot_front_nvme9link_speed | default('platform-default') }}"
+    slot_front_nvme9option_rom: "{{ bios_settings.slot_front_nvme9option_rom | default('platform-default') }}"
+    slot_front_slot5link_speed: "{{ bios_settings.slot_front_slot5link_speed | default('platform-default') }}"
+    slot_front_slot6link_speed: "{{ bios_settings.slot_front_slot6link_speed | default('platform-default') }}"
+    slot_gpu1state: "{{ bios_settings.slot_gpu1state | default('platform-default') }}"
+    slot_gpu2state: "{{ bios_settings.slot_gpu2state | default('platform-default') }}"
+    slot_gpu3state: "{{ bios_settings.slot_gpu3state | default('platform-default') }}"
+    slot_gpu4state: "{{ bios_settings.slot_gpu4state | default('platform-default') }}"
+    slot_gpu5state: "{{ bios_settings.slot_gpu5state | default('platform-default') }}"
+    slot_gpu6state: "{{ bios_settings.slot_gpu6state | default('platform-default') }}"
+    slot_gpu7state: "{{ bios_settings.slot_gpu7state | default('platform-default') }}"
+    slot_gpu8state: "{{ bios_settings.slot_gpu8state | default('platform-default') }}"
+    slot_hba_link_speed: "{{ bios_settings.slot_hba_link_speed | default('platform-default') }}"
+    slot_hba_state: "{{ bios_settings.slot_hba_state | default('platform-default') }}"
+    slot_lom1link: "{{ bios_settings.slot_lom1link | default('platform-default') }}"
+    slot_lom2link: "{{ bios_settings.slot_lom2link | default('platform-default') }}"
+    slot_mezz_state: "{{ bios_settings.slot_mezz_state | default('platform-default') }}"
+    slot_mlom_link_speed: "{{ bios_settings.slot_mlom_link_speed | default('platform-default') }}"
+    slot_mlom_state: "{{ bios_settings.slot_mlom_state | default('platform-default') }}"
+    slot_mraid_link_speed: "{{ bios_settings.slot_mraid_link_speed | default('platform-default') }}"
+    slot_mraid_state: "{{ bios_settings.slot_mraid_state | default('platform-default') }}"
+    slot_n10state: "{{ bios_settings.slot_n10state | default('platform-default') }}"
+    slot_n11state: "{{ bios_settings.slot_n11state | default('platform-default') }}"
+    slot_n12state: "{{ bios_settings.slot_n12state | default('platform-default') }}"
+    slot_n13state: "{{ bios_settings.slot_n13state | default('platform-default') }}"
+    slot_n14state: "{{ bios_settings.slot_n14state | default('platform-default') }}"
+    slot_n15state: "{{ bios_settings.slot_n15state | default('platform-default') }}"
+    slot_n16state: "{{ bios_settings.slot_n16state | default('platform-default') }}"
+    slot_n17state: "{{ bios_settings.slot_n17state | default('platform-default') }}"
+    slot_n18state: "{{ bios_settings.slot_n18state | default('platform-default') }}"
+    slot_n19state: "{{ bios_settings.slot_n19state | default('platform-default') }}"
+    slot_n1state: "{{ bios_settings.slot_n1state | default('platform-default') }}"
+    slot_n20state: "{{ bios_settings.slot_n20state | default('platform-default') }}"
+    slot_n21state: "{{ bios_settings.slot_n21state | default('platform-default') }}"
+    slot_n22state: "{{ bios_settings.slot_n22state | default('platform-default') }}"
+    slot_n23state: "{{ bios_settings.slot_n23state | default('platform-default') }}"
+    slot_n24state: "{{ bios_settings.slot_n24state | default('platform-default') }}"
+    slot_n2state: "{{ bios_settings.slot_n2state | default('platform-default') }}"
+    slot_n3state: "{{ bios_settings.slot_n3state | default('platform-default') }}"
+    slot_n4state: "{{ bios_settings.slot_n4state | default('platform-default') }}"
+    slot_n5state: "{{ bios_settings.slot_n5state | default('platform-default') }}"
+    slot_n6state: "{{ bios_settings.slot_n6state | default('platform-default') }}"
+    slot_n7state: "{{ bios_settings.slot_n7state | default('platform-default') }}"
+    slot_n8state: "{{ bios_settings.slot_n8state | default('platform-default') }}"
+    slot_n9state: "{{ bios_settings.slot_n9state | default('platform-default') }}"
+    slot_raid_link_speed: "{{ bios_settings.slot_raid_link_speed | default('platform-default') }}"
+    slot_raid_state: "{{ bios_settings.slot_raid_state | default('platform-default') }}"
+    slot_rear_nvme1link_speed: "{{ bios_settings.slot_rear_nvme1link_speed | default('platform-default') }}"
+    slot_rear_nvme1state: "{{ bios_settings.slot_rear_nvme1state | default('platform-default') }}"
+    slot_rear_nvme2link_speed: "{{ bios_settings.slot_rear_nvme2link_speed | default('platform-default') }}"
+    slot_rear_nvme2state: "{{ bios_settings.slot_rear_nvme2state | default('platform-default') }}"
+    slot_rear_nvme3link_speed: "{{ bios_settings.slot_rear_nvme3link_speed | default('platform-default') }}"
+    slot_rear_nvme3state: "{{ bios_settings.slot_rear_nvme3state | default('platform-default') }}"
+    slot_rear_nvme4link_speed: "{{ bios_settings.slot_rear_nvme4link_speed | default('platform-default') }}"
+    slot_rear_nvme4state: "{{ bios_settings.slot_rear_nvme4state | default('platform-default') }}"
+    slot_rear_nvme5state: "{{ bios_settings.slot_rear_nvme5state | default('platform-default') }}"
+    slot_rear_nvme6state: "{{ bios_settings.slot_rear_nvme6state | default('platform-default') }}"
+    slot_rear_nvme7state: "{{ bios_settings.slot_rear_nvme7state | default('platform-default') }}"
+    slot_rear_nvme8state: "{{ bios_settings.slot_rear_nvme8state | default('platform-default') }}"
+    slot_riser1link_speed: "{{ bios_settings.slot_riser1link_speed | default('platform-default') }}"
+    slot_riser1slot1link_speed: "{{ bios_settings.slot_riser1slot1link_speed | default('platform-default') }}"
+    slot_riser1slot2link_speed: "{{ bios_settings.slot_riser1slot2link_speed | default('platform-default') }}"
+    slot_riser1slot3link_speed: "{{ bios_settings.slot_riser1slot3link_speed | default('platform-default') }}"
+    slot_riser2link_speed: "{{ bios_settings.slot_riser2link_speed | default('platform-default') }}"
+    slot_riser2slot4link_speed: "{{ bios_settings.slot_riser2slot4link_speed | default('platform-default') }}"
+    slot_riser2slot5link_speed: "{{ bios_settings.slot_riser2slot5link_speed | default('platform-default') }}"
+    slot_riser2slot6link_speed: "{{ bios_settings.slot_riser2slot6link_speed | default('platform-default') }}"
+    slot_sas_state: "{{ bios_settings.slot_sas_state | default('platform-default') }}"
+    slot_ssd_slot1link_speed: "{{ bios_settings.slot_ssd_slot1link_speed | default('platform-default') }}"
+    slot_ssd_slot2link_speed: "{{ bios_settings.slot_ssd_slot2link_speed | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # Main Section
+    # #+++++++++++++++++++++++++++++++
+    gpu_direct_cpu1: "{{ bios_settings.gpu_direct_cpu1 | default('platform-default') }}"
+    gpu_direct_cpu2: "{{ bios_settings.gpu_direct_cpu2 | default('platform-default') }}"
+    gpu_direct_cpu3: "{{ bios_settings.gpu_direct_cpu3 | default('platform-default') }}"
+    gpu_direct_cpu4: "{{ bios_settings.gpu_direct_cpu4 | default('platform-default') }}"
+    pcie_slots_cdn_enable: "{{ bios_settings.pcie_slots_cdn_enable | default('platform-default') }}"
+    post_error_pause: "{{ bios_settings.post_error_pause | default('platform-default') }}"
+    tpm_support: "{{ bios_settings.tpm_support | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # Memory Section
+    # #+++++++++++++++++++++++++++++++
+    acpi_srat_sp_flag_en: "{{ bios_settings.acpi_srat_sp_flag_en | default('platform-default') }}"
+    adaptive_refresh_mgmt_level: "{{ bios_settings.adaptive_refresh_mgmt_level | default('platform-default') }}"
+    advanced_mem_test: "{{ bios_settings.advanced_mem_test | default('platform-default') }}"
+    bme_dma_mitigation: "{{ bios_settings.bme_dma_mitigation | default('platform-default') }}"
+    burst_and_postponed_refresh: "{{ bios_settings.burst_and_postponed_refresh | default('platform-default') }}"
+    cbs_cmn_cpu_smee: "{{ bios_settings.cbs_cmn_cpu_smee | default('platform-default') }}"
+    cbs_cmn_gnb_nb_iommu: "{{ bios_settings.cbs_cmn_gnb_nb_iommu | default('platform-default') }}"
+    cbs_cmn_mem_ctrl_bank_group_swap_ddr4: "{{ bios_settings.cbs_cmn_mem_ctrl_bank_group_swap_ddr4 | default('platform-default') }}"
+    cbs_cmn_mem_map_bank_interleave_ddr4: "{{ bios_settings.cbs_cmn_mem_map_bank_interleave_ddr4 | default('platform-default') }}"
+    cbs_dbg_cpu_snp_mem_cover: "{{ bios_settings.cbs_dbg_cpu_snp_mem_cover | default('platform-default') }}"
+    cbs_dbg_cpu_snp_mem_size_cover: "{{ bios_settings.cbs_dbg_cpu_snp_mem_size_cover | default('platform-default') }}"
+    cbs_df_cmn_acpi_srat_l3numa: "{{ bios_settings.cbs_df_cmn_acpi_srat_l3numa | default('platform-default') }}"
+    cbs_df_cmn_dram_nps: "{{ bios_settings.cbs_df_cmn_dram_nps | default('platform-default') }}"
+    cbs_df_cmn_mem_intlv: "{{ bios_settings.cbs_df_cmn_mem_intlv | default('platform-default') }}"
+    cbs_df_cmn_mem_intlv_size: "{{ bios_settings.cbs_df_cmn_mem_intlv_size | default('platform-default') }}"
+    cbs_sev_snp_support: "{{ bios_settings.cbs_sev_snp_support | default('platform-default') }}"
+    cisco_adaptive_mem_training: "{{ bios_settings.cisco_adaptive_mem_training | default('platform-default') }}"
+    cke_low_policy: "{{ bios_settings.cke_low_policy | default('platform-default') }}"
+    cr_qos: "{{ bios_settings.cr_qos | default('platform-default') }}"
+    crfastgo_config: "{{ bios_settings.crfastgo_config | default('platform-default') }}"
+    dcpmm_firmware_downgrade: "{{ bios_settings.dcpmm_firmware_downgrade | default('platform-default') }}"
+    dram_clock_throttling: "{{ bios_settings.dram_clock_throttling | default('platform-default') }}"
+    dram_refresh_rate: "{{ bios_settings.dram_refresh_rate | default('platform-default') }}"
+    dram_sw_thermal_throttling: "{{ bios_settings.dram_sw_thermal_throttling | default('platform-default') }}"
+    eadr_support: "{{ bios_settings.eadr_support | default('platform-default') }}"
+    enable_rmt: "{{ bios_settings.enable_rmt | default('platform-default') }}"
+    error_check_scrub: "{{ bios_settings.error_check_scrub | default('platform-default') }}"
+    lv_ddr_mode: "{{ bios_settings.lv_ddr_mode | default('platform-default') }}"
+    memory_bandwidth_boost: "{{ bios_settings.memory_bandwidth_boost | default('platform-default') }}"
+    memory_inter_leave: "{{ bios_settings.memory_inter_leave | default('platform-default') }}"
+    memory_mapped_io_above4gb: "{{ bios_settings.memory_mapped_io_above4gb | default('platform-default') }}"
+    memory_refresh_rate: "{{ bios_settings.memory_refresh_rate | default('platform-default') }}"
+    memory_size_limit: "{{ bios_settings.memory_size_limit | default('platform-default') }}"
+    memory_thermal_throttling: "{{ bios_settings.memory_thermal_throttling | default('platform-default') }}"
+    mirroring_mode: "{{ bios_settings.mirroring_mode | default('platform-default') }}"
+    numa_optimized: "{{ bios_settings.numa_optimized | default('platform-default') }}"
+    nvmdimm_perform_config: "{{ bios_settings.nvmdimm_perform_config | default('platform-default') }}"
+    operation_mode: "{{ bios_settings.operation_mode | default('platform-default') }}"
+    panic_high_watermark: "{{ bios_settings.panic_high_watermark | default('platform-default') }}"
+    partial_cache_line_sparing: "{{ bios_settings.partial_cache_line_sparing | default('platform-default') }}"
+    partial_mirror_mode_config: "{{ bios_settings.partial_mirror_mode_config | default('platform-default') }}"
+    partial_mirror_percent: "{{ bios_settings.partial_mirror_percent | default('platform-default') }}"
+    partial_mirror_value1: "{{ bios_settings.partial_mirror_value1 | default('platform-default') }}"
+    partial_mirror_value2: "{{ bios_settings.partial_mirror_value2 | default('platform-default') }}"
+    partial_mirror_value3: "{{ bios_settings.partial_mirror_value3 | default('platform-default') }}"
+    partial_mirror_value4: "{{ bios_settings.partial_mirror_value4 | default('platform-default') }}"
+    pc_ie_ras_support: "{{ bios_settings.pc_ie_ras_support | default('platform-default') }}"
+    select_memory_ras_configuration: "{{ bios_settings.select_memory_ras_configuration | default('platform-default') }}"
+    select_ppr_type: "{{ bios_settings.select_ppr_type | default('platform-default') }}"
+    sev: "{{ bios_settings.sev | default('platform-default') }}"
+    smee: "{{ bios_settings.smee | default('platform-default') }}"
+    snoopy_mode_for2lm: "{{ bios_settings.snoopy_mode_for2lm | default('platform-default') }}"
+    snoopy_mode_for_ad: "{{ bios_settings.snoopy_mode_for_ad | default('platform-default') }}"
+    sparing_mode: "{{ bios_settings.sparing_mode | default('platform-default') }}"
+    tsme: "{{ bios_settings.tsme | default('platform-default') }}"
+    uma_based_clustering: "{{ bios_settings.uma_based_clustering | default('platform-default') }}"
+    vol_memory_mode: "{{ bios_settings.vol_memory_mode | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # PCI Section
+    # #+++++++++++++++++++++++++++++++
+    aspm_support: "{{ bios_settings.aspm_support | default('platform-default') }}"
+    ioh_resource: "{{ bios_settings.ioh_resource | default('platform-default') }}"
+    memory_mapped_io_above4gb: "{{ bios_settings.memory_mapped_io_above4gb | default('platform-default') }}"
+    mmcfg_base: "{{ bios_settings.mmcfg_base | default('platform-default') }}"
+    onboard10gbit_lom: "{{ bios_settings.onboard10gbit_lom | default('platform-default') }}"
+    onboard_gbit_lom: "{{ bios_settings.onboard_gbit_lom | default('platform-default') }}"
+    pc_ie_ssd_hot_plug_support: "{{ bios_settings.pc_ie_ssd_hot_plug_support | default('platform-default') }}"
+    resize_bar_support: "{{ bios_settings.resize_bar_support | default('platform-default') }}"
+    sr_iov: "{{ bios_settings.sr_iov | default('platform-default') }}"
+    vga_priority: "{{ bios_settings.vga_priority | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # Power and Performance Section
+    # #+++++++++++++++++++++++++++++++
+    c1auto_demotion: "{{ bios_settings.c1auto_demotion | default('platform-default') }}"
+    c1auto_un_demotion: "{{ bios_settings.c1auto_un_demotion | default('platform-default') }}"
+    cbs_cmn_cpu_cpb: "{{ bios_settings.cbs_cmn_cpu_cpb | default('platform-default') }}"
+    cbs_cmn_cpu_global_cstate_ctrl: "{{ bios_settings.cbs_cmn_cpu_global_cstate_ctrl | default('platform-default') }}"
+    cbs_cmn_cpu_l1stream_hw_prefetcher: "{{ bios_settings.cbs_cmn_cpu_l1stream_hw_prefetcher | default('platform-default') }}"
+    cbs_cmn_cpu_l2stream_hw_prefetcher: "{{ bios_settings.cbs_cmn_cpu_l2stream_hw_prefetcher | default('platform-default') }}"
+    cbs_cmn_determinism_slider: "{{ bios_settings.cbs_cmn_determinism_slider | default('platform-default') }}"
+    cbs_cmn_efficiency_mode_en: "{{ bios_settings.cbs_cmn_efficiency_mode_en | default('platform-default') }}"
+    cbs_cmn_gnb_smu_df_cstates: "{{ bios_settings.cbs_cmn_gnb_smu_df_cstates | default('platform-default') }}"
+    cbs_cmn_gnb_smucppc: "{{ bios_settings.cbs_cmn_gnb_smucppc | default('platform-default') }}"
+    cbs_cmnc_tdp_ctl: "{{ bios_settings.cbs_cmnc_tdp_ctl | default('platform-default') }}"
+    cpu_perf_enhancement: "{{ bios_settings.cpu_perf_enhancement | default('platform-default') }}"
+    cpu_performance: "{{ bios_settings.cpu_performance | default('platform-default') }}"
+    llc_alloc: "{{ bios_settings.llc_alloc | default('platform-default') }}"
+    upi_link_enablement: "{{ bios_settings.upi_link_enablement | default('platform-default') }}"
+    upi_power_management: "{{ bios_settings.upi_power_management | default('platform-default') }}"
+    virtual_numa: "{{ bios_settings.virtual_numa | default('platform-default') }}"
+    x2apic_opt_out: "{{ bios_settings.x2apic_opt_out | default('platform-default') }}"
+    xpt_remote_prefetch: "{{ bios_settings.xpt_remote_prefetch | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # Processor Section
+    # #+++++++++++++++++++++++++++++++
+    adjacent_cache_line_prefetch: "{{ bios_settings.adjacent_cache_line_prefetch | default('platform-default') }}"
+    altitude: "{{ bios_settings.altitude | default('platform-default') }}"
+    auto_cc_state: "{{ bios_settings.auto_cc_state | default('platform-default') }}"
+    autonumous_cstate_enable: "{{ bios_settings.autonumous_cstate_enable | default('platform-default') }}"
+    boot_performance_mode: "{{ bios_settings.boot_performance_mode | default('platform-default') }}"
+    cbs_cmn_apbdis: "{{ bios_settings.cbs_cmn_apbdis | default('platform-default') }}"
+    cbs_cmn_cpu_gen_downcore_ctrl: "{{ bios_settings.cbs_cmn_cpu_gen_downcore_ctrl | default('platform-default') }}"
+    cbs_cmn_cpu_streaming_stores_ctrl: "{{ bios_settings.cbs_cmn_cpu_streaming_stores_ctrl | default('platform-default') }}"
+    cbs_cmn_fixed_soc_pstate: "{{ bios_settings.cbs_cmn_fixed_soc_pstate | default('platform-default') }}"
+    cbs_cmn_gnb_smu_df_cstates: "{{ bios_settings.cbs_cmn_gnb_smu_df_cstates | default('platform-default') }}"
+    cbs_cpu_ccd_ctrl_ssp: "{{ bios_settings.cbs_cpu_ccd_ctrl_ssp | default('platform-default') }}"
+    cbs_cpu_core_ctrl: "{{ bios_settings.cbs_cpu_core_ctrl | default('platform-default') }}"
+    cbs_cpu_smt_ctrl: "{{ bios_settings.cbs_cpu_smt_ctrl | default('platform-default') }}"
+    cbs_df_cmn_acpi_srat_l3numa: "{{ bios_settings.cbs_df_cmn_acpi_srat_l3numa | default('platform-default') }}"
+    channel_inter_leave: "{{ bios_settings.channel_inter_leave | default('platform-default') }}"
+    cisco_xgmi_max_speed: "{{ bios_settings.cisco_xgmi_max_speed | default('platform-default') }}"
+    closed_loop_therm_throtl: "{{ bios_settings.closed_loop_therm_throtl | default('platform-default') }}"
+    cmci_enable: "{{ bios_settings.cmci_enable | default('platform-default') }}"
+    config_tdp: "{{ bios_settings.config_tdp | default('platform-default') }}"
+    config_tdp_level: "{{ bios_settings.config_tdp_level | default('platform-default') }}"
+    core_multi_processing: "{{ bios_settings.core_multi_processing | default('platform-default') }}"
+    cpu_energy_performance: "{{ bios_settings.cpu_energy_performance | default('platform-default') }}"
+    cpu_frequency_floor: "{{ bios_settings.cpu_frequency_floor | default('platform-default') }}"
+    cpu_pa_limit: "{{ bios_settings.cpu_pa_limit | default('platform-default') }}"
+    cpu_performance: "{{ bios_settings.cpu_performance | default('platform-default') }}"
+    cpu_power_management: "{{ bios_settings.cpu_power_management | default('platform-default') }}"
+    demand_scrub: "{{ bios_settings.demand_scrub | default('platform-default') }}"
+    direct_cache_access: "{{ bios_settings.direct_cache_access | default('platform-default') }}"
+    dram_clock_throttling: "{{ bios_settings.dram_clock_throttling | default('platform-default') }}"
+    energy_efficient_turbo: "{{ bios_settings.energy_efficient_turbo | default('platform-default') }}"
+    eng_perf_tuning: "{{ bios_settings.eng_perf_tuning | default('platform-default') }}"
+    enhanced_intel_speed_step_tech: "{{ bios_settings.enhanced_intel_speed_step_tech | default('platform-default') }}"
+    epp_enable: "{{ bios_settings.epp_enable | default('platform-default') }}"
+    epp_profile: "{{ bios_settings.epp_profile | default('platform-default') }}"
+    execute_disable_bit: "{{ bios_settings.execute_disable_bit | default('platform-default') }}"
+    extended_apic: "{{ bios_settings.extended_apic | default('platform-default') }}"
+    hardware_prefetch: "{{ bios_settings.hardware_prefetch | default('platform-default') }}"
+    hwpm_enable: "{{ bios_settings.hwpm_enable | default('platform-default') }}"
+    imc_interleave: "{{ bios_settings.imc_interleave | default('platform-default') }}"
+    intel_dynamic_speed_select: "{{ bios_settings.intel_dynamic_speed_select | default('platform-default') }}"
+    intel_hyper_threading_tech: "{{ bios_settings.intel_hyper_threading_tech | default('platform-default') }}"
+    intel_speed_select: "{{ bios_settings.intel_speed_select | default('platform-default') }}"
+    intel_turbo_boost_tech: "{{ bios_settings.intel_turbo_boost_tech | default('platform-default') }}"
+    intel_virtualization_technology: "{{ bios_settings.intel_virtualization_technology | default('platform-default') }}"
+    ioh_error_enable: "{{ bios_settings.ioh_error_enable | default('platform-default') }}"
+    ip_prefetch: "{{ bios_settings.ip_prefetch | default('platform-default') }}"
+    kti_prefetch: "{{ bios_settings.kti_prefetch | default('platform-default') }}"
+    llc_prefetch: "{{ bios_settings.llc_prefetch | default('platform-default') }}"
+    memory_inter_leave: "{{ bios_settings.memory_inter_leave | default('platform-default') }}"
+    package_cstate_limit: "{{ bios_settings.package_cstate_limit | default('platform-default') }}"
+    patrol_scrub: "{{ bios_settings.patrol_scrub | default('platform-default') }}"
+    patrol_scrub_duration: "{{ bios_settings.patrol_scrub_duration | default('platform-default') }}"
+    processor_c1e: "{{ bios_settings.processor_c1e | default('platform-default') }}"
+    processor_c3report: "{{ bios_settings.processor_c3report | default('platform-default') }}"
+    processor_c6report: "{{ bios_settings.processor_c6report | default('platform-default') }}"
+    processor_cstate: "{{ bios_settings.processor_cstate | default('platform-default') }}"
+    pstate_coord_type: "{{ bios_settings.pstate_coord_type | default('platform-default') }}"
+    pwr_perf_tuning: "{{ bios_settings.pwr_perf_tuning | default('platform-default') }}"
+    rank_inter_leave: "{{ bios_settings.rank_inter_leave | default('platform-default') }}"
+    single_pctl_enable: "{{ bios_settings.single_pctl_enable | default('platform-default') }}"
+    smt_mode: "{{ bios_settings.smt_mode | default('platform-default') }}"
+    snc: "{{ bios_settings.snc | default('platform-default') }}"
+    streamer_prefetch: "{{ bios_settings.streamer_prefetch | default('platform-default') }}"
+    svm_mode: "{{ bios_settings.svm_mode | default('platform-default') }}"
+    ufs_disable: "{{ bios_settings.ufs_disable | default('platform-default') }}"
+    work_load_config: "{{ bios_settings.work_load_config | default('platform-default') }}"
+    xpt_prefetch: "{{ bios_settings.xpt_prefetch | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # QPI Section
+    # #+++++++++++++++++++++++++++++++
+    qpi_link_frequency: "{{ bios_settings.qpi_link_frequency | default('platform-default') }}"
+    qpi_link_speed: "{{ bios_settings.qpi_link_speed | default('platform-default') }}"
+    qpi_snoop_mode: "{{ bios_settings.qpi_snoop_mode | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # Security Section
+    # #+++++++++++++++++++++++++++++++
+    enable_tdx: "{{ bios_settings.enable_tdx | default('platform-default') }}"
+    enable_tdx_seamldr: "{{ bios_settings.enable_tdx_seamldr | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # Serial Port Section
+    # #+++++++++++++++++++++++++++++++
+    serial_port_aenable: "{{ bios_settings.serial_port_aenable | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # Server Management Section
+    # #+++++++++++++++++++++++++++++++
+    assert_nmi_on_perr: "{{ bios_settings.assert_nmi_on_perr | default('platform-default') }}"
+    assert_nmi_on_serr: "{{ bios_settings.assert_nmi_on_serr | default('platform-default') }}"
+    baud_rate: "{{ bios_settings.baud_rate | default('platform-default') }}"
+    cdn_enable: "{{ bios_settings.cdn_enable | default('platform-default') }}"
+    cisco_adaptive_mem_training: "{{ bios_settings.cisco_adaptive_mem_training | default('platform-default') }}"
+    cisco_debug_level: "{{ bios_settings.cisco_debug_level | default('platform-default') }}"
+    cisco_oprom_launch_optimization: "{{ bios_settings.cisco_oprom_launch_optimization | default('platform-default') }}"
+    console_redirection: "{{ bios_settings.console_redirection | default('platform-default') }}"
+    flow_control: "{{ bios_settings.flow_control | default('platform-default') }}"
+    frb2enable: "{{ bios_settings.frb2enable | default('platform-default') }}"
+    legacy_os_redirection: "{{ bios_settings.legacy_os_redirection | default('platform-default') }}"
+    os_boot_watchdog_timer: "{{ bios_settings.os_boot_watchdog_timer | default('platform-default') }}"
+    os_boot_watchdog_timer_policy: "{{ bios_settings.os_boot_watchdog_timer_policy | default('platform-default') }}"
+    os_boot_watchdog_timer_timeout: "{{ bios_settings.os_boot_watchdog_timer_timeout | default('platform-default') }}"
+    out_of_band_mgmt_port: "{{ bios_settings.out_of_band_mgmt_port | default('platform-default') }}"
+    pcie_slots_cdn_enable: "{{ bios_settings.pcie_slots_cdn_enable | default('platform-default') }}"
+    putty_key_pad: "{{ bios_settings.putty_key_pad | default('platform-default') }}"
+    redirection_after_post: "{{ bios_settings.redirection_after_post | default('platform-default') }}"
+    terminal_type: "{{ bios_settings.terminal_type | default('platform-default') }}"
+    ucsm_boot_order_rule: "{{ bios_settings.ucsm_boot_order_rule | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # Trusted Platform Section
+    # #+++++++++++++++++++++++++++++++
+    cpu_pa_limit: "{{ bios_settings.cpu_pa_limit | default('platform-default') }}"
+    dma_ctrl_opt_in: "{{ bios_settings.dma_ctrl_opt_in | default('platform-default') }}"
+    enable_mktme: "{{ bios_settings.enable_mktme | default('platform-default') }}"
+    enable_sgx: "{{ bios_settings.enable_sgx | default('platform-default') }}"
+    enable_tme: "{{ bios_settings.enable_tme | default('platform-default') }}"
+    epoch_update: "{{ bios_settings.epoch_update | default('platform-default') }}"
+    sgx_auto_registration_agent: "{{ bios_settings.sgx_auto_registration_agent | default('platform-default') }}"
+    sgx_epoch0: "{{ bios_settings.sgx_epoch0 | default('platform-default') }}"
+    sgx_epoch1: "{{ bios_settings.sgx_epoch1 | default('platform-default') }}"
+    sgx_factory_reset: "{{ bios_settings.sgx_factory_reset | default('platform-default') }}"
+    sgx_le_pub_key_hash0: "{{ bios_settings.sgx_le_pub_key_hash0 | default('platform-default') }}"
+    sgx_le_pub_key_hash1: "{{ bios_settings.sgx_le_pub_key_hash1 | default('platform-default') }}"
+    sgx_le_pub_key_hash2: "{{ bios_settings.sgx_le_pub_key_hash2 | default('platform-default') }}"
+    sgx_le_pub_key_hash3: "{{ bios_settings.sgx_le_pub_key_hash3 | default('platform-default') }}"
+    sgx_le_wr: "{{ bios_settings.sgx_le_wr | default('platform-default') }}"
+    sgx_package_info_in_band_access: "{{ bios_settings.sgx_package_info_in_band_access | default('platform-default') }}"
+    sgx_qos: "{{ bios_settings.sgx_qos | default('platform-default') }}"
+    sha1pcr_bank: "{{ bios_settings.sha1pcr_bank | default('platform-default') }}"
+    sha256pcr_bank: "{{ bios_settings.sha256pcr_bank | default('platform-default') }}"
+    tpm_control: "{{ bios_settings.tpm_control | default('platform-default') }}"
+    tpm_pending_operation: "{{ bios_settings.tpm_pending_operation | default('platform-default') }}"
+    tpm_ppi_required: "{{ bios_settings.tpm_ppi_required | default('platform-default') }}"
+    tpm_support: "{{ bios_settings.tpm_support | default('platform-default') }}"
+    txt_support: "{{ bios_settings.txt_support | default('platform-default') }}"
+    # #+++++++++++++++++++++++++++++++
+    # USB Section
+    # #+++++++++++++++++++++++++++++++
+    all_usb_devices: "{{ bios_settings.all_usb_devices | default('platform-default') }}"
+    legacy_usb_support: "{{ bios_settings.legacy_usb_support | default('platform-default') }}"
+    make_device_non_bootable: "{{ bios_settings.make_device_non_bootable | default('platform-default') }}"
+    pch_usb30mode: "{{ bios_settings.pch_usb30mode | default('platform-default') }}"
+    usb_emul6064: "{{ bios_settings.usb_emul6064 | default('platform-default') }}"
+    usb_port_front: "{{ bios_settings.usb_port_front | default('platform-default') }}"
+    usb_port_internal: "{{ bios_settings.usb_port_internal | default('platform-default') }}"
+    usb_port_kvm: "{{ bios_settings.usb_port_kvm | default('platform-default') }}"
+    usb_port_rear: "{{ bios_settings.usb_port_rear | default('platform-default') }}"
+    usb_port_sd_card: "{{ bios_settings.usb_port_sd_card | default('platform-default') }}"
+    usb_port_vmedia: "{{ bios_settings.usb_port_vmedia | default('platform-default') }}"
+    usb_xhci_support: "{{ bios_settings.usb_xhci_support | default('platform-default') }}"
