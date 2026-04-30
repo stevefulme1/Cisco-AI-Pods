@@ -9,7 +9,7 @@ Phase 6 operationalizes OpenShift on Cisco AI Pods for production AI workloads. 
 ## Platform Technologies
 
 <p align="center">
-  <a href="https://www.openshift.com/"><img src="../images/storage-partners/openshift.svg" alt="OpenShift logo" width="140"></a>
+  <a href="https://www.openshift.com/"><picture><source media="(prefers-color-scheme: dark)" srcset="../images/storage-partners/openshift.svg"><source media="(prefers-color-scheme: light)" srcset="../images/storage-partners/openshift-light.svg"><img src="../images/storage-partners/openshift-light.svg" alt="OpenShift logo" width="140"></picture></a>
 </p>
 
 ## 1. Installation Strategy: IPI vs UPI

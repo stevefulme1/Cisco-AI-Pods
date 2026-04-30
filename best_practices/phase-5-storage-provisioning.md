@@ -9,11 +9,11 @@ Phase 5 establishes the storage architecture required to keep Cisco AI Pods comp
 ## Storage Partners
 
 <p align="center">
-  <a href="https://www.purestorage.com/"><img src="../images/storage-partners/everpure.svg" alt="EverPure logo" width="140"></a>&emsp;&emsp;
-  <a href="https://www.hitachivantara.com/"><img src="../images/storage-partners/hitachivantara.svg" alt="Hitachi Vantara logo" width="140"></a>&emsp;&emsp;
-  <a href="https://www.netapp.com/"><img src="../images/storage-partners/netapp.svg" alt="NetApp logo" width="180"></a>&emsp;&emsp;
-  <a href="https://www.qumulo.com/"><img src="../images/storage-partners/qumulo.svg" alt="Qumulo logo" width="170"></a>&emsp;&emsp;
-  <a href="https://www.vastdata.com/"><img src="../images/storage-partners/vastdata.svg" alt="VAST Data logo" width="140"></a>
+  <a href="https://www.purestorage.com/"><picture><source media="(prefers-color-scheme: dark)" srcset="../images/storage-partners/everpure.svg"><source media="(prefers-color-scheme: light)" srcset="../images/storage-partners/everpure-light.svg"><img src="../images/storage-partners/everpure-light.svg" alt="EverPure logo" width="140"></picture></a>&emsp;&emsp;
+  <a href="https://www.hitachivantara.com/"><picture><source media="(prefers-color-scheme: dark)" srcset="../images/storage-partners/hitachivantara.svg"><source media="(prefers-color-scheme: light)" srcset="../images/storage-partners/hitachivantara-light.svg"><img src="../images/storage-partners/hitachivantara-light.svg" alt="Hitachi Vantara logo" width="140"></picture></a>&emsp;&emsp;
+  <a href="https://www.netapp.com/"><picture><source media="(prefers-color-scheme: dark)" srcset="../images/storage-partners/netapp.svg"><source media="(prefers-color-scheme: light)" srcset="../images/storage-partners/netapp-light.svg"><img src="../images/storage-partners/netapp-light.svg" alt="NetApp logo" width="180"></picture></a>&emsp;&emsp;
+  <a href="https://www.qumulo.com/"><picture><source media="(prefers-color-scheme: dark)" srcset="../images/storage-partners/qumulo.svg"><source media="(prefers-color-scheme: light)" srcset="../images/storage-partners/qumulo-light.svg"><img src="../images/storage-partners/qumulo-light.svg" alt="Qumulo logo" width="170"></picture></a>&emsp;&emsp;
+  <a href="https://www.vastdata.com/"><picture><source media="(prefers-color-scheme: dark)" srcset="../images/storage-partners/vastdata.svg"><source media="(prefers-color-scheme: light)" srcset="../images/storage-partners/vastdata-light.svg"><img src="../images/storage-partners/vastdata-light.svg" alt="VAST Data logo" width="140"></picture></a>
 </p>
 
 ## 1. Scale-Out Namespace and Access Model

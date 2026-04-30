@@ -18,7 +18,13 @@ This directory contains comprehensive documentation for the Cisco AI Pods infras
 ## Platform Technologies
 
 <p align="center">
-	<a href="https://www.openshift.com/"><img src="images/storage-partners/openshift.svg" alt="OpenShift logo" width="140"></a>
+   <a href="https://www.openshift.com/">
+      <picture>
+         <source media="(prefers-color-scheme: dark)" srcset="images/storage-partners/openshift.svg">
+         <source media="(prefers-color-scheme: light)" srcset="images/storage-partners/openshift-light.svg">
+         <img src="images/storage-partners/openshift-light.svg" alt="OpenShift logo" width="140">
+      </picture>
+   </a>
 </p>
 
 ## Best Practices

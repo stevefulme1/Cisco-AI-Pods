@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 175 24">
+  <g transform="translate(27.5,0)">
+    <path fill="#111111" d="M0 2v20h9.33V10h5.34v12H24V2Z"/>
+    <text x="30" y="20" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="bold" fill="#111111">etApp</text>
+  </g>
+</svg>
