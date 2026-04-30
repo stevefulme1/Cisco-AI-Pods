@@ -7,11 +7,11 @@ Below are the best practices for the specific storage components and strategies 
 ## Storage Partners
 
 <p align="center">
-	<a href="https://www.netapp.com/"><img src="../images/storage-partners/netapp.png" alt="NetApp logo" height="48"></a>
-	<a href="https://www.purestorage.com/"><img src="../images/storage-partners/everpure.svg" alt="EverPure logo" height="48"></a>
-	<a href="https://www.vastdata.com/"><img src="../images/storage-partners/vastdata.png" alt="VAST Data logo" height="48"></a>
-	<a href="https://www.qumulo.com/"><img src="../images/storage-partners/qumulo.png" alt="Qumulo logo" height="48"></a>
-	<a href="https://www.hitachivantara.com/"><img src="../images/storage-partners/hitachivantara.svg" alt="Hitachi Vantara logo" height="48"></a>
+	<a href="https://www.purestorage.com/"><img src="../images/storage-partners/everpure.svg" alt="EverPure logo" width="140"></a>&emsp;&emsp;
+	<a href="https://www.hitachivantara.com/"><img src="../images/storage-partners/hitachivantara.svg" alt="Hitachi Vantara logo" width="140"></a>&emsp;&emsp;
+	<a href="https://www.netapp.com/"><img src="../images/storage-partners/netapp.svg" alt="NetApp logo" width="180"></a>&emsp;&emsp;
+	<a href="https://www.qumulo.com/"><img src="../images/storage-partners/qumulo.svg" alt="Qumulo logo" width="170"></a>&emsp;&emsp;
+	<a href="https://www.vastdata.com/"><img src="../images/storage-partners/vastdata.svg" alt="VAST Data logo" width="140"></a>
 </p>
 
 ## 1. Unified Scale-Out Namespaces

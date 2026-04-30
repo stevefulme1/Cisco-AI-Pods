@@ -15,6 +15,12 @@
 ## Overview
 This directory contains comprehensive documentation for the Cisco AI Pods infrastructure. The runbook is organized into focused guides for each component and operational procedure. This is a living document.
 
+## Platform Technologies
+
+<p align="center">
+	<a href="https://www.openshift.com/"><img src="images/storage-partners/openshift.svg" alt="OpenShift logo" width="140"></a>
+</p>
+
 ## Best Practices
 
 ### Documentation
@@ -74,7 +80,14 @@ This directory contains comprehensive documentation for the Cisco AI Pods infras
 - Host integration steps
 - Performance optimization
 
-### 🔧 [Troubleshooting Guide](troubleshooting.md)
+### � [OpenShift Deployment](openshift/README.md)
+**OpenShift container platform deployment and configuration**
+- OpenShift installation and cluster setup
+- Kubernetes container orchestration
+- Integration with Cisco AI Pods infrastructure
+- Base operators and application deployment
+
+### �🔧 [Troubleshooting Guide](troubleshooting.md)
 **Comprehensive troubleshooting reference**
 - Common issues and resolutions
 - Performance troubleshooting
