@@ -96,7 +96,170 @@ Validation goals:
 - Throughput aligns with known-good baseline for cluster size.
 - Transport logs indicate direct path usage (GDR where applicable).
 
-## 6. Thermal and Power Monitoring
+## 6. Performance Testing Runbook (OpenShift Manifests and Commands)
+
+Use this workflow to validate end-to-end GPU communication and baseline all-reduce performance on training pools (B300/H200).
+
+### 6.1 Pre-Flight Checks
+
+Run these checks before launching test workloads:
+
+```bash
+# Confirm worker GPU labels
+oc get nodes -L nvidia.com/gpu.product
+
+# Confirm allocatable GPUs are visible
+oc describe nodes | grep -A8 "Allocatable" | grep nvidia.com/gpu
+
+# Confirm GPU and network operators are healthy
+oc -n nvidia-gpu-operator get pods
+oc -n nvidia-network-operator get pods
+
+# Optional: quick RDMA visibility check on a worker
+oc debug node/<worker-node-name> -- chroot /host rdma link show
+```
+
+### 6.2 Apply Test Manifest
+
+Create a file named `nccl-allreduce-job.yaml` and apply it as-is, then adjust node selectors and image tag for your environment.
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gpu-perf-tests
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nccl-hostfile
+  namespace: gpu-perf-tests
+data:
+  hostfile: |
+    worker-01 slots=8
+    worker-02 slots=8
+    worker-03 slots=8
+    worker-04 slots=8
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nccl-allreduce
+  namespace: gpu-perf-tests
+spec:
+  parallelism: 4
+  completions: 4
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: nccl-allreduce
+    spec:
+      restartPolicy: Never
+      nodeSelector:
+        node-role.kubernetes.io/worker: ""
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: nccl-allreduce
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: nccl
+        image: nvcr.io/nvidia/pytorch:24.03-py3
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            nvidia.com/gpu: 8
+            cpu: "24"
+            memory: 64Gi
+          limits:
+            nvidia.com/gpu: 8
+            cpu: "24"
+            memory: 64Gi
+        env:
+        - name: NCCL_DEBUG
+          value: INFO
+        - name: NCCL_IB_DISABLE
+          value: "0"
+        - name: NCCL_IB_GID_INDEX
+          value: "3"
+        - name: NCCL_ALGO
+          value: Ring
+        - name: NCCL_PROTO
+          value: Simple
+        - name: NCCL_SOCKET_IFNAME
+          value: eth0
+        command:
+        - /bin/bash
+        - -lc
+        - |
+          set -euo pipefail
+          echo "=== GPU Inventory ==="
+          nvidia-smi
+          echo "=== NCCL Test ==="
+          /opt/pytorch/nccl-tests/build/all_reduce_perf \
+            -b 8M -e 2G -f 2 -g 1 -c 10 -w 50
+```
+
+Deploy:
+
+```bash
+oc apply -f nccl-allreduce-job.yaml
+oc -n gpu-perf-tests get pods -w
+```
+
+### 6.3 Monitor and Collect Results
+
+```bash
+# View job status
+oc -n gpu-perf-tests get job nccl-allreduce
+
+# Confirm pod placement
+oc -n gpu-perf-tests get pods -o wide
+
+# Stream one pod log
+oc -n gpu-perf-tests logs -f <pod-name>
+
+# Collect all logs for comparison
+for p in $(oc -n gpu-perf-tests get pods -o name); do
+  oc -n gpu-perf-tests logs "$p" > "${p##*/}.log"
+done
+```
+
+### 6.4 Parse Bus Bandwidth Quickly
+
+```bash
+# Print rows with bus bandwidth from each log
+grep -h "float" ./*.log | awk '{print $1, $NF}' | head -30
+
+# Show top bandwidth values seen
+grep -h "float" ./*.log | awk '{print $NF}' | sort -nr | head -10
+```
+
+### 6.5 Acceptance Criteria
+
+- All pods schedule on distinct worker nodes.
+- No NCCL timeout or CUDA errors in logs.
+- Bandwidth is stable across repeated runs.
+- Throughput is within expected range for your backend fabric and cluster size.
+- Results are captured as baseline artifacts for future regression checks.
+
+### 6.6 Cleanup
+
+```bash
+oc -n gpu-perf-tests delete job nccl-allreduce
+oc delete namespace gpu-perf-tests
+```
+
+## 7. Thermal and Power Monitoring
 
 Continuous monitoring is mandatory to avoid hidden throttling.
 
@@ -114,9 +277,9 @@ nvidia-smi --query-gpu=temperature.gpu,power.draw,clocks.current.graphics,clocks
   - Inference pools (RTX6000/RTX4500)
 - Align Intersight thermal policies with rack power and cooling design.
 
-## 7. Troubleshooting Guide
+## 8. Troubleshooting Guide
 
-### 7.1 Fabric Manager Not Active
+### 8.1 Fabric Manager Not Active
 
 - Symptoms:
   - Incomplete topology visibility.
@@ -126,7 +289,7 @@ nvidia-smi --query-gpu=temperature.gpu,power.draw,clocks.current.graphics,clocks
   2. Validate driver and fabric-manager package compatibility.
   3. Re-test topology and NCCL baseline.
 
-### 7.2 RDMA Underperforming
+### 8.2 RDMA Underperforming
 
 - Symptoms:
   - All-reduce throughput lower than baseline.
@@ -136,7 +299,7 @@ nvidia-smi --query-gpu=temperature.gpu,power.draw,clocks.current.graphics,clocks
   2. Validate NIC and GPU firmware/driver parity.
   3. Check RoCE policy, MTU consistency, and queue settings.
 
-### 7.3 Thermal Throttling Under Load
+### 8.3 Thermal Throttling Under Load
 
 - Symptoms:
   - Clock drops during sustained runs.
@@ -146,7 +309,7 @@ nvidia-smi --query-gpu=temperature.gpu,power.draw,clocks.current.graphics,clocks
   2. Validate chassis airflow and blanking panel placement.
   3. Reduce clock lock targets until stability is restored.
 
-### 7.4 Inference Tail Latency Spikes (RTX6000/RTX4500)
+### 8.4 Inference Tail Latency Spikes (RTX6000/RTX4500)
 
 - Symptoms:
   - p95/p99 latency outliers at steady RPS.
@@ -155,7 +318,7 @@ nvidia-smi --query-gpu=temperature.gpu,power.draw,clocks.current.graphics,clocks
   2. Validate CPU pinning and NIC IRQ placement for serving process.
   3. Check model cache and storage burst contention.
 
-## 8. Phase Completion Checklist
+## 9. Phase Completion Checklist
 
 - [ ] GPU services active and persistent across reboot.
 - [ ] Topology and fabric checks pass for each node class.
