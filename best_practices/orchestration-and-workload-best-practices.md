@@ -411,7 +411,7 @@ Example output interpretation:
         8M         2097152    float     sum      0          0.987    0.987   32.4 GB/s  ✓
        16M         4194304    float     sum      0          1.850    1.850   34.5 GB/s  ✓
        32M         8388608    float     sum      0          3.450    3.450   37.2 GB/s  ✓
-        2G      268435456    float     sum      0         62.100   62.100   52.1 GB/s  ✓ (Near theoretical limit)
+        2G       268435456    float     sum      0         62.100   62.100   52.1 GB/s  ✓ (Near theoretical limit)
 ```
 
 ### Target Performance & Validation
