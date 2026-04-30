@@ -6,7 +6,21 @@ This folder deploys Cisco Intersight organizations, pools, policies, and profile
 
 - [Cisco AI Pods Runbook](../guide_cisco_ai_pods_runbook.md)
 - [Main README](../README.md)
+- [Best Practices README](../best_practices/README.md)
 - [Prepare the Environment](../guide_prepare_the_environment.md)
+
+## Best Practices Phase Navigation
+
+- [Best Practices Index](../best_practices/README.md)
+- [Phase 1: Planning and Design](../best_practices/phase-1-planning-and-design.md)
+- [Phase 2: Hardware Staging](../best_practices/phase-2-hardware-staging.md)
+- [Phase 3: Fabric Configuration](../best_practices/phase-3-fabric-configuration.md)
+- [Phase 4A: Compute Provisioning](../best_practices/phase-4-compute-provisioning.md)
+- [Phase 4B: GPU Runtime Configuration](../best_practices/phase-4-gpu-configuration.md)
+- [Phase 5: Storage Provisioning](../best_practices/phase-5-storage-provisioning.md)
+- [Phase 6: Orchestration and Workload](../best_practices/phase-6-orchestration-and-workload.md)
+
+[Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md)
 
 ## Table of Contents
 
@@ -45,7 +59,7 @@ Deployment in this folder is Terraform-based and uses:
 
 The deployment merges all `*.ezi.yaml` model files from this folder and from selected subfolders into one model, then applies modules conditionally based on content.
 
-[Back to Table of Contents](#table-of-contents)
+[Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
 ## Folder Structure
 
@@ -66,7 +80,7 @@ Model folders:
 - `profiles/`
 - `templates/`
 
-[Back to Table of Contents](#table-of-contents)
+[Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
 ## Prerequisites
 
@@ -80,7 +94,7 @@ Optional but recommended:
 - `jq` for output parsing
 - version-controlled `.ezi.yaml` model files per organization
 
-[Back to Table of Contents](#table-of-contents)
+[Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
 ## Configuration Model
 
@@ -106,7 +120,7 @@ For appliance deployments, set `intersight_fqdn` to your appliance FQDN.
 
 Keep model data in these paths so Terraform picks it up automatically.
 
-[Back to Table of Contents](#table-of-contents)
+[Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
 ## Authentication and Sensitive Variables
 
@@ -137,7 +151,7 @@ export TF_VAR_snmp_privacy_password_1="<secure_password>"
 
 See `variables.tf` and `locals.tf` for full supported variable names.
 
-[Back to Table of Contents](#table-of-contents)
+[Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
 ## Deployment Steps
 
@@ -171,7 +185,7 @@ terraform plan -out main.plan
 terraform apply main.plan
 ```
 
-[Back to Table of Contents](#table-of-contents)
+[Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
 ## Validation
 
@@ -203,7 +217,7 @@ In Intersight UI, confirm objects under:
 - Policies
 - Templates and Profiles
 
-[Back to Table of Contents](#table-of-contents)
+[Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
 ## Troubleshooting
 
@@ -235,7 +249,7 @@ terraform state rm <resource>
 terraform import <resource> <id>
 ```
 
-[Back to Table of Contents](#table-of-contents)
+[Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
 ## Next Steps
 
