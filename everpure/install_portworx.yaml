@@ -6,12 +6,12 @@
   vars:
     validate_certificates: false
     prompt_before_storagecluster_apply: false
-    pure_storage_vars_dir: "{{ playbook_dir }}/script_vars"
+    everpure_vars_dir: "{{ playbook_dir }}/script_vars"
 
   pre_tasks:
     - name: Load variables from script folder
       ansible.builtin.include_vars:
-        dir: "{{ pure_storage_vars_dir }}"
+        dir: "{{ everpure_vars_dir }}"
         extensions:
           - yaml
           - yml
@@ -19,13 +19,13 @@
     - name: Validate required Portworx values are present
       ansible.builtin.assert:
         that:
-          - pure_storage is defined
-          - pure_storage.portworx is defined
-          - pure_storage.portworx.namespace is defined
-          - pure_storage.portworx.operator_source is defined
-          - pure_storage.portworx.storage_classes is defined
-          - pure_storage.portworx.storage_classes | length > 0
-        fail_msg: "Missing required pure_storage.portworx keys in script_vars."
+          - everpure is defined
+          - everpure.portworx is defined
+          - everpure.portworx.namespace is defined
+          - everpure.portworx.operator_source is defined
+          - everpure.portworx.storage_classes is defined
+          - everpure.portworx.storage_classes | length > 0
+        fail_msg: "Missing required everpure.portworx keys in script_vars."
 
     - name: Validate OpenShift environment variables exist
       ansible.builtin.assert:
@@ -64,7 +64,7 @@
 
     - name: Create Portworx Namespace
       kubernetes.core.k8s:
-        name: "{{ pure_storage.portworx.namespace }}"
+        name: "{{ everpure.portworx.namespace }}"
         kind: Namespace
         state: present
         validate_certs: "{{ validate_certificates }}"
@@ -79,7 +79,7 @@
           type: Opaque
           metadata:
             name: px-pure-secret
-            namespace: "{{ pure_storage.portworx.namespace }}"
+            namespace: "{{ everpure.portworx.namespace }}"
           stringData:
             pure.json: "{{ lookup('ansible.builtin.file', playbook_dir + '/pure.json') }}"
       no_log: true
@@ -97,7 +97,7 @@
             channel: stable
             installPlanApproval: Automatic
             name: portworx-certified
-            source: "{{ pure_storage.portworx.operator_source }}"
+            source: "{{ everpure.portworx.operator_source }}"
             sourceNamespace: openshift-marketplace
         validate_certs: "{{ validate_certificates }}"
 
@@ -130,4 +130,4 @@
         state: present
         definition: "{{ lookup('template', 'storage-classes.yaml.j2') | from_yaml }}"
         validate_certs: "{{ validate_certificates }}"
-      loop: "{{ pure_storage.portworx.storage_classes }}"
+      loop: "{{ everpure.portworx.storage_classes }}"

@@ -26,6 +26,7 @@ This folder deploys Cisco Intersight organizations, pools, policies, and profile
 
 - [Cisco AI Pods Intersight Deployment Guide](#cisco-ai-pods-intersight-deployment-guide)
   - [Top Level Documents](#top-level-documents)
+  - [Best Practices Phase Navigation](#best-practices-phase-navigation)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
   - [Folder Structure](#folder-structure)
@@ -255,7 +256,7 @@ terraform import <resource> <id>
 
 After successful Intersight deployment:
 
-1. Continue storage workflow using [pure_storage/README.md](../pure_storage/README.md).
+1. Continue storage workflow using [everpure/README.md](../everpure/README.md).
 2. Continue with OpenShift and platform operator deployment phases from the runbook.
 
 [Back to Table of Contents](#table-of-contents)

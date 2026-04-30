@@ -7,7 +7,7 @@ This guide provides comprehensive troubleshooting procedures for Cisco AI Pods d
 
 ### Emergency Contacts
 - **Cisco TAC:** 1-800-553-2447
-- **Pure Storage Support:** 1-650-729-4088  
+- **Everpure Support:** 1-650-729-4088  
 - **Internal IT Escalation:** [Your internal escalation process]
 
 ### Critical Commands Quick Reference
@@ -17,7 +17,7 @@ terraform state list
 terraform refresh
 terraform plan -detailed-exitcode
 
-# Pure Storage
+# Everpure
 ansible all -i inventory -m ping
 purearray list --array
 
@@ -141,7 +141,7 @@ echo $TF_VAR_intersight_fqdn
 # Phase verification checklist:
 # 1. Network Foundation - Management connectivity verified?
 # 2. Intersight/UCS - Compute infrastructure operational?
-# 3. Pure Storage - Storage dependent on compute hosts
+# 3. Everpure - Storage dependent on compute hosts
 # 4. Network Completion - Data/storage networks configured?
 # 5. Integration - All components validated?
 ```
@@ -264,7 +264,7 @@ terraform refresh
 terraform import [resources]
 ```
 
-## Pure Storage Issues
+## Everpure Issues
 
 ### Connectivity Problems
 
@@ -288,7 +288,7 @@ ansible-galaxy collection list purestorage.flasharray
 
 **Resolution:**
 ```bash
-# Reinstall Pure Storage collection
+# Reinstall Everpure collection
 ansible-galaxy collection install purestorage.flasharray --force
 
 # Install Python dependencies
@@ -314,7 +314,7 @@ curl -k -H "api-token: your-token" https://flasharray-ip/api/2.0/arrays
 ```
 
 **Resolution:**
-1. Generate new API token in Pure Storage GUI
+1. Generate new API token in Everpure GUI
 2. Update inventory file with new token
 3. Verify token has required permissions
 4. Check token format (no extra characters)
@@ -355,7 +355,7 @@ multipath -ll
 iscsiadm -m session
 lsscsi
 
-# Check Pure Storage host configuration
+# Check Everpure host configuration
 # Verify IQN/WWPN configuration
 ```
 
@@ -469,7 +469,7 @@ lsscsi
 multipath -ll
 dmesg | grep -i scsi
 
-# Check Pure Storage host registration
+# Check Everpure host registration
 # Verify network connectivity
 ```
 
@@ -526,7 +526,7 @@ iotop
 1. Optimize multipath configuration
 2. Tune I/O scheduler settings
 3. Check network performance
-4. Review Pure Storage performance policies
+4. Review Everpure performance policies
 5. Analyze application I/O patterns
 
 ### Network Performance Issues
@@ -569,7 +569,7 @@ curl -X GET "https://intersight.com/api/v1/compute/PhysicalSummaries"
 terraform output
 ```
 
-#### Pure Storage Monitoring
+#### Everpure Monitoring
 ```bash
 # Check array health
 ansible flasharray -i inventory -m purefa_info -a "gather_subset=health"
@@ -690,7 +690,7 @@ copy bootflash:backup.cfg running-config
 
 ### Vendor Support
 - **Cisco TAC:** For Intersight and UCS issues
-- **Pure Storage:** For storage-related problems
+- **Everpure:** For storage-related problems
 - **Network team:** For switch configuration issues
 
 ### Documentation Requirements

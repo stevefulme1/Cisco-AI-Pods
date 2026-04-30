@@ -5,18 +5,45 @@
 * [Prepare the Environment](guide_prepare_the_environment.md)
 
 ## Table of Contents
-* [Overview](#overview)
-* [Architecture Diagrams](#architecture-diagrams)
-* [Firmware/Software Requirements](#firmwaresoftware-requirements)
-* [Deployment Execution Order](#environment-deployment-execution-order)
-* [Pre-Deployment Planning](#pre-deployment-planning)
-* [Prepare the Environment](#prepare-the-environment)
-* [Cisco AI Pods Network Configuration Guide](#cisco-ai-pods-network-configuration-guide)
-* [Cisco AI Pods Intersight Deployment Guide](#cisco-ai-pods-intersight-deployment-guide)
-* [Cisco AI Pods C885A M8 Server Deployment Guide](#cisco-ai-pods-intersight-deployment-guide)
-* [Cisco AI Pods Pure Storage Deployment Guide](#cisco-ai-pods-pure-storage-deployment-guide)
-* [Cisco AI Pods OpenShift Container Platform Deployment Guide](#cisco-ai-pods-openshift-container-platform-deployment-guide)
-* [Post-Deployment Tasks](#post-deployment-tasks)
+- [Cisco AI Pods Runbook](#cisco-ai-pods-runbook)
+  - [Top Level Documents](#top-level-documents)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [Management Components](#management-components)
+    - [Architecture Components](#architecture-components)
+    - [Back to Table of Contents](#back-to-table-of-contents)
+  - [Architecture Diagrams](#architecture-diagrams)
+    - [AI Backend Infrastructure](#ai-backend-infrastructure)
+    - [AI Frontend Infrastructure](#ai-frontend-infrastructure)
+    - [AI Inferencing Infrastructure](#ai-inferencing-infrastructure)
+    - [Back to Table of Contents](#back-to-table-of-contents-1)
+  - [Firmware/Software Requirements](#firmwaresoftware-requirements)
+    - [Compute Components](#compute-components)
+    - [Network Components](#network-components)
+    - [Software Components](#software-components)
+    - [Storage Components](#storage-components)
+    - [Back to Table of Contents](#back-to-table-of-contents-2)
+  - [⚠️ Environment Deployment Execution Order](#️-environment-deployment-execution-order)
+    - [🔄 Rollback Considerations](#-rollback-considerations)
+    - [Back to Table of Contents](#back-to-table-of-contents-3)
+  - [Pre-Deployment Planning](#pre-deployment-planning)
+    - [1. Network Planning](#1-network-planning)
+    - [2. Storage Planning](#2-storage-planning)
+    - [3. Compute Planning](#3-compute-planning)
+    - [4. Security Planning](#4-security-planning)
+    - [Required Access and Credentials](#required-access-and-credentials)
+    - [Back to Table of Contents](#back-to-table-of-contents-4)
+  - [Cisco AI Pods Network Configuration Guide](#cisco-ai-pods-network-configuration-guide)
+  - [Cisco AI Pods Intersight Deployment Guide](#cisco-ai-pods-intersight-deployment-guide)
+  - [Cisco AI Pods C885A M8 Server Deployment Guide](#cisco-ai-pods-c885a-m8-server-deployment-guide)
+  - [Cisco AI Pods Everpure Deployment Guide](#cisco-ai-pods-everpure-deployment-guide)
+  - [Cisco AI Pods OpenShift Container Platform Deployment Guide](#cisco-ai-pods-openshift-container-platform-deployment-guide)
+    - [Back to Table of Contents](#back-to-table-of-contents-5)
+  - [Post-Deployment Tasks](#post-deployment-tasks)
+    - [Documentation Updates](#documentation-updates)
+    - [Monitoring and Maintenance](#monitoring-and-maintenance)
+    - [Backup and Recovery](#backup-and-recovery)
+    - [Back to Table of Contents](#back-to-table-of-contents-6)
 
 ## Overview
 
@@ -33,7 +60,7 @@ Cisco AI Pods is an automated deployment framework for Cisco FlashStack infrastr
 
 ### Architecture Components
 - **Cisco UCS:** Cisco UCS X9508 with X215C M8 Servers / PCIe nodes with H100 GPU's / C885A.
-- **Pure Storage:** Pure Storage FlashArray//X90R4 and FlashBlade//S500
+- **Everpure:** Everpure FlashArray//X90R4 and FlashBlade//S500
 - **Network:** Cisco Nexus 9332D-GX2B for frontend fabric and N9364E-SG2-O for backend fabric
 - **OpenShift Container Platform:** Cisco Intersight Cloud/CVA/PVA
 
@@ -102,7 +129,7 @@ Cisco AI Pods is an automated deployment framework for Cisco FlashStack infrastr
 |-------|---------------------|----------------|
 | Network Foundation | Any automation scripts | Network connectivity test |
 | Intersight/UCS | Storage configuration | Server discovery in Intersight |
-| Pure Storage | Operating System installation | Portworx CSI volume management |
+| Everpure | Operating System installation | Portworx CSI volume management |
 | Red Hat OCP OS deploy | AI Software deployment | CNI / CSI validation |
 | NVIDIA AI Enterprise | LLM deployment | All services operational |
 | Splunk Observability Cloud | N/A | Full Stack Visiblity |
@@ -146,7 +173,7 @@ If any phase fails, follow this rollback approach:
 
 ### Required Access and Credentials
 - Cisco Intersight account with appropriate permissions
-- Pure Storage management access
+- Everpure management access
 - Network switch administrative access
 
 ### [<ins>Back to Table of Contents<ins>](#table-of-contents)
@@ -169,11 +196,11 @@ Follow the steps in the C885A M8 configuration section.
 
 [Cisco AI Pods C885A M8 Server Deployment Guide](./c885/README.md#cisco-ai-pods-c885a-m8-server-deployment-guide)
 
-## Cisco AI Pods Pure Storage Deployment Guide
+## Cisco AI Pods Everpure Deployment Guide
 
-Follow the steps in the Pure Storage configuration section.
+Follow the steps in the Everpure configuration section.
 
-[Cisco AI Pods Pure Storage Deployment Guide](./pure_storage/README.md#cisco-ai-pods-pure-storage-deployment-guide)
+[Cisco AI Pods Everpure Deployment Guide](./everpure/README.md#cisco-ai-pods-everpure-deployment-guide)
 
 ## Cisco AI Pods OpenShift Container Platform Deployment Guide
 
@@ -206,7 +233,7 @@ Follow the steps in the OpenShift configuration section.
 
 1. **Set Up Monitoring:**
    - Configure Intersight monitoring
-   - Set up Pure Storage monitoring
+   - Set up Everpure monitoring
    - Implement network monitoring
 
 2. **Schedule Maintenance:**

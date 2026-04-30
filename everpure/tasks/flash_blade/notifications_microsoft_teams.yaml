@@ -6,14 +6,14 @@
 - name: Microsoft Team Notifications | Network | for {{ array_fqdn }}
   ansible.builtin.include_tasks:
     file: "notifications_microsoft_teams_network.yaml"
-  when: pure_storage.settings.network is defined
+  when: everpure.settings.network is defined
 
 - name: Microsoft Team Notifications | Security | for {{ array_fqdn }}
   ansible.builtin.include_tasks:
     file: "notifications_microsoft_teams_security.yaml"
-  when: pure_storage.settings.security is defined
+  when: everpure.settings.security is defined
 
 - name: Microsoft Team Notifications | System | for {{ array_fqdn }}
   ansible.builtin.include_tasks:
     file: "notifications_microsoft_teams_system.yaml"
-  when: pure_storage.settings.system is defined
+  when: everpure.settings.system is defined

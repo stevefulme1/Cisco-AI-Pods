@@ -1,17 +1,19 @@
-# Pure Storage Arrays Deployment Guide
+# Everpure Arrays Deployment Guide
 
-This guide covers Day 0 automation for Pure Storage FlashArray and FlashBlade configuration in this folder.
+This guide covers Day 0 automation for Everpure FlashArray and FlashBlade configuration in this folder.
 
 ## Table of Contents
 
-- [Scope](#scope)
-- [Prerequisites](#prerequisites)
-- [Configuration Files](#configuration-files)
-- [Environment Variables](#environment-variables)
-- [Run the Array Configuration Playbook](#run-the-array-configuration-playbook)
-- [What Gets Configured](#what-gets-configured)
-- [Verification](#verification)
-- [Troubleshooting](#troubleshooting)
+- [Everpure Arrays Deployment Guide](#everpure-arrays-deployment-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Scope](#scope)
+  - [Prerequisites](#prerequisites)
+  - [Configuration Files](#configuration-files)
+  - [Environment Variables](#environment-variables)
+  - [Run the Array Configuration Playbook](#run-the-array-configuration-playbook)
+  - [What Gets Configured](#what-gets-configured)
+  - [Verification](#verification)
+  - [Troubleshooting](#troubleshooting)
 
 ## Scope
 
@@ -37,7 +39,7 @@ Install dependencies:
 cd ..
 ansible-galaxy collection install -r requirements.yaml
 pip install -r requirements.txt
-cd pure_storage
+cd everpure
 ```
 
 [Back to Table of Contents](#table-of-contents)
@@ -47,14 +49,14 @@ cd pure_storage
 Current files in this folder:
 
 - `script_vars/*.yaml`: variable definitions loaded by the playbook
-- `configure_pure_storage_arrays.yaml`: array configuration playbook
+- `configure_everpure_arrays.yaml`: array configuration playbook
 
 > **Tip:** The `examples/` folder contains a sample input YAML file. Copy it to `script_vars/` and update the values for your environment:
 > ```bash
-> cp examples/pure_storage.ezai.yaml script_vars/
+> cp examples/everpure.ezai.yaml script_vars/
 > ```
 
-The playbook validates that `pure_storage` exists and that at least one of `pure_storage.flash_arrays` or `pure_storage.flash_blades` is defined before running tasks.
+The playbook validates that `everpure` exists and that at least one of `everpure.flash_arrays` or `everpure.flash_blades` is defined before running tasks.
 
 [Back to Table of Contents](#table-of-contents)
 
@@ -78,7 +80,7 @@ Additional environment variables may be required by your selected security/syste
 From this folder:
 
 ```bash
-ansible-playbook configure_pure_storage_arrays.yaml
+ansible-playbook configure_everpure_arrays.yaml
 ```
 
 [Back to Table of Contents](#table-of-contents)
@@ -87,8 +89,8 @@ ansible-playbook configure_pure_storage_arrays.yaml
 
 Based on your variable content, the playbook iterates through:
 
-- `pure_storage.flash_arrays[]`
-- `pure_storage.flash_blades[]`
+- `everpure.flash_arrays[]`
+- `everpure.flash_blades[]`
 
 FlashArray tasks include:
 
@@ -101,7 +103,7 @@ FlashBlade tasks include:
 - Settings: network
 - Settings: security
 - Settings: system
-- Notifications (if `pure_storage.notifications` is defined)
+- Notifications (if `everpure.notifications` is defined)
 
 [Back to Table of Contents](#table-of-contents)
 
@@ -132,11 +134,11 @@ ansible localhost -m purestorage.flashblade.purefb_info -a "fb_url=<flashblade_f
 - Authentication errors:
   - Confirm `pure_api_token_<id>` environment variable names match `api_token_id` values.
 - Variable load failures:
-  - Confirm at least one YAML file exists in `script_vars/` and contains a `pure_storage` root key.
+  - Confirm at least one YAML file exists in `script_vars/` and contains a `everpure` root key.
 - Module import errors:
   - Reinstall required collections and Python packages from the repository root `requirements.yaml` and `requirements.txt`.
   - See [Prepare the Environment](../guide_prepare_the_environment.md#install-ansible-on-ubuntu).
 - Task skipped unexpectedly:
-  - Check conditional keys like `pure_storage.settings.network`, `pure_storage.settings.security`, `pure_storage.settings.system`, and `pure_storage.notifications`.
+  - Check conditional keys like `everpure.settings.network`, `everpure.settings.security`, `everpure.settings.system`, and `everpure.notifications`.
 
 [Back to Table of Contents](#table-of-contents)

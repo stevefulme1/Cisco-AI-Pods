@@ -11,7 +11,7 @@
     state: absent
   loop_control:
     loop_var: element
-  loop: "{{ pure_storage.settings.security.users }}"
+  loop: "{{ everpure.settings.security.users }}"
 
 - name: Settings > Access > Users and Policies > Users
   purestorage.flasharray.purefa_user:
@@ -29,7 +29,7 @@
     state: "{{ element.state | default('present') }}"
   loop_control:
     loop_var: element
-  loop: "{{ pure_storage.settings.security.users }}"
+  loop: "{{ everpure.settings.security.users }}"
   register: flash_array_users
 
 ############################
@@ -44,4 +44,4 @@
     src: flash_array.json.j2
     dest: flash_array.json
     mode: "0644"
-  when: pure_storage.flash_arrays is defined and pure_storage.settings.security.users
+  when: everpure.flash_arrays is defined and everpure.settings.security.users

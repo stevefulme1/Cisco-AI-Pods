@@ -6,8 +6,8 @@ metadata:
     portworx.io/is-openshift: "true"
     portworx.io/misc-args: ' -T px-storev2 '
     portworx.io/preflight-check: "true"
-  name: "{{ pure_storage.portworx.cluster_name }}"
-  namespace: "{{ pure_storage.portworx.namespace }}"
+  name: "{{ everpure.portworx.cluster_name }}"
+  namespace: "{{ everpure.portworx.namespace }}"
 spec:
   autopilot:
       enabled: true
@@ -25,7 +25,7 @@ spec:
   env:
   - name: PURE_FLASHARRAY_SAN_TYPE
     value: NVMEOF-TCP
-  image: "portworx/oci-monitor:{{ pure_storage.portworx.version }}"
+  image: "portworx/oci-monitor:{{ everpure.portworx.version }}"
   imagePullPolicy: Always
   kvdb:
     enableTLS: false

@@ -37,9 +37,9 @@ Top-level project README:
 - Applies trust bundle, ingress wildcard certificate, and API server certificate updates, then validates certificate rollout/state on the cluster.
 - [certificates README](certificates/README.md)
 
-3. Pure Storage Portworx Install
-- Prepares Pure credentials, installs Portworx Operator/StorageCluster, and creates StorageClasses for persistent workload storage.
-- [Pure Storage Portworx README](../pure_storage/README_portworx.md)
+3. Everpure Portworx Install
+- Prepares Everpure credentials, installs Portworx Operator/StorageCluster, and creates StorageClasses for persistent workload storage.
+- [Everpure Portworx README](../everpure/README_portworx.md)
 
 4. OATH LDAP (Optional for Active Directory Authentication)
 - Configures OpenShift OAuth/LDAP integration for AD sign-in and deploys group sync resources (including scheduled synchronization).

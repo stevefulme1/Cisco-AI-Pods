@@ -11,7 +11,7 @@
     state: absent
   loop_control:
     loop_var: element
-  loop: "{{ pure_storage.settings.security.users }}"
+  loop: "{{ everpure.settings.security.users }}"
 
 - name: Settings > Security > Users > Users
   purestorage.flashblade.purefb_user:
@@ -28,7 +28,7 @@
     role: "{{ element.role }}"
   loop_control:
     loop_var: element
-  loop: "{{ pure_storage.settings.security.users }}"
+  loop: "{{ everpure.settings.security.users }}"
   register: flash_blade_users
 
 ############################

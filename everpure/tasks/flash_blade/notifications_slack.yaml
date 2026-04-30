@@ -6,14 +6,14 @@
 - name: Slack Notifications | Network | for {{ array_fqdn }}
   ansible.builtin.include_tasks:
     file: "notifications_slack_network.yaml"
-  when: pure_storage.settings.network is defined
+  when: everpure.settings.network is defined
 
 - name: Slack Notifications | Security | for {{ array_fqdn }}
   ansible.builtin.include_tasks:
     file: "notifications_slack_security.yaml"
-  when: pure_storage.settings.security is defined
+  when: everpure.settings.security is defined
 
 - name: Slack Notifications | System | for {{ array_fqdn }}
   ansible.builtin.include_tasks:
     file: "notifications_slack_system.yaml"
-  when: pure_storage.settings.system is defined
+  when: everpure.settings.system is defined

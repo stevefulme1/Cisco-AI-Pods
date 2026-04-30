@@ -1,8 +1,8 @@
-# Portworx Deployment with Pure Storage
+# Portworx Deployment with Everpure
 
 This guide covers the Portworx-specific flow in this folder:
 
-1. Generate `pure.json` credentials using Pure APIs.
+1. Generate `pure.json` credentials using Everpure APIs.
 2. Install Portworx Operator and StorageCluster on OpenShift.
 3. Create Portworx storage classes from template values.
 
@@ -10,20 +10,22 @@ This guide covers the Portworx-specific flow in this folder:
 
 ## Table of Contents
 
-- [Prerequisites](#prerequisites)
-- [Configuration Inputs](#configuration-inputs)
-- [Step 1: Create pure.json](#step-1-create-purejson)
-- [Step 2: Install Portworx](#step-2-install-portworx)
-- [Step 3: Validate Portworx and Storage Classes](#step-3-validate-portworx-and-storage-classes)
-- [Step 4: Test PVC Provisioning](#step-4-test-pvc-provisioning)
-- [Troubleshooting](#troubleshooting)
+- [Portworx Deployment with Everpure](#portworx-deployment-with-everpure)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [Configuration Inputs](#configuration-inputs)
+  - [Step 1: Create pure.json](#step-1-create-purejson)
+  - [Step 2: Install Portworx](#step-2-install-portworx)
+  - [Step 3: Validate Portworx and Storage Classes](#step-3-validate-portworx-and-storage-classes)
+  - [Step 4: Test PVC Provisioning](#step-4-test-pvc-provisioning)
+  - [Troubleshooting](#troubleshooting)
 
 ## Prerequisites
 
 - Ansible collections installed from the repository root `requirements.yaml` (see [Prepare the Environment](../guide_prepare_the_environment.md#install-ansible-on-ubuntu))
 - Python dependencies installed from the repository root `requirements.txt` (see [Prepare the Environment](../guide_prepare_the_environment.md#install-ansible-on-ubuntu))
 - OpenShift cluster access (`oc`) with sufficient privileges
-- Pure API tokens for every array/blade listed in variables
+- Everpure API tokens for every array/blade listed in variables
 
 Install dependencies:
 
@@ -31,7 +33,7 @@ Install dependencies:
 cd ..
 ansible-galaxy collection install -r requirements.yaml
 pip install -r requirements.txt
-cd pure_storage
+cd everpure
 ```
 
 [Back to Table of Contents](#table-of-contents)
@@ -45,17 +47,17 @@ Primary variable input:
 > **Tip:** The `examples/` folder contains a sample input YAML file. Copy it to `script_vars/` and update the values for your environment:
 > ```bash
 > mkdir -p script_vars
-> cp examples/pure_storage.ezai.yaml script_vars/
+> cp examples/everpure.ezai.yaml script_vars/
 > ```
 
 Important keys:
 
-- `pure_storage.flash_arrays[]` and `pure_storage.flash_blades[]`
-- `pure_storage.portworx.namespace`
-- `pure_storage.portworx.cluster_name`
-- `pure_storage.portworx.operator_source`
-- `pure_storage.portworx.storage_classes[]`
-- `pure_storage.portworx.version`
+- `everpure.flash_arrays[]` and `everpure.flash_blades[]`
+- `everpure.portworx.namespace`
+- `everpure.portworx.cluster_name`
+- `everpure.portworx.operator_source`
+- `everpure.portworx.storage_classes[]`
+- `everpure.portworx.version`
 
 Environment variables used by playbooks:
 
@@ -81,7 +83,7 @@ ansible-playbook create_pure_json.yaml
 
 What this does:
 
-- Creates/rotates a Portworx API user (`pure_storage.portworx.array_user`) on each FlashArray and FlashBlade.
+- Creates/rotates a Portworx API user (`everpure.portworx.array_user`) on each FlashArray and FlashBlade.
 - Collects generated API tokens.
 - Renders `pure.json` from `templates/pure.json.j2`.
 - Writes `pure.json` with restricted file permissions.
@@ -106,12 +108,12 @@ What this does:
 2. Validates required OpenShift environment variables.
 3. Verifies `oc` availability and `pure.json` presence.
 4. Logs in to OpenShift.
-5. Creates namespace from `pure_storage.portworx.namespace`.
+5. Creates namespace from `everpure.portworx.namespace`.
 6. Creates or updates secret `px-pure-secret` from local `pure.json`.
 7. Creates Portworx subscription `portworx-certified` in `openshift-operators`.
 8. Waits for deployment `portworx-operator` to become ready.
 9. Applies `templates/storage-cluster.yaml.j2`.
-10. Applies one StorageClass per entry in `pure_storage.portworx.storage_classes` using `templates/storage-classes.yaml.j2`.
+10. Applies one StorageClass per entry in `everpure.portworx.storage_classes` using `templates/storage-classes.yaml.j2`.
 
 Optional behavior:
 
@@ -128,7 +130,7 @@ oc get storagecluster -n <portworx-namespace>
 oc get storageclass
 ```
 
-Replace `<portworx-namespace>` with the value in `pure_storage.portworx.namespace` (default example is `portworx`).
+Replace `<portworx-namespace>` with the value in `everpure.portworx.namespace` (default example is `portworx`).
 
 [Back to Table of Contents](#table-of-contents)
 

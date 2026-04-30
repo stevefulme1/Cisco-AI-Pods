@@ -1,5 +1,6 @@
 ---
-pure_storage:
+# yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/Cisco-AI-Pods/schema/cisco-ai-pods.json --- IGNORE ---
+everpure:
   flash_arrays:
     - api_token_id: 1
       array_fqdn: array01.example.com
@@ -146,7 +147,7 @@ pure_storage:
           sender_domain: example.com
           relay_host: relay.example.com
         alert_watchers:
-          - email: pure-admins@example.com
+          - email: everpure-admins@example.com
             notification_severity: info
           - email: ai-admins@example.com
             notification_severity: info

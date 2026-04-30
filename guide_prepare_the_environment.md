@@ -25,7 +25,7 @@
 | Ansible | 2.15.0 | 2.17+ | Storage automation |
 | Terraform | 1.3.0 | 1.14+ | Core automation |
 | Intersight Terraform Provider | 1.0.64 | Latest | SaaS compatible |
-| Pure Storage Collection | 1.35 | Latest | Install from repository root `requirements.yaml` |
+| Everpure Collection | 1.35 | Latest | Install from repository root `requirements.yaml` |
 | Python | 3.9 | 3.9+ | Ansible and OpenShift dependency |
 | Python Modules | N/A | Latest | Install from repository root `requirements.txt` |
 

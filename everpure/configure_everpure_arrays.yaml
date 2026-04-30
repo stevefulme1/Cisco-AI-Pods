@@ -1,5 +1,5 @@
 ---
-- name: Configure Pure Storage Arrays (FlashArray and FlashBlade)
+- name: Configure Everpure Arrays (FlashArray and FlashBlade)
   hosts: localhost
   connection: local
   gather_facts: false
@@ -21,7 +21,7 @@
           - (pure_storage.flash_arrays is defined) or (pure_storage.flash_blades is defined)
         fail_msg: "pure_storage data was not loaded or has no flash_arrays/flash_blades entries."
 
-    - name: Day0 Provisioning | Validate Pure Storage environment variables
+    - name: Day0 Provisioning | Validate Everpure environment variables
       block:
         - name: Create temporary directory for validation
           ansible.builtin.tempfile:
@@ -36,7 +36,7 @@
             mode: '0644'
           changed_when: false
 
-        - name: Run Pure Storage environment variables validator
+        - name: Run Everpure environment variables validator
           ansible.builtin.command:
             cmd: "python3 {{ playbook_dir }}/validate_pure_storage_env_vars.py --config {{ temp_dir.path }}/pure_storage.json"
           register: validation_result

@@ -32,12 +32,13 @@ _SCHEMA_PATH = Path(__file__).resolve().parent.parent.parent / "schema" / "cisco
 # Maps env_prefix -> (schema_key, description)
 # Note: Many env prefixes map to canonical schema keys to avoid duplication
 _SENSITIVE_VAR_PATTERNS = {
-    "cert_mgmt_certificate": ("certificate", "Pure Storage Certificate"),
-    "cert_mgmt_intermediate_certificate": ("certificate", "Pure Storage Intermediate Certificate"),
-    "cert_mgmt_passphrase": ("cert_mgmt_passphrase", "Pure Storage Certificate Passphrase"),
-    "cert_mgmt_private_key": ("private_key", "Pure Storage Private Key"),
+    "cert_mgmt_certificate": ("certificate", "Everpure Certificate"),
+    "cert_mgmt_intermediate_certificate": ("certificate", "Everpure Intermediate Certificate"),
+    "cert_mgmt_passphrase": ("cert_mgmt_passphrase", "Everpure Certificate Passphrase"),
+    "cert_mgmt_private_key": ("private_key", "Everpure Private Key"),
     "cco_password": ("cco_password", "Cisco.com Password"),
     "drive_security_current_security_key_passphrase": ("drive_security_passphrase", "Drive Security Passphrase"),
+    "everpure_api_token": ("everpure_api_token", "Everpure API Token"),
     "fabric_interconnect_password": ("fabric_interconnect_password", "Fabric Interconnect Password"),
     "intersight_api_key_id": ("intersight_api_key_id", "Intersight API Key"),
     "ipmi_key": ("ipmi_key", "IPMI Key"),
@@ -48,7 +49,6 @@ _SENSITIVE_VAR_PATTERNS = {
     "linux_password": ("linux_password", "Linux Password"),
     "local_user_password": ("local_user_password", "Local User Password"),
     "persistent_passphrase": ("persistent_passphrase", "Persistent Memory Passphrase"),
-    "pure_api_token": ("pure_api_token", "Pure Storage API Token"),
     "redfish_password": ("redfish_password", "Redfish/BMC Password"),
     "root_password": ("root_password", "Root Password"),
     "snmp_auth_passphrase": ("snmp_password", "SNMP Auth Passphrase"),

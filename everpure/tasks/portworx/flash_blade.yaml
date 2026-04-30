@@ -5,7 +5,7 @@
     disable_warnings: true
     fb_url: "{{ item.array_url }}"
     state: absent
-    name: "{{ pure_storage.portworx.array_user }}"
+    name: "{{ everpure.portworx.array_user }}"
   loop: "{{ flash_blades }}"
   delegate_to: localhost
 
@@ -15,7 +15,7 @@
     disable_warnings: true
     fb_url: "{{ item.array_url }}"
     api: true
-    name: "{{ pure_storage.portworx.array_user }}"
+    name: "{{ everpure.portworx.array_user }}"
     password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_lowercase', 'ascii_uppercase', 'digits'], length=20) }}"
     public_key: ""
     role: storage_admin

@@ -73,8 +73,8 @@ This directory contains comprehensive documentation for the Cisco AI Pods infras
 - Integration steps
 - Post-deployment validation
 
-### 💾 [Pure Storage Automation](pure_storage/README.md)
-**Automation for Pure Storage deployment**
+### 💾 [Everpure Automation](everpure/README.md)
+**Automation for Everpure deployment**
 - FlashArray/FlashBlade configuration
 - Ansible automation procedures
 - Host integration steps
@@ -126,7 +126,7 @@ Follow the Steps to [Prepare the Environment](guide_prepare_the_environment.md#p
    - **Checkpoint:** Validate GPU functionality and DateTime sync
 
 5. **Phase 4 - Storage Configuration:**
-   - Follow [Pure Storage Configuration](pure_storage/README.md) for storage
+   - Follow [Everpure Configuration](everpure/README.md) for storage
    - **Checkpoint:** Verify storage connectivity
 
 6. **Phase 5 - OpenShift Deployment:**
@@ -148,7 +148,7 @@ Follow the Steps to [Prepare the Environment](guide_prepare_the_environment.md#p
    - C845/C880/C885 issues → [Troubleshooting C885 issues](c800/README.md#troubleshooting-c885-issues)
    - Compute issues → [Troubleshooting Quick Fixes](intersight/README.md#troubleshooting-quick-fixes)
    - Network issues → [Troubleshooting Common Issues](network/README.md#troubleshooting-common-issues)
-   - Pure Storage issues → [Troubleshooting](pure_storage/README.md#troubleshooting)
+   - Everpure issues → [Troubleshooting](everpure/README.md#troubleshooting)
    - OpenShift issues → See Individual READMEs
      - OpenShift Installatin → [Troubleshooting](openshift/install/README.md#trou)
      - OpenShift - Base Operators → [Troubleshooting](openshift/base_operators/gitea/)
@@ -164,29 +164,29 @@ Follow the Steps to [Prepare the Environment](guide_prepare_the_environment.md#p
 
 ```
 Cisco-AI-Pods
-├── c885/                        # Cisco C885A automation
-│   ├── main.fsai.yaml           # C885 configuration data model
-├── intersight/                  # Cisco Intersight automation
-│   ├── global_settings.ezi.yaml # Global Parameters
-│   ├── main.tf                  # Main Terraform module
-│   ├── organizations/           # Organization data model
-│   ├── policies/                # Policy data model
-│   ├── pools/                   # Pool data model
-│   ├── provider.tf              # Provider Attributes
-│   ├── templates/               # Templates data model
-│   └── variables.tf             # Terraform sensitive variables
-├── network/                     # Network Device Configurations
-│   └── *.txt                    # Switch configuration templates
-├── openshift/                   # Cisco Intersight automation
-│   ├── global_settings.ezi.yaml # Global Parameters
-│   ├── main.tf                  # Main Terraform module
-│   ├── organizations/           # Organization data model
-│   ├── policies/                # Policy data model
-└── pure_storage/                # Pure Storage automation
-    ├── tasks/                   # Ansible playbooks
-    ├── vars/                    # Ansible vars
-    ├── configure_pure_storage_arrays.yaml                # Top-level Ansible Playbook
-    └── requirements.yaml        # Ansible Requirements
+├── c885/                              # Cisco C885A automation
+│   ├── main.fsai.yaml                 # C885 configuration data model
+└── everpure/                          # Everpure automation
+│   ├── tasks/                         # Ansible playbooks
+│   ├── vars/                          # Ansible vars
+│   ├── configure_everpure_arrays.yaml # Top-level Ansible Playbook
+│   └── requirements.yaml              # Ansible Requirements
+├── intersight/                        # Cisco Intersight automation
+│   ├── global_settings.ezi.yaml       # Global Parameters
+│   ├── main.tf                        # Main Terraform module
+│   ├── organizations/                 # Organization data model
+│   ├── policies/                      # Policy data model
+│   ├── pools/                         # Pool data model
+│   ├── provider.tf                    # Provider Attributes
+│   ├── templates/                     # Templates data model
+│   └── variables.tf                   # Terraform sensitive variables
+├── network/                           # Network Device Configurations
+│   └── *.txt                          # Switch configuration templates
+└── openshift/                         # Cisco Intersight automation
+    ├── global_settings.ezi.yaml       # Global Parameters
+    ├── main.tf                        # Main Terraform module
+    ├── organizations/                 # Organization data model
+    └── policies/                      # Policy data model
 ```
 
 ### [<ins>Back to Table of Contents<ins>](#table-of-contents)
@@ -198,8 +198,8 @@ Cisco-AI-Pods
 - **Purpose:** Central configuration for Intersight deployment
 - **Key Settings:** Intersight FQDN, tags, global parameters
 
-### Pure Storage Inventory Files  
-- **Location:** `Cisco-AI-Pods/pure_storage/vars/main.fsai.yaml`
+### Everpure Inventory Files  
+- **Location:** `Cisco-AI-Pods/everpure/vars/main.fsai.yaml`
 - **Purpose:** Ansible inventory for storage automation
 - **Content:** Storage array IPs, credentials, connection details
 
@@ -219,7 +219,7 @@ Cisco-AI-Pods
 
 ### Vendor Support
 - **Cisco TAC:** Intersight, UCS, and network issues
-- **Pure Storage:** Storage array and performance issues
+- **Everpure:** Storage array and performance issues
 - **DevNet Community:** Terraform and Ansible community support
 
 ### [<ins>Back to Table of Contents<ins>](#table-of-contents)
@@ -240,7 +240,7 @@ terraform destroy       # Destroy infrastructure
 
 ```bash
 ansible-galaxy collection install -r requirements.yaml
-ansible-playbook main.yml    # Run Pure Storage setup
+ansible-playbook configure_everpure_arrays.yaml    # Run Everpure setup
 ```
 
 For full environment and dependency setup, see [Prepare the Environment](guide_prepare_the_environment.md#install-ansible-on-ubuntu).

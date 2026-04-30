@@ -4,12 +4,12 @@
   gather_facts: false
   hosts: localhost
   vars:
-    pure_storage_vars_dir: "{{ playbook_dir }}/script_vars"
+    everpure_vars_dir: "{{ playbook_dir }}/script_vars"
 
   pre_tasks:
     - name: Load variables from script folder
       ansible.builtin.include_vars:
-        dir: "{{ pure_storage_vars_dir }}"
+        dir: "{{ everpure_vars_dir }}"
         extensions:
           - yaml
           - yml
@@ -17,25 +17,25 @@
     - name: Validate portworx configuration exists
       ansible.builtin.assert:
         that:
-          - pure_storage is defined
-          - pure_storage.portworx is defined
-          - (pure_storage.flash_arrays is defined) or (pure_storage.flash_blades is defined)
-        fail_msg: "pure_storage.portworx or array inventory is missing from script_vars."
+          - everpure is defined
+          - everpure.portworx is defined
+          - (everpure.flash_arrays is defined) or (everpure.flash_blades is defined)
+        fail_msg: "everpure.portworx or array inventory is missing from script_vars."
 
   tasks:
-    - name: Pure Storage | Flash Array | Portworx
+    - name: Everpure | Flash Array | Portworx
       ansible.builtin.include_tasks:
         file: "{{ playbook_dir }}/tasks/portworx/flash_array.yaml"
       vars:
-        flash_arrays: "{{ pure_storage.flash_arrays }}"
-      when: pure_storage.flash_arrays is defined
+        flash_arrays: "{{ everpure.flash_arrays }}"
+      when: everpure.flash_arrays is defined
 
-    - name: Pure Storage | Flash Blade | Portworx
+    - name: Everpure | Flash Blade | Portworx
       ansible.builtin.include_tasks:
         file: "{{ playbook_dir }}/tasks/portworx/flash_blade.yaml"
       vars:
-        flash_blades: "{{ pure_storage.flash_blades }}"
-      when: pure_storage.flash_blades is defined
+        flash_blades: "{{ everpure.flash_blades }}"
+      when: everpure.flash_blades is defined
 
     - name: Create the pure.json secret from the result outputs
       ansible.builtin.copy:

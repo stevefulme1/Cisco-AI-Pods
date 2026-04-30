@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
-Pure Storage Environment Variable Validator
+Everpure Environment Variable Validator
 
-Validates sensitive environment variables required for Pure Storage (FlashArray/FlashBlade)
-configuration via configure_pure_storage_arrays.yaml Ansible playbook.
+Validates sensitive environment variables required for Everpure configuration via configure_everpure_arrays.yaml Ansible playbook.
 
 Sensitive Variable Patterns:
-  - pure_api_token_{1-64}       — API Token for Pure Storage Array
+  - everpure_api_token_{1-64}       — API Token for Everpure Array
   - cert_mgmt_certificate_{1-64} — Certificate path/content
   - cert_mgmt_intermediate_certificate_{1-64} — Intermediate certificate (optional)
   - cert_mgmt_passphrase_{1-64}  — Private key passphrase (if encrypted)
@@ -18,7 +17,7 @@ Sensitive Variable Patterns:
   - snmp_privacy_passphrase_{1-64} — SNMP v3 privacy passphrase
 
 Usage:
-  python3 validate_pure_storage_env_vars.py --config script_vars/pure_storage.yaml
+  python3 validate_everpure_env_vars.py --config script_vars/everpure.yaml
   
 Exit Codes:
   0 — All required sensitive variables validated successfully
@@ -224,10 +223,10 @@ def _resolve_sensitive_var(
 def validate_pure_api_token(config: Dict[str, Any]) -> None:
     """Validate pure_api_token for each FlashArray and FlashBlade."""
     for array_type in ["flash_arrays", "flash_blades"]:
-        if array_type not in config.get("pure_storage", {}):
+        if array_type not in config.get("everpure", {}):
             continue
         
-        arrays = config["pure_storage"][array_type]
+        arrays = config["everpure"][array_type]
         if not isinstance(arrays, list):
             continue
         
@@ -240,7 +239,7 @@ def validate_pure_api_token(config: Dict[str, Any]) -> None:
                 continue
             
             fqdn = array.get("array_fqdn", f"{array_type}_array")
-            context = f"pure_storage.{array_type}[{fqdn}].api_token_id"
+            context = f"everpure.{array_type}[{fqdn}].api_token_id"
             
             _resolve_sensitive_identifier(
                 api_token_id,
@@ -253,8 +252,8 @@ def validate_pure_api_token(config: Dict[str, Any]) -> None:
 
 
 def validate_certificates(config: Dict[str, Any]) -> None:
-    """Validate certificate management variables in Pure Storage settings."""
-    settings = config.get("pure_storage", {}).get("settings", {})
+    """Validate certificate management variables in Everpure settings."""
+    settings = config.get("everpure", {}).get("settings", {})
     if not isinstance(settings, dict):
         return
     
@@ -269,7 +268,7 @@ def validate_certificates(config: Dict[str, Any]) -> None:
         # Validate certificate
         cert_id = cert.get("certificate")
         if cert_id not in (None, "", 0):
-            context = f"pure_storage.settings.security.certificates.array_certificates[{idx}].certificate"
+            context = f"everpure.settings.security.certificates.array_certificates[{idx}].certificate"
             _resolve_sensitive_identifier(
                 cert_id,
                 "cert_mgmt_certificate",
@@ -282,7 +281,7 @@ def validate_certificates(config: Dict[str, Any]) -> None:
         # Validate intermediate certificate (optional)
         inter_cert_id = cert.get("intermediate_certificate")
         if inter_cert_id not in (None, "", 0):
-            context = f"pure_storage.settings.security.certificates.array_certificates[{idx}].intermediate_certificate"
+            context = f"everpure.settings.security.certificates.array_certificates[{idx}].intermediate_certificate"
             _resolve_sensitive_identifier(
                 inter_cert_id,
                 "cert_mgmt_intermediate_certificate",
@@ -295,7 +294,7 @@ def validate_certificates(config: Dict[str, Any]) -> None:
         # Validate private key
         key_id = cert.get("private_key")
         if key_id not in (None, "", 0):
-            context = f"pure_storage.settings.security.certificates.array_certificates[{idx}].private_key"
+            context = f"everpure.settings.security.certificates.array_certificates[{idx}].private_key"
             _resolve_sensitive_identifier(
                 key_id,
                 "cert_mgmt_private_key",
@@ -308,7 +307,7 @@ def validate_certificates(config: Dict[str, Any]) -> None:
         # Validate passphrase (if private key is encrypted)
         passphrase_id = cert.get("key_passphrase")
         if passphrase_id not in (None, "", 0):
-            context = f"pure_storage.settings.security.certificates.array_certificates[{idx}].key_passphrase"
+            context = f"everpure.settings.security.certificates.array_certificates[{idx}].key_passphrase"
             _resolve_sensitive_identifier(
                 passphrase_id,
                 "cert_mgmt_passphrase",
@@ -321,7 +320,7 @@ def validate_certificates(config: Dict[str, Any]) -> None:
 
 def validate_directory_service(config: Dict[str, Any]) -> None:
     """Validate LDAP binding password in directory service configuration."""
-    settings = config.get("pure_storage", {}).get("settings", {})
+    settings = config.get("everpure", {}).get("settings", {})
     if not isinstance(settings, dict):
         return
     
@@ -335,7 +334,7 @@ def validate_directory_service(config: Dict[str, Any]) -> None:
         
         bind_pwd_id = config_item.get("bind_password")
         if bind_pwd_id not in (None, "", 0):
-            context = f"pure_storage.settings.security.directory_service.configuration[{idx}].bind_password"
+            context = f"everpure.settings.security.directory_service.configuration[{idx}].bind_password"
             _resolve_sensitive_identifier(
                 bind_pwd_id,
                 "ldap_bind_password",
@@ -348,7 +347,7 @@ def validate_directory_service(config: Dict[str, Any]) -> None:
 
 def validate_local_users(config: Dict[str, Any]) -> None:
     """Validate local user passwords."""
-    settings = config.get("pure_storage", {}).get("settings", {})
+    settings = config.get("everpure", {}).get("settings", {})
     if not isinstance(settings, dict):
         return
     
@@ -363,7 +362,7 @@ def validate_local_users(config: Dict[str, Any]) -> None:
         pwd_id = user.get("password")
         if pwd_id not in (None, "", 0):
             username = user.get("username", f"user[{idx}]")
-            context = f"pure_storage.settings.security.users[{username}].password"
+            context = f"everpure.settings.security.users[{username}].password"
             _resolve_sensitive_identifier(
                 pwd_id,
                 "local_user_password",
@@ -376,7 +375,7 @@ def validate_local_users(config: Dict[str, Any]) -> None:
 
 def validate_snmp(config: Dict[str, Any]) -> None:
     """Validate SNMP configuration variables (community strings and passphrases)."""
-    settings = config.get("pure_storage", {}).get("settings", {})
+    settings = config.get("everpure", {}).get("settings", {})
     if not isinstance(settings, dict):
         return
     
@@ -393,7 +392,7 @@ def validate_snmp(config: Dict[str, Any]) -> None:
             
             community_id = manager.get("community")
             if community_id not in (None, "", 0):
-                context = f"pure_storage.settings.system.monitoring.snmp.add_snmp_manager.v2c[{idx}].community"
+                context = f"everpure.settings.system.monitoring.snmp.add_snmp_manager.v2c[{idx}].community"
                 _resolve_sensitive_identifier(
                     community_id,
                     "snmp_community",
@@ -412,7 +411,7 @@ def validate_snmp(config: Dict[str, Any]) -> None:
             
             auth_id = manager.get("auth_passphrase")
             if auth_id not in (None, "", 0):
-                context = f"pure_storage.settings.system.monitoring.snmp.add_snmp_manager.v3[{idx}].auth_passphrase"
+                context = f"everpure.settings.system.monitoring.snmp.add_snmp_manager.v3[{idx}].auth_passphrase"
                 _resolve_sensitive_identifier(
                     auth_id,
                     "snmp_auth_passphrase",
@@ -424,7 +423,7 @@ def validate_snmp(config: Dict[str, Any]) -> None:
             
             priv_id = manager.get("privacy_passphrase")
             if priv_id not in (None, "", 0):
-                context = f"pure_storage.settings.system.monitoring.snmp.add_snmp_manager.v3[{idx}].privacy_passphrase"
+                context = f"everpure.settings.system.monitoring.snmp.add_snmp_manager.v3[{idx}].privacy_passphrase"
                 _resolve_sensitive_identifier(
                     priv_id,
                     "snmp_privacy_passphrase",
@@ -439,7 +438,7 @@ def validate_snmp(config: Dict[str, Any]) -> None:
     if isinstance(edit_agent, dict):
         auth_id = edit_agent.get("auth_passphrase")
         if auth_id not in (None, "", 0):
-            context = "pure_storage.settings.system.monitoring.snmp.edit_snmp_agent.auth_passphrase"
+            context = "everpure.settings.system.monitoring.snmp.edit_snmp_agent.auth_passphrase"
             _resolve_sensitive_identifier(
                 auth_id,
                 "snmp_auth_passphrase",
@@ -451,7 +450,7 @@ def validate_snmp(config: Dict[str, Any]) -> None:
         
         community_id = edit_agent.get("community")
         if community_id not in (None, "", 0):
-            context = "pure_storage.settings.system.monitoring.snmp.edit_snmp_agent.community"
+            context = "everpure.settings.system.monitoring.snmp.edit_snmp_agent.community"
             _resolve_sensitive_identifier(
                 community_id,
                 "snmp_community",
@@ -463,7 +462,7 @@ def validate_snmp(config: Dict[str, Any]) -> None:
         
         priv_id = edit_agent.get("privacy_passphrase")
         if priv_id not in (None, "", 0):
-            context = "pure_storage.settings.system.monitoring.snmp.edit_snmp_agent.privacy_passphrase"
+            context = "everpure.settings.system.monitoring.snmp.edit_snmp_agent.privacy_passphrase"
             _resolve_sensitive_identifier(
                 priv_id,
                 "snmp_privacy_passphrase",
@@ -475,7 +474,7 @@ def validate_snmp(config: Dict[str, Any]) -> None:
 
 
 def validate_all(config: Dict[str, Any]) -> None:
-    """Validate all Pure Storage sensitive environment variables."""
+    """Validate all Everpure sensitive environment variables."""
     validate_pure_api_token(config)
     validate_certificates(config)
     validate_directory_service(config)
@@ -488,14 +487,14 @@ if __name__ == "__main__":
     import yaml
     
     parser = argparse.ArgumentParser(
-        description="Validate Pure Storage environment variables",
+        description="Validate Everpure environment variables",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
     parser.add_argument(
         "--config",
         type=str,
-        help="Path to Pure Storage YAML configuration file",
+        help="Path to Everpure YAML configuration file",
         required=True,
     )
     
@@ -513,7 +512,7 @@ if __name__ == "__main__":
             config = yaml.safe_load(f) or {}
         
         validate_all(config)
-        print("✓ All Pure Storage sensitive environment variables validated successfully.")
+        print("✓ All Everpure sensitive environment variables validated successfully.")
         sys.exit(0)
     
     except FileNotFoundError as e:

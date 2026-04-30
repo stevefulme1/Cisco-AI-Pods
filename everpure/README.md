@@ -1,13 +1,13 @@
-# Cisco AI Pods Pure Storage Overview
+# Cisco AI Pods Everpure Overview
 
-This folder contains Pure Storage automation used by Cisco AI Pods for two main workflows:
+This folder contains Everpure automation used by Cisco AI Pods for two main workflows:
 
-- Pure Storage array configuration (FlashArray and FlashBlade)
+- Everpure array configuration (FlashArray and FlashBlade)
 - Portworx integration and deployment on OpenShift
 
 ## Table of Contents
 
-- [Cisco AI Pods Pure Storage Overview](#cisco-ai-pods-pure-storage-overview)
+- [Cisco AI Pods Everpure Overview](#cisco-ai-pods-everpure-overview)
   - [Table of Contents](#table-of-contents)
   - [Runbook Documents](#runbook-documents)
   - [Folder Contents](#folder-contents)
@@ -18,14 +18,14 @@ This folder contains Pure Storage automation used by Cisco AI Pods for two main 
 
 ## Runbook Documents
 
-- Array deployment guide: [README_pure_storage_arrays.md](README_pure_storage_arrays.md)
+- Array deployment guide: [README_everpure_arrays.md](README_everpure_arrays.md)
 - Portworx deployment guide: [README_portworx.md](README_portworx.md)
 
 [Back to Table of Contents](#table-of-contents)
 
 ## Folder Contents
 
-- `configure_pure_storage_arrays.yaml`: Configures FlashArray and FlashBlade using values from `script_vars/*.yaml`
+- `configure_everpure_arrays.yaml`: Configures FlashArray and FlashBlade using values from `script_vars/*.yaml`
 - `create_pure_json.yaml`: Creates `pure.json` used by the Portworx secret
 - `install_portworx.yaml`: Installs Portworx operator and deploys StorageCluster/storage classes
 - `pure.json`: Generated credentials payload for `px-pure-secret`
@@ -47,7 +47,7 @@ Example:
 ```bash
 cd ..
 ansible-galaxy collection install -r requirements.yaml
-cd pure_storage
+cd everpure
 ```
 
 Install required Python dependencies:
@@ -55,7 +55,7 @@ Install required Python dependencies:
 ```bash
 cd ..
 pip install -r requirements.txt
-cd pure_storage
+cd everpure
 ```
 
 [Back to Table of Contents](#table-of-contents)
@@ -64,26 +64,26 @@ cd pure_storage
 
 Use this order to avoid dependency issues:
 
-1. Configure Pure arrays (FlashArray/FlashBlade) if needed.
+1. Configure Everpure arrays (FlashArray/FlashBlade) if needed.
 2. Generate `pure.json` for Portworx authentication.
 	Note: Complete the OpenShift installation workflow in [../openshift/README.md](../openshift/README.md) before starting the Portworx installation and StorageCluster tasks.
 3. Install Portworx and StorageCluster on OpenShift.
 
 Detailed procedures are documented in:
 
-- [README_pure_storage_arrays.md](README_pure_storage_arrays.md)
+- [README_everpure_arrays.md](README_everpure_arrays.md)
 - [README_portworx.md](README_portworx.md)
 
 [Back to Table of Contents](#table-of-contents)
 
 ## Quick Start
 
-1. Place your active Pure Storage YAML in `script_vars/`.
-2. Export the required Pure Storage API tokens.
-3. Run the Pure Storage preparation playbooks:
+1. Place your active Everpure YAML in `script_vars/`.
+2. Export the required Everpure API tokens.
+3. Run the Everpure preparation playbooks:
 
 ```bash
-ansible-playbook configure_pure_storage_arrays.yaml
+ansible-playbook configure_everpure_arrays.yaml
 ansible-playbook create_pure_json.yaml
 ```
 
@@ -102,7 +102,7 @@ ansible-playbook install_portworx.yaml
 Common variables used in this folder:
 
 ```bash
-# Pure API tokens (match api_token_id values in script_vars)
+# Everpure API tokens (match api_token_id values in script_vars)
 export pure_api_token_1="<flasharray_token>"
 export pure_api_token_2="<flashblade_token>"
 
