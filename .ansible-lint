@@ -1,3 +1,28 @@
-# .ansible-lint
+---
+profile: production
+
 exclude_paths:
- - ./openshift/install/assisted-installer/
+  - .github/
+  - .vscode/
+  - best_practices/
+  - c800/
+  - images/
+  - netapp/
+  - schema/
+
+enable_list:
+  - yaml
+
+skip_list:
+  - name[missing]
+  - var-naming[no-role-prefix]
+  - jinja[spacing]
+
+warn_list:
+  - command-instead-of-shell
+  - no-changed-when
+  - risky-shell-pipe
+
+use_default_rules: true
+
+offline: false

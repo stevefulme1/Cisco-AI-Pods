@@ -1,0 +1,9 @@
+---
+# Observability stack deployment
+- name: Deploy Splunk Observability for AI Pod
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  roles:
+    - role: cisco.ai_pods.splunk_observability

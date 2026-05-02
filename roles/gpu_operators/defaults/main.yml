@@ -1,0 +1,8 @@
+---
+openshift_api_url: "{{ lookup('ansible.builtin.env', 'openshift_api_url') }}"
+openshift_token: "{{ lookup('ansible.builtin.env', 'openshift_token_id') }}"
+gpu_driver_version: ""
+nfd_enabled: true
+sriov_enabled: true
+network_operator_enabled: true
+dcgm_enabled: true

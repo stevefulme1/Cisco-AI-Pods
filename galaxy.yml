@@ -1,0 +1,51 @@
+---
+namespace: cisco
+name: ai_pods
+version: 0.1.0
+readme: README.md
+authors:
+  - Tyson Scott <tyscott@cisco.com>
+  - Stephen Fulmer <sfulmer@redhat.com>
+description: >-
+  Ansible collection for deploying and managing Cisco AI Pod infrastructure.
+  Covers Cisco Intersight server provisioning, Red Hat OpenShift cluster setup,
+  Pure Storage configuration, Portworx CSI deployment, and Splunk Observability
+  integration for AI inferencing workloads.
+license:
+  - Apache-2.0
+license_file: LICENSE.txt
+tags:
+  - cisco
+  - ai
+  - gpu
+  - nvidia
+  - intersight
+  - openshift
+  - infrastructure
+  - observability
+  - splunk
+  - storage
+  - purestorage
+  - portworx
+repository: https://github.com/scotttyso/Cisco-AI-Pods
+documentation: https://github.com/scotttyso/Cisco-AI-Pods/blob/main/README.md
+issues: https://github.com/scotttyso/Cisco-AI-Pods/issues
+build_ignore:
+  - '*.tar.gz'
+  - .git
+  - .github
+  - .vscode
+  - best_practices
+  - c800
+  - dump_model.py
+  - guide_*.md
+  - images
+  - model_structure.json
+  - netapp
+  - requirements.txt
+dependencies:
+  kubernetes.core: '>=6.3.0'
+  purestorage.flasharray: '>=1.42.0'
+  purestorage.flashblade: '>=1.42.0'
+  ansible.posix: '>=1.5.0'
+  cisco.intersight: '>=2.0.0'
