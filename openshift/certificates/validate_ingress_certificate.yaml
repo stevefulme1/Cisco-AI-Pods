@@ -5,34 +5,24 @@
   gather_facts: false
   vars:
     validate_certificates: false
+    openshift_api_url: "{{ lookup('ansible.builtin.env', 'openshift_api_url') }}"
+    openshift_token: "{{ lookup('ansible.builtin.env', 'openshift_token_id') }}"
+
+  module_defaults:
+    group/kubernetes.core.all:
+      host: "{{ openshift_api_url }}"
+      api_key: "{{ openshift_token }}"
+      validate_certs: "{{ validate_certificates }}"
 
   pre_tasks:
-    - name: Verify oc CLI is available
-      ansible.builtin.command: which oc
-      changed_when: false
-      failed_when: oc_check.rc != 0
-      register: oc_check
-
     - name: Verify required environment variables are set
       ansible.builtin.assert:
         that:
-          - lookup('ansible.builtin.env', 'openshift_token_id') | length > 0
-          - lookup('ansible.builtin.env', 'openshift_api_url') | length > 0
+          - openshift_token | length > 0
+          - openshift_api_url | length > 0
         fail_msg: "Required environment variables not set: openshift_token_id, openshift_api_url"
 
   tasks:
-    #####################
-    # INGRESS CERTIFICATE
-    #####################
-    - name: Log in to OpenShift (requires oc binary on host)
-      ansible.builtin.command:
-        cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
-      changed_when: false
-      delay: 5
-      no_log: true
-      register: login_result
-      retries: 3
-      until: login_result is succeeded
 
     - name: Verify Ingress Controller Patch
       kubernetes.core.k8s_info:
@@ -49,11 +39,25 @@
       failed_when: ingress_controller_patch_result.resources[0].spec.defaultCertificate.name | default('') != 'ingress-tls-secret'
 
     - name: Wait for OpenShift OAuth Pods to be Running
-      ansible.builtin.shell: |
-        oc wait --for=condition=Ready pod --all -n openshift-authentication --timeout=300s
-      changed_when: false
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Pod
+        namespace: openshift-authentication
+        field_selectors:
+          - status.phase!=Running
+      register: oauth_pods
+      until: oauth_pods.resources | length == 0
+      retries: 30
+      delay: 10
 
     - name: Wait for Ingress Router Pods to be Running
-      ansible.builtin.shell: |
-        oc wait --for=condition=Ready pod --all -n openshift-ingress --timeout=300s
-      changed_when: false
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Pod
+        namespace: openshift-ingress
+        field_selectors:
+          - status.phase!=Running
+      register: ingress_pods
+      until: ingress_pods.resources | length == 0
+      retries: 30
+      delay: 10

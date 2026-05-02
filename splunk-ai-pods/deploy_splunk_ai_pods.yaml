@@ -5,21 +5,29 @@
   gather_facts: false
   vars:
     validate_certificates: false
+    openshift_api_url: "{{ lookup('ansible.builtin.env', 'openshift_api_url') }}"
+    openshift_token: "{{ lookup('ansible.builtin.env', 'openshift_token_id') }}"
+
+  module_defaults:
+    group/kubernetes.core.all:
+      host: "{{ openshift_api_url }}"
+      api_key: "{{ openshift_token }}"
+      validate_certs: "{{ validate_certificates }}"
 
   tasks:
     - name: Load variables from script folder
       ansible.builtin.include_vars:
         dir: "{{ playbook_dir }}/script_vars"
 
-    - name: Log in to OpenShift (requires oc binary on host)
-      ansible.builtin.command:
-        cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
-      changed_when: false
-      delay: 5
-      no_log: true
-      register: login_result
+    - name: Verify OpenShift API connectivity
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Namespace
+        name: default
+      register: api_check
       retries: 3
-      until: login_result is succeeded
+      delay: 5
+      until: api_check is succeeded
 
     - name: Create Otel Operator namespace
       kubernetes.core.k8s:

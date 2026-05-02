@@ -5,6 +5,14 @@
   gather_facts: false
   vars:
     validate_certificates: false
+    openshift_api_url: "{{ lookup('ansible.builtin.env', 'openshift_api_url') }}"
+    openshift_token: "{{ lookup('ansible.builtin.env', 'openshift_token_id') }}"
+
+  module_defaults:
+    group/kubernetes.core.all:
+      host: "{{ openshift_api_url }}"
+      api_key: "{{ openshift_token }}"
+      validate_certs: "{{ validate_certificates }}"
 
   pre_tasks:
     - name: Verify oc CLI is available
@@ -57,15 +65,15 @@
       when: not user_ca_bundle_cert_info.failed
       failed_when: user_ca_bundle_cert_info.failed
 
-    - name: Log in to OpenShift (requires oc binary on host)
-      ansible.builtin.command:
-        cmd: oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }} --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
-      changed_when: false
-      delay: 5
-      no_log: true
-      register: login_result
+    - name: Verify OpenShift API connectivity via kubernetes.core
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Namespace
+        name: default
+      register: api_check
       retries: 3
-      until: login_result is succeeded
+      delay: 5
+      until: api_check is succeeded
 
     - name: Read lines of User CA Bundle Certificate File into List
       ansible.builtin.set_fact:
@@ -135,6 +143,7 @@
     - name: Prompt User to continue to Ingress Certificate Update
       ansible.builtin.pause:
         prompt: "Confirm the User CA Bundle is ready to 'continue'. Press 'c' to continue or 'a' to abort."
+      when: certificate_prompt_before_apply | default(true) | bool
 
     - name: Read Ingress Certificate Chain File Content
       ansible.builtin.slurp:
@@ -217,14 +226,32 @@
         minutes: 1
 
     - name: Wait for OpenShift OAuth Pods to be Running
-      ansible.builtin.shell: |
-        oc wait --for=condition=Ready pod --all -n openshift-authentication --timeout=300s
-      changed_when: false
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Pod
+        namespace: openshift-authentication
+        field_selectors:
+          - status.phase=Running
+      register: oauth_pods
+      until:
+        - oauth_pods.resources | length > 0
+        - oauth_pods.resources | map(attribute='status.phase') | unique | list == ['Running']
+      retries: 30
+      delay: 10
 
     - name: Wait for Ingress Router Pods to be Running
-      ansible.builtin.shell: |
-        oc wait --for=condition=Ready pod --all -n openshift-ingress --timeout=300s
-      changed_when: false
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Pod
+        namespace: openshift-ingress
+        field_selectors:
+          - status.phase=Running
+      register: ingress_pods
+      until:
+        - ingress_pods.resources | length > 0
+        - ingress_pods.resources | map(attribute='status.phase') | unique | list == ['Running']
+      retries: 30
+      delay: 10
 
     #####################
     # API CERTIFICATE
@@ -232,6 +259,7 @@
     - name: Prompt User to continue to API Certificate Update
       ansible.builtin.pause:
         prompt: "Confirm the Ingress Certificate is ready to 'continue'. Press 'c' to continue or 'a' to abort."
+      when: certificate_prompt_before_apply | default(true) | bool
 
     - name: Read API Certificate Chain File Content
       ansible.builtin.slurp:
