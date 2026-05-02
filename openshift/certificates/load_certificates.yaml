@@ -15,17 +15,11 @@
       validate_certs: "{{ validate_certificates }}"
 
   pre_tasks:
-    - name: Verify oc CLI is available
-      ansible.builtin.command: which oc
-      changed_when: false
-      failed_when: oc_check.rc != 0
-      register: oc_check
-
     - name: Verify required environment variables are set
       ansible.builtin.assert:
         that:
-          - lookup('ansible.builtin.env', 'openshift_token_id') | length > 0
-          - lookup('ansible.builtin.env', 'openshift_api_url') | length > 0
+          - openshift_token | length > 0
+          - openshift_api_url | length > 0
           - lookup('ansible.builtin.env', 'user_ca_bundle_file') | length > 0
           - lookup('ansible.builtin.env', 'ingress_cert_chain_file') | length > 0
           - lookup('ansible.builtin.env', 'ingress_key_file') | length > 0
@@ -225,7 +219,7 @@
       ansible.builtin.pause:
         minutes: 1
 
-    - name: Wait for OpenShift OAuth Pods to be Running
+    - name: Wait for OpenShift OAuth Pods to be Ready
       kubernetes.core.k8s_info:
         api_version: v1
         kind: Pod
@@ -235,11 +229,11 @@
       register: oauth_pods
       until:
         - oauth_pods.resources | length > 0
-        - oauth_pods.resources | map(attribute='status.phase') | unique | list == ['Running']
+        - oauth_pods.resources | map(attribute='status.containerStatuses') | flatten | map(attribute='ready') | reject('equalto', true) | list | length == 0
       retries: 30
       delay: 10
 
-    - name: Wait for Ingress Router Pods to be Running
+    - name: Wait for Ingress Router Pods to be Ready
       kubernetes.core.k8s_info:
         api_version: v1
         kind: Pod
@@ -249,7 +243,7 @@
       register: ingress_pods
       until:
         - ingress_pods.resources | length > 0
-        - ingress_pods.resources | map(attribute='status.phase') | unique | list == ['Running']
+        - ingress_pods.resources | map(attribute='status.containerStatuses') | flatten | map(attribute='ready') | reject('equalto', true) | list | length == 0
       retries: 30
       delay: 10
 

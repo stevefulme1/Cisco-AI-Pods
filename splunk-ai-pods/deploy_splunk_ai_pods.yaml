@@ -14,6 +14,14 @@
       api_key: "{{ openshift_token }}"
       validate_certs: "{{ validate_certificates }}"
 
+  pre_tasks:
+    - name: Verify required environment variables are set
+      ansible.builtin.assert:
+        that:
+          - openshift_token | length > 0
+          - openshift_api_url | length > 0
+        fail_msg: "Required environment variables not set: openshift_token_id, openshift_api_url"
+
   tasks:
     - name: Load variables from script folder
       ansible.builtin.include_vars:

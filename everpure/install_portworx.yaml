@@ -38,8 +38,8 @@
     - name: Validate OpenShift environment variables exist
       ansible.builtin.assert:
         that:
-          - lookup('ansible.builtin.env', 'openshift_token_id') | length > 0
-          - lookup('ansible.builtin.env', 'openshift_api_url') | length > 0
+          - openshift_token | length > 0
+          - openshift_api_url | length > 0
         fail_msg: "Missing openshift_token_id or openshift_api_url environment variable."
 
     - name: Ensure pure.json exists

@@ -42,7 +42,7 @@
     bios_settings: "{{ item.1 | merge_schema_defaults(intersight_schema, 'intersight.bios') | to_module_params('intersight_bios_policy') }}"
     _prefix: "{{ policy_name_prefix.bios | default(policy_name_prefix.default | default('')) }}"
     _suffix: "{{ policy_name_suffix.bios | default(policy_name_suffix.default | default('')) }}"
-  no_log: false
+  no_log: true
   cisco.intersight.intersight_bios_policy:
     api_key_id: "{{ intersight_api_key_id }}"
     api_private_key: "{{ intersight_api_private_key }}"
