@@ -7,6 +7,14 @@
     validate_certificates: false
     prompt_before_storagecluster_apply: false
     everpure_vars_dir: "{{ playbook_dir }}/script_vars"
+    openshift_api_url: "{{ lookup('ansible.builtin.env', 'openshift_api_url') }}"
+    openshift_token: "{{ lookup('ansible.builtin.env', 'openshift_token_id') }}"
+
+  module_defaults:
+    group/kubernetes.core.all:
+      host: "{{ openshift_api_url }}"
+      api_key: "{{ openshift_token }}"
+      validate_certs: "{{ validate_certificates }}"
 
   pre_tasks:
     - name: Load variables from script folder
@@ -30,13 +38,9 @@
     - name: Validate OpenShift environment variables exist
       ansible.builtin.assert:
         that:
-          - lookup('ansible.builtin.env', 'openshift_token_id') | length > 0
-          - lookup('ansible.builtin.env', 'openshift_api_url') | length > 0
+          - openshift_token | length > 0
+          - openshift_api_url | length > 0
         fail_msg: "Missing openshift_token_id or openshift_api_url environment variable."
-
-    - name: Ensure oc binary is available
-      ansible.builtin.command: oc version --client
-      changed_when: false
 
     - name: Ensure pure.json exists
       ansible.builtin.stat:
@@ -50,17 +54,15 @@
         fail_msg: "{{ playbook_dir }}/pure.json not found. Run create_pure_json.yaml first."
 
   tasks:
-    - name: Log in to OpenShift (requires oc binary on host)
-      ansible.builtin.command:
-        cmd: >-
-          oc login --token={{ lookup('ansible.builtin.env', 'openshift_token_id') }}
-          --server={{ lookup('ansible.builtin.env', 'openshift_api_url') }}
-      register: login_result
-      no_log: true
-      changed_when: false
+    - name: Verify OpenShift API connectivity
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Namespace
+        name: default
+      register: api_check
       retries: 3
       delay: 5
-      until: login_result.rc == 0
+      until: api_check is succeeded
 
     - name: Create Portworx Namespace
       kubernetes.core.k8s:

@@ -1,5 +1,5 @@
 ---
-- name: Configure Intersight Pools
+- name: Test IMC Access Policy Configuration
   hosts: localhost
   connection: local
   gather_facts: false

@@ -1,0 +1,31 @@
+name: CI
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  ansible-lint:
+    uses: ansible/ansible-content-actions/.github/workflows/ansible_lint.yaml@v1.1.0
+  sanity:
+    uses: ansible/ansible-content-actions/.github/workflows/sanity.yaml@v1.1.0
+  all_green:
+    if: ${{ always() }}
+    needs:
+      - ansible-lint
+      - sanity
+    runs-on: ubuntu-latest
+    steps:
+      - run: >-
+          python -c "assert set([
+          '${{ needs.sanity.result }}',
+          '${{ needs.ansible-lint.result }}'
+          ]) == {'success'}"
