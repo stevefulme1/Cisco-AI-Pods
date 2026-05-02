@@ -2,5 +2,5 @@
 openshift_api_url: "{{ lookup('ansible.builtin.env', 'openshift_api_url') }}"
 openshift_token: "{{ lookup('ansible.builtin.env', 'openshift_token_id') }}"
 splunk_observability_token: "{{ lookup('ansible.builtin.env', 'splunk_observability_token') }}"
-splunk_observability_realm: "{{ lookup('ansible.builtin.env', 'splunk_observability_realm') | default('us1') }}"
+splunk_observability_realm: "{{ lookup('ansible.builtin.env', 'splunk_observability_realm') | default('us1', true) }}"
 splunk_namespace: "splunk-observability"

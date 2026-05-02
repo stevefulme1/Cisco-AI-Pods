@@ -1,3 +1,3 @@
 ---
-pure_api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token') | default(omit) }}"
+pure_api_token: "{{ lookup('ansible.builtin.env', 'pure_api_token') | default(omit, true) }}"
 pure_validate_certs: true
