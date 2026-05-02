@@ -1,0 +1,9 @@
+---
+# Intersight-only provisioning
+- name: Provision Cisco Intersight for AI Pod
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  roles:
+    - role: cisco.ai_pods.intersight_provision

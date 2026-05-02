@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: gpu_operators
+  author: Tyson Scott
+  company: Cisco Systems
+  description: Deploy NVIDIA GPU operators on OpenShift including NFD, GPU driver, DCGM, SR-IOV, and network operator.
+  license: Apache-2.0
+  min_ansible_version: '2.15'
+  platforms:
+    - name: GenericLinux
+      versions: [all]
+  galaxy_tags:
+    - nvidia
+    - gpu
+    - operators
+    - openshift
+    - dcgm
+dependencies: []

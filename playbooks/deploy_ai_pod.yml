@@ -1,0 +1,39 @@
+---
+# Full AI Pod deployment workflow
+# Orchestrates all roles in the correct order for a greenfield deployment.
+#
+# Usage:
+#   ansible-playbook playbooks/deploy_ai_pod.yml -e @inventory.yml
+#
+- name: Deploy Cisco AI Pod — Full Stack
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  roles:
+    - role: cisco.ai_pods.intersight_provision
+      tags: [intersight, compute]
+
+    - role: cisco.ai_pods.openshift_install
+      tags: [openshift, install]
+
+    - role: cisco.ai_pods.openshift_certificates
+      tags: [openshift, certificates]
+
+    - role: cisco.ai_pods.openshift_auth
+      tags: [openshift, auth]
+
+    - role: cisco.ai_pods.pure_storage
+      tags: [storage, pure]
+
+    - role: cisco.ai_pods.portworx_csi
+      tags: [storage, portworx]
+
+    - role: cisco.ai_pods.openshift_gitops
+      tags: [openshift, gitops]
+
+    - role: cisco.ai_pods.gpu_operators
+      tags: [gpu, operators]
+
+    - role: cisco.ai_pods.splunk_observability
+      tags: [observability, splunk]

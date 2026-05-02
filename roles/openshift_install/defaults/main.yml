@@ -1,0 +1,7 @@
+---
+openshift_cluster_version: "4.20"
+openshift_base_domain: ""
+openshift_cluster_name: ""
+openshift_api_vip: ""
+openshift_ingress_vip: ""
+openshift_machine_network_cidr: ""

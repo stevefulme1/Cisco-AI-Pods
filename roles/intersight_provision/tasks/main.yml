@@ -1,0 +1,16 @@
+---
+- name: Include Intersight organization configuration
+  ansible.builtin.include_tasks: organizations.yml
+  tags: [organizations]
+
+- name: Include Intersight pool configuration
+  ansible.builtin.include_tasks: pools.yml
+  tags: [pools]
+
+- name: Include Intersight policy configuration
+  ansible.builtin.include_tasks: policies.yml
+  tags: [policies]
+
+- name: Include Intersight profile configuration
+  ansible.builtin.include_tasks: profiles.yml
+  tags: [profiles]

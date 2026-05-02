@@ -1,0 +1,6 @@
+---
+# Refactored from everpure/configure_everpure_arrays.yaml
+# TODO: Move task content from everpure/ into this file
+- name: Configure Pure Storage arrays
+  ansible.builtin.debug:
+    msg: "Placeholder — migrate content from everpure/configure_everpure_arrays.yaml"

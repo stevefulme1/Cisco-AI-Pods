@@ -1,0 +1,13 @@
+---
+# Storage provisioning (Pure Storage + Portworx CSI)
+- name: Deploy Storage for AI Pod
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  roles:
+    - role: cisco.ai_pods.pure_storage
+      tags: [pure]
+
+    - role: cisco.ai_pods.portworx_csi
+      tags: [portworx]

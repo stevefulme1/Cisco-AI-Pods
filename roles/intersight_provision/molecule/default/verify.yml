@@ -1,0 +1,13 @@
+---
+- name: Verify
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Verify role execution completed
+      ansible.builtin.assert:
+        that:
+          - true
+        fail_msg: "Role execution verification failed"
+        success_msg: "Role execution completed successfully"

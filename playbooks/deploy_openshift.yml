@@ -1,0 +1,22 @@
+---
+# OpenShift deployment and configuration
+- name: Deploy and Configure OpenShift for AI Pod
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  roles:
+    - role: cisco.ai_pods.openshift_install
+      tags: [install]
+
+    - role: cisco.ai_pods.openshift_certificates
+      tags: [certificates]
+
+    - role: cisco.ai_pods.openshift_auth
+      tags: [auth]
+
+    - role: cisco.ai_pods.openshift_gitops
+      tags: [gitops]
+
+    - role: cisco.ai_pods.gpu_operators
+      tags: [gpu]

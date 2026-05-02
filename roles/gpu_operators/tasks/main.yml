@@ -1,0 +1,6 @@
+---
+# Refactored from openshift/openshift-gitops/helm/gpu-operator-installation/
+# TODO: Move GitOps application generation into this role
+- name: Deploy GPU operators via GitOps
+  ansible.builtin.debug:
+    msg: "Placeholder — migrate content from openshift/openshift-gitops/helm/gpu-operator-installation/"
