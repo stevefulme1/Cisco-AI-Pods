@@ -45,6 +45,11 @@ build_ignore:
   - openshift
   - splunk-ai-pods
   - requirements.txt
+  - schema
+  - intersight/intersight_templates
+  - intersight/policies
+  - '*.fsai.yaml'
+  - '*.ezai.yaml'
 dependencies:
   kubernetes.core: '>=6.3.0'
   purestorage.flasharray: '>=1.24.0'

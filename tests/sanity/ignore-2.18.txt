@@ -3,9 +3,3 @@ intersight/filter_plugins/merge_schema_defaults.py pep8:E303
 intersight/filter_plugins/merge_schema_defaults.py pep8:E271
 intersight/filter_plugins/merge_schema_defaults.py pep8:W293
 intersight/filter_plugins/validate_sensitive_variables.py pep8:W293
-c800/main.fsai.yaml line-endings
-intersight/policies/lan_connectivity.ezai.yaml line-endings
-intersight/policies/port.ezai.yaml line-endings
-intersight/policies/management.ezai.yaml line-endings
-intersight/policies/domain.ezai.yaml line-endings
-intersight/intersight_templates/server.ezai.yaml line-endings
