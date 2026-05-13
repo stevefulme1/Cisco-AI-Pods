@@ -4,7 +4,7 @@
 #   Policies -> Domain - Variables
 # =========================================================
 intersight:
-  organizations:
+  configure:
     common:
       policies:
         flow_control:
@@ -17,8 +17,10 @@ intersight:
         switch_control:
           - name: SwCtrl
             switching_mode_ethernet: end-host
+            target_platform: UCS Domain
         system_qos:
           - configure_recommended_classes: true
             description: System QoS Policy
             jumbo_mtu: true
             name: QoS
+            target_platform: UCS Domain

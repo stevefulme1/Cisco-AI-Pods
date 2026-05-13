@@ -4,7 +4,7 @@
 #   Policies -> Compute - Variables
 # =========================================================
 intersight:
-  organizations:
+  configure:
     common:
       policies:
         bios:

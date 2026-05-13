@@ -1,8 +1,8 @@
 ---
 intersight:
-  organizations:
+  configure:
     common:
-      policies:
+      templates:
         vhba_template:
           - allow_override: true
             description: vHBA Template
@@ -28,7 +28,6 @@ intersight:
             placement_switch_id: A
             sriov:
               completion_queue_count_per_vf: 5
-              enabled: true
               interrupt_count_per_vf: 8
               number_of_vfs: 64
               receive_queue_count_per_vf: 4

@@ -3,7 +3,7 @@
 #   Policies -> Fibre Channel - Variables
 # =========================================================
 intersight:
-  organizations:
+  configure:
     common:
       policies:
         fibre_channel_adapter:

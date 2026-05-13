@@ -3,13 +3,14 @@
 #    Policies -> VLAN - Variables
 # =========================================================
 intersight:
-  organizations:
+  configure:
     common:
       policies:
         multicast:
           - name: mcast
         vlan:
           - name: aci-vlans
+            target_platform: UCS Domain
             vlans:
               - auto_allow_on_uplinks: true
                 multicast_policy: mcast

@@ -4,7 +4,7 @@
 #   Policies -> LAN Connectivity - Variables
 # =========================================================
 intersight:
-  organizations:
+  configure:
     Asgard:
       policies:
         lan_connectivity:

@@ -3,7 +3,7 @@
 #   Policies -> Ethernet - Variables
 # =========================================================
 intersight:
-  organizations:
+  configure:
     Asgard:
       policies:
         iscsi_adapter:

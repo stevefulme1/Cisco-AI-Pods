@@ -4,7 +4,7 @@
 #   Policies -> Storage - Variables
 # =========================================================
 intersight:
-  organizations:
+  configure:
     common:
       policies:
         storage:
@@ -26,13 +26,12 @@ intersight:
                 hostname_ip_address: kmip-primary.example.com
               secondary_server:
                 hostname_ip_address: kmip-secondary.example.com
-              server_public_root_ca_certificate: 1
+              server_public_root_ca_certificate: /etc/pki/certs/server.crt
         storage:
           - description: Raid1 Storage Policy
             drive_groups:
-              - manual_drive_group:
-                  drive_array_spans:
-                    - slots: 1-2
+              - drive_array_spans:
+                  - slots: 1-2
                 name: dg0
                 raid_level: Raid1
                 virtual_drives:

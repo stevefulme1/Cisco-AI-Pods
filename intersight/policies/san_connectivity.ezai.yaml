@@ -3,7 +3,7 @@
 #   Policies -> SAN Connectivity - Variables
 # =========================================================
 intersight:
-  organizations:
+  configure:
     common:
       policies:
         san_connectivity:

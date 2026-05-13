@@ -4,7 +4,7 @@
 #   Policies -> Management - Variables
 # =========================================================
 intersight:
-  organizations:
+  configure:
     Asgard:
       policies:
         imc_access:
@@ -54,13 +54,13 @@ intersight:
           - local_logging:
               minimum_severity: warning
             name: Syslog
-        # ========================================== imc_access:
-        # ==========================================   - description: aci-kvm IMC Access Policy
-        # ==========================================     inband_ip_pool: kvm-inband
-        # ==========================================     inband_vlan_id: 101
-        # ==========================================     ipv4_address_configuration: true
-        # ==========================================     name: aci-kvm
-        # ==========================================     out_of_band_ip_pool: kvm-ooband
+        # imc_access:
+        #   - description: aci-kvm IMC Access Policy
+        #     inband_ip_pool: kvm-inband
+        #     inband_vlan_id: 101
+        #     ipv4_address_configuration: true
+        #     name: aci-kvm
+        #     out_of_band_ip_pool: kvm-ooband
         ipmi_over_lan:
           - description: ipmi IPMI over LAN Policy
             name: ipmi
@@ -130,6 +130,7 @@ intersight:
               - infra-ops@example.com
             minimum_severity: critical
             name: smtp
+            server_family: UCSC2XX/4XX
             smtp_alert_sender_address: intersight@example.com
             smtp_port: 25
             smtp_server_address: mail.example.com
