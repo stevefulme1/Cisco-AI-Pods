@@ -42,6 +42,8 @@ build_ignore:
   - images
   - model_structure.json
   - netapp
+  - openshift
+  - splunk-ai-pods
   - requirements.txt
 dependencies:
   kubernetes.core: '>=6.3.0'
