@@ -32,24 +32,25 @@ documentation: https://github.com/scotttyso/Cisco-AI-Pods/blob/main/README.md
 issues: https://github.com/scotttyso/Cisco-AI-Pods/issues
 build_ignore:
   - '*.tar.gz'
+  - '*.fsai.yaml'
+  - '*.ezai.yaml'
   - .git
   - .github
   - .vscode
   - best_practices
   - c800
   - dump_model.py
+  - everpure
   - guide_*.md
   - images
+  - intersight/intersight_templates
+  - intersight/policies
   - model_structure.json
   - netapp
   - openshift
+  - schema
   - splunk-ai-pods
   - requirements.txt
-  - schema
-  - intersight/intersight_templates
-  - intersight/policies
-  - '*.fsai.yaml'
-  - '*.ezai.yaml'
 dependencies:
   kubernetes.core: '>=6.3.0'
   purestorage.flasharray: '>=1.24.0'
