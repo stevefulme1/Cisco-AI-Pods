@@ -1,54 +1,28 @@
-# Helm templates contain Jinja2-like syntax that yamllint cannot parse
-openshift/openshift-gitops/helm/gpu-operator-installation/templates/configs/13-sriov-config.yaml yamllint!syntax
-openshift/openshift-gitops/helm/gpu-operator-installation/templates/configs/13-sriov-config.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/gpu-operator-installation/templates/configs/25-gpu-clusterpolicy.yaml yamllint!syntax
-openshift/openshift-gitops/helm/gpu-operator-installation/templates/configs/25-gpu-clusterpolicy.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/gpu-operator-installation/templates/operators/10-nfd-operator.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/gpu-operator-installation/templates/operators/12-sriov.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/gpu-operator-installation/templates/operators/15-network-manager-operator.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/gpu-operator-installation/templates/operators/20-gpu-operator.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/gpu-operator-installation/templates/operators/20-gpu-operator.yaml yamllint!syntax
-openshift/openshift-gitops/helm/infrastructure-utilities/templates/operators/05-kmm.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/infrastructure-utilities/templates/operators/05-rhcl.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/observability-stack/templates/operators/05-cluster-observability.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/observability-stack/templates/operators/05-open-telemetry.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/observability-stack/templates/operators/05-tempo.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/rhoai-stack/templates/configs/32-operator-deployment.yaml yamllint!syntax
-openshift/openshift-gitops/helm/rhoai-stack/templates/configs/32-operator-deployment.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/rhoai-stack/templates/configs/33-datasciencecluster.yaml yamllint!syntax
-openshift/openshift-gitops/helm/rhoai-stack/templates/configs/33-datasciencecluster.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/rhoai-stack/templates/configs/35-dashboard-deployment.yaml yamllint!syntax
-openshift/openshift-gitops/helm/rhoai-stack/templates/configs/35-dashboard-deployment.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/rhoai-stack/templates/configs/35-odhdashboardconfig.yaml yamllint!syntax
-openshift/openshift-gitops/helm/rhoai-stack/templates/configs/35-odhdashboardconfig.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/rhoai-stack/templates/operators/30-rhoai-operator.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/rhoai-stack/templates/operators/30-rhoai-operator.yaml yamllint!syntax
-openshift/openshift-gitops/helm/workload-scaling/templates/configs/07-cluster-job-set.yaml yamllint!syntax
-openshift/openshift-gitops/helm/workload-scaling/templates/configs/07-cluster-job-set.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/workload-scaling/templates/operators/05-cma-operator.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/workload-scaling/templates/operators/05-job-set.yaml yamllint!syntax
-openshift/openshift-gitops/helm/workload-scaling/templates/operators/05-job-set.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/workload-scaling/templates/operators/05-leader-worker-set.yaml yamllint:unparsable-with-libyaml
-openshift/openshift-gitops/helm/workload-scaling/templates/operators/05-rhbok.yaml yamllint!syntax
-openshift/openshift-gitops/helm/workload-scaling/templates/operators/05-rhbok.yaml yamllint:unparsable-with-libyaml
-
-# Vendored Helm installer script - shellcheck issues are upstream
-splunk-ai-pods/get_helm.sh shellcheck!SC2155
-splunk-ai-pods/get_helm.sh shellcheck!SC2034
-splunk-ai-pods/get_helm.sh shellcheck!SC2016
-splunk-ai-pods/get_helm.sh shellcheck!SC2124
-
-# Filter plugins are imported modules, not executables - no shebang needed
+openshift/openshift-gitops/helm/gpu-operator-installation/templates/configs/13-sriov-config.yaml yamllint
+openshift/openshift-gitops/helm/gpu-operator-installation/templates/configs/25-gpu-clusterpolicy.yaml yamllint
+openshift/openshift-gitops/helm/gpu-operator-installation/templates/operators/10-nfd-operator.yaml yamllint
+openshift/openshift-gitops/helm/gpu-operator-installation/templates/operators/12-sriov.yaml yamllint
+openshift/openshift-gitops/helm/gpu-operator-installation/templates/operators/15-network-manager-operator.yaml yamllint
+openshift/openshift-gitops/helm/gpu-operator-installation/templates/operators/20-gpu-operator.yaml yamllint
+openshift/openshift-gitops/helm/infrastructure-utilities/templates/operators/05-kmm.yaml yamllint
+openshift/openshift-gitops/helm/infrastructure-utilities/templates/operators/05-rhcl.yaml yamllint
+openshift/openshift-gitops/helm/observability-stack/templates/operators/05-cluster-observability.yaml yamllint
+openshift/openshift-gitops/helm/observability-stack/templates/operators/05-open-telemetry.yaml yamllint
+openshift/openshift-gitops/helm/observability-stack/templates/operators/05-tempo.yaml yamllint
+openshift/openshift-gitops/helm/rhoai-stack/templates/configs/32-operator-deployment.yaml yamllint
+openshift/openshift-gitops/helm/rhoai-stack/templates/configs/33-datasciencecluster.yaml yamllint
+openshift/openshift-gitops/helm/rhoai-stack/templates/configs/35-dashboard-deployment.yaml yamllint
+openshift/openshift-gitops/helm/rhoai-stack/templates/configs/35-odhdashboardconfig.yaml yamllint
+openshift/openshift-gitops/helm/rhoai-stack/templates/operators/30-rhoai-operator.yaml yamllint
+openshift/openshift-gitops/helm/workload-scaling/templates/configs/07-cluster-job-set.yaml yamllint
+openshift/openshift-gitops/helm/workload-scaling/templates/operators/05-cma-operator.yaml yamllint
+openshift/openshift-gitops/helm/workload-scaling/templates/operators/05-job-set.yaml yamllint
+openshift/openshift-gitops/helm/workload-scaling/templates/operators/05-leader-worker-set.yaml yamllint
+openshift/openshift-gitops/helm/workload-scaling/templates/operators/05-rhbok.yaml yamllint
+splunk-ai-pods/get_helm.sh shellcheck
 intersight/filter_plugins/merge_schema_defaults.py shebang
 intersight/filter_plugins/validate_sensitive_variables.py shebang
-
-# PEP8 style issues in filter plugins - minor whitespace/indentation
-intersight/filter_plugins/merge_schema_defaults.py pep8!E127
-intersight/filter_plugins/merge_schema_defaults.py pep8!E303
-intersight/filter_plugins/merge_schema_defaults.py pep8!E271
-intersight/filter_plugins/merge_schema_defaults.py pep8!W293
-intersight/filter_plugins/validate_sensitive_variables.py pep8!W293
-
-# Pylint - complex filter plugins with intentional patterns
-intersight/filter_plugins/merge_schema_defaults.py pylint
-intersight/filter_plugins/validate_sensitive_variables.py pylint
+intersight/filter_plugins/merge_schema_defaults.py pep8
+intersight/filter_plugins/validate_sensitive_variables.py pep8
+intersight/filter_plugins/merge_schema_defaults.py pylint:used-before-assignment
+intersight/filter_plugins/validate_sensitive_variables.py pylint:used-before-assignment
