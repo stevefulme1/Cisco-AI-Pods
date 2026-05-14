@@ -1,0 +1,121 @@
+{
+{% if item.fibre_channel_adapter_policy is defined %}
+{% set _name = item.fibre_channel_adapter_policy.split('/')[-1] %}
+{% set _org = item.fibre_channel_adapter_policy.split('/')[0] if item.fibre_channel_adapter_policy.split('/') | length > 1 else organization %}
+  "FcAdapterPolicy": {
+    "Moid": "{{ isight[_org]['policies']['fibre_channel_adapter'][_name].moid }}",
+    "ObjectType": "vnic.FcAdapterPolicy"
+  },
+{% else %}
+  "FcAdapterPolicy": null,
+{% endif %}
+{% if item.fibre_channel_network_policy is defined %}
+{% set _name = item.fibre_channel_network_policy.split('/')[-1] %}
+{% set _org = item.fibre_channel_network_policy.split('/')[0] if item.fibre_channel_network_policy.split('/') | length > 1 else organization %}
+  "FcNetworkPolicy": {
+    "Moid": "{{ isight[_org]['policies']['fibre_channel_network'][_name].moid }}",
+    "ObjectType": "vnic.FcNetworkPolicy"
+  },
+{% else %}
+  "FcNetworkPolicy": null,
+{% endif %}
+{% if item.fibre_channel_qos_policy is defined %}
+{% set _name = item.fibre_channel_qos_policy.split('/')[-1] %}
+{% set _org = item.fibre_channel_qos_policy.split('/')[0] if item.fibre_channel_qos_policy.split('/') | length > 1 else organization %}
+  "FcQosPolicy": {
+    "Moid": "{{ isight[_org]['policies']['fibre_channel_qos'][_name].moid }}",
+    "ObjectType": "vnic.FcQosPolicy"
+  },
+{% else %}
+  "FcQosPolicy": null,
+{% endif %}
+  "FcZonePolicies": [
+{% if item.fibre_channel_zone_policies is defined and item.fibre_channel_zone_policies | length > 0 %}
+{% for _fczp in item.fibre_channel_zone_policies %}
+{% set _name = _fczp.split('/')[-1] %}
+{% set _org = _fczp.split('/')[0] if _fczp.split('/') | length > 1 else organization %}
+  {
+    "Moid": "{{ isight[_org]['policies']['fibre_channel_zone'][_name].moid }}",
+    "ObjectType": "vnic.FcZonePolicy"
+  }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "Name": "{{ item.name }}",
+  "ObjectType": "vnic.FcIf",
+  "Order": {{ (item.placement | default({})).get('pci_order', 0) | int }},
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "vnic.SanConnectivityPolicy"
+  },
+  "PersistentBindings": {{ item.persistent_lun_bindings | default(false) | tojson }},
+  "PinGroupName": "{{ item.pin_group_name | default('') }}",
+{% set _placement = item.placement | default({}) %}
+{% set _auto_pci = true if _placement.get('automatic_pci_link_assignment', false) or _placement.get('pci_link') is none else false %}
+{% set _auto_slot = true if _placement.get('automatic_slot_id_assignment', false) or _placement.get('slot_id') is none else false %}
+  "Placement": {
+{% if item.target_platform | default('Standalone') == 'FIAttached' %}
+{% if _auto_pci %}
+    "AutoPciLink": true,
+{% else %}
+    "AutoPciLink": false,
+    "PciLink": {{ _placement.get('pci_link', 0) | int }},
+{% endif %}
+{% if _auto_slot %}
+    "AutoSlotId": true,
+    "Id": "",
+{% else %}
+    "AutoSlotId": false,
+    "Id": "{{ _placement.get('slot_id', 'MLOM') }}",
+{% endif %}
+    "ObjectType": "vnic.PlacementSettings",
+    "PciLinkAssignmentMode": {% if _auto_pci %}"None"{% elif _placement.get('pci_link') is not none %}"Custom"{% else %}"Load-Balanced"{% endif %},
+    "SwitchId": "{{ _placement.get('switch_id', 'A') }}",
+    "Uplink": {{ _placement.get('uplink_port', 0) | int }}
+{% else %}
+    "AutoPciLink": false,
+    "AutoSlotId": false,
+    "Id": "{{ _placement.get('slot_id', 'MLOM') }}",
+    "ObjectType": "vnic.PlacementSettings",
+    "PciLink": {{ _placement.get('pci_link', 0) | int }},
+    "PciLinkAssignmentMode": "Custom",
+    "SwitchId": "None",
+    "Uplink": {{ _placement.get('uplink_port', 0) | int }}
+{% endif %}
+  },
+  "SanConnectivityPolicy": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "vnic.SanConnectivityPolicy"
+  },
+  "StaticWwpnAddress": "{{ item.wwpn_static_address | default('') }}",
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "Type": "{{ item.vhba_type | default('fc-initiator') }}",
+  "WwpnAddressType": {% if item.wwpn_static_address is defined and item.wwpn_static_address | length > 0 %}"STATIC"{% else %}"POOL"{% endif %},
+{% if item.wwpn_pool is defined %}
+{% set _name = item.wwpn_pool.split('/')[-1] %}
+{% set _org = item.wwpn_pool.split('/')[0] if item.wwpn_pool.split('/') | length > 1 else organization %}
+  "WwpnPool": {
+    "Moid": "{{ isight[_org]['pools']['wwpn'][_name].moid }}",
+    "ObjectType": "fcpool.Pool"
+  }
+{% else %}
+  "WwpnPool": null
+{% endif %}
+}

@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/intersight-tools/schema/cisco-ai-pods.json --- IGNORE ---
+# ============================================
+#   Profiles -> Name Pfx Sfx - Variables
+# ============================================
+# If a prefix/suffix policy is undefined default will be used
+intersight:
+  configure:
+    common:
+      profiles:
+        name_prefix:
+          chassis: ''
+          default: ''
+          domain: ''
+          server: ''
+          unified_edge: ''
+        name_suffix:
+          chassis: ''
+          default: ''
+          domain: ''
+          server: ''
+          unified_edge: ''

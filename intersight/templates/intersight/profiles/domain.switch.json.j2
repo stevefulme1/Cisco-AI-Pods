@@ -1,0 +1,86 @@
+{
+{% set _target = item.target_platform | default('UCS Domain') | lower | replace(' ', '_') %}
+{% set template_type = _target ~ '_profile_template' %}
+{% set _template = true if item[template_type] is defined and item[template_type] | length > 0 else false %}
+{% set _indx = 1 if "-B" in item.name else 0 %}
+{% if item.serial_numbers is defined and item.serial_numbers | length == 2 and _target == 'ucs_domain' %}
+  "AssignedSwitch": {
+    "Moid": "{{ isight.system.domain[item.serial_numbers[item.index]].moid }}",
+    "ObjectType": "network.Element"
+  },
+{% elif item.serial_number is defined and item.serial_number is not none and _target == 'unified_edge' %}
+  "AssignedSwitch": {
+    "Moid": "{{ isight.system.unified_edge[item.serial_number].result.NetworkElementList[item.index].Moid }}",
+    "ObjectType": "network.Element"
+  },
+{% else %}
+  "AssignedSwitch": null,
+{% endif %}
+  "Description": "{{ item.description | default('') }}",
+  "FabricPreAssignBySerial": "{{ (item.pre_assign | default ({})).get('serial_number', '') }}",
+  "Name": "{{ item.name ~ '-' ~ item.switch_id }}",
+  "ObjectType": "fabric.SwitchProfile",
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "fabric.SwitchClusterProfile"
+  },
+{% if _template == false %}
+  "PolicyBucket": [
+{% if item.policy_bucket is defined and item.policy_bucket | length > 0 %}
+{% for k, v in item.policy_bucket.items() %}
+{% if k in item.allowed_policies %}
+{% set _name = v.split('/')[-1] %}
+{% set _org  = v.split('/')[0] if '/' in v else organization %}
+{% set otype = k[:-7] if k.endswith('_policy') else k %}
+{% set ptype = "policies" if "policy" in k else "pools" %}
+    {
+      "Moid": "{{ isight[_org][ptype][otype][_name].moid }}",
+      "ObjectType": "{{ object_map[otype] }}"
+    }{% if not loop.last %},{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+{% endif %}
+{% if _template == true %}
+{% set _name = item[template_type].split('/')[-1] %}
+{% set _org = item[template_type].split('/')[0] if '/' in item[template_type] else organization %}
+  "SrcTemplate": {
+    "Moid": "{{ isight[_org].templates[_target][_name].moid }}",
+    "ObjectType": "fabric.SwitchProfileTemplate"
+  },
+{% else %}
+  "SrcTemplate": null,
+{% endif %}
+{% if item.target_platform | default('UCS Domain') == 'Unified Edge' %}
+  "SwitchAssignmentMode": "Static",
+{% elif item.serial_numbers is defined and item.serial_numbers | length == 2 %}
+  "SwitchAssignmentMode": "Static",
+{% else %}
+  "SwitchAssignmentMode": "None",
+{% endif %}
+  "SwitchClusterProfile": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "fabric.SwitchClusterProfile"
+  },
+  "SwitchId": "{{ item.switch_id }}",
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "Type": "instance"
+}

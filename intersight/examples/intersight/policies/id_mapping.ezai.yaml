@@ -1,0 +1,13 @@
+---
+intersight:
+  configure:
+    common:
+      policies:
+        id_mapping:
+          - description: ID Mapping Policy
+            name: my_mapping_policy
+            organizations:
+              - Asgard
+            resource_groups:
+              - Asgard
+            shared_organization: true

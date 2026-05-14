@@ -1,6 +1,6 @@
 # Cisco AI Pods Intersight Deployment Guide
 
-This folder deploys Cisco Intersight organizations, pools, policies, and profiles/templates using Terraform and Cisco Terraform modules.
+This folder deploys Cisco UCS GPU Servers (C885A/C880A), Intersight organizations, pools, policies, templates, and profiles using the Python-based deployment workflow.
 
 ## Top Level Documents
 
@@ -32,125 +32,83 @@ This folder deploys Cisco Intersight organizations, pools, policies, and profile
   - [Folder Structure](#folder-structure)
   - [Prerequisites](#prerequisites)
   - [Configuration Model](#configuration-model)
-    - [Global Settings](#global-settings)
-    - [Data Merge Behavior](#data-merge-behavior)
   - [Authentication and Sensitive Variables](#authentication-and-sensitive-variables)
-    - [Required Environment Variables](#required-environment-variables)
-    - [Common Sensitive Variables](#common-sensitive-variables)
   - [Deployment Steps](#deployment-steps)
+  - [C885A-M8/C880A-M8 BMC Configuration](#c885a-m8c880a-m8-bmc-configuration)
+    - [When to Run It](#when-to-run-it)
+    - [How to Run It](#how-to-run-it)
   - [Validation](#validation)
+  - [Docs Guidance](#docs-guidance)
+    - [Policy Template Guidance](#policy-template-guidance)
+    - [Name Prefix and Suffix Conventions](#name-prefix-and-suffix-conventions)
   - [Troubleshooting](#troubleshooting)
-    - [Authentication Failures](#authentication-failures)
-    - [Model Not Applied](#model-not-applied)
-    - [Provider or Module Issues](#provider-or-module-issues)
-    - [State Conflicts](#state-conflicts)
   - [Next Steps](#next-steps)
 
 ## Overview
 
-Deployment in this folder is Terraform-based and uses:
+Deployment in this folder is Python-based and uses:
 
-- Provider: `CiscoDevNet/intersight`
-- Data merge helper: `netascode/utils`
-- Terraform modules:
-  - `terraform-cisco-modules/organizations/intersight`
-  - `terraform-cisco-modules/pools/intersight`
-  - `terraform-cisco-modules/policies/intersight`
-  - `terraform-cisco-modules/profiles/intersight`
+- Entrypoint: `deploy_intersight_ucs.py`
+- Orchestration: `src/initialize.py` and `src/intersight/configure.py`
+- Helpers: `src/shared_functions.py`, template rendering, and sensitive-variable validation
+- Model and schema: YAML models validated with `schema/cisco-ai-pods.json`
 
-The deployment merges all `*.ezi.yaml` model files from this folder and from selected subfolders into one model, then applies modules conditionally based on content.
+This deployment reads model files, validates schema/sensitive variables, and then applies changes through Intersight APIs.
 
 [Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
 ## Folder Structure
 
-Key files:
+Key files and folders:
 
-- `main.tf`: module orchestration and YAML merge
-- `provider.tf`: Terraform providers and Intersight auth config
-- `locals.tf`: model/sensitive variable mapping
-- `variables.tf`: provider and policy sensitive variable definitions
-- `outputs.tf`: module outputs
-- `global_settings.ezi.yaml`: global settings including `intersight_fqdn` and tags
-
-Model folders:
-
-- `organizations/`
-- `pools/`
-- `policies/`
-- `profiles/`
-- `templates/`
+- `deploy_intersight_ucs.py`: Python CLI entrypoint
+- `src/`: deployment logic and API interactions
+- `templates/`: Jinja templates used to build API payloads
+- `examples/`: sample model files (`*.ezai.yaml`)
+- `docs/`: policy template guidance and naming conventions
+- `QA/`: environment-specific test models
 
 [Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
 ## Prerequisites
 
-- Terraform `>= 1.3.0`
+- Python 3.9+ (recommended)
 - Network connectivity to Intersight SaaS or appliance endpoint
 - Intersight API key ID and secret key
 - Environment prepared per [Prepare the Environment](../guide_prepare_the_environment.md)
 
-Optional but recommended:
+Install required Python packages (example):
 
-- `jq` for output parsing
-- version-controlled `.ezi.yaml` model files per organization
+```bash
+python3 -m pip install dotmap jinja2 pyyaml requests stringcase json-ref-dict
+```
 
 [Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
 ## Configuration Model
 
-### Global Settings
+- Primary model format is `*.ezai.yaml`
+- Schema source is `../schema/cisco-ai-pods.json`
+- Place environment and policy/profile models under `configuration/`, or your chosen directory passed with `-d`
 
-Edit `global_settings.ezi.yaml`:
+Common execution pattern:
 
-```yaml
-global_settings:
-  intersight_fqdn: intersight.com
+```bash
+python3 deploy_intersight_ucs.py
 ```
-
-For appliance deployments, set `intersight_fqdn` to your appliance FQDN.
-
-### Data Merge Behavior
-
-`main.tf` merges model files from:
-
-- `*.ezi.yaml` in this directory
-- `o*/*.ezi.yaml`
-- `p*/*.ezi.yaml`
-- `t*/*.ezi.yaml`
-
-Keep model data in these paths so Terraform picks it up automatically.
 
 [Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
 ## Authentication and Sensitive Variables
 
-### Required Environment Variables
+Required environment variables:
 
 ```bash
-export TF_VAR_intersight_api_key_id="<apikeyid>"
-export TF_VAR_intersight_secret_key="/absolute/path/to/SecretKey.pem"
+export intersight_api_key_id="<apikeyid>"
+export intersight_secret_key="/absolute/path/to/SecretKey.pem"
 ```
 
-Important:
-
-- `TF_VAR_intersight_api_key_id` must match the format validated in `variables.tf`:
-  - `24hex/24hex/24hex`
-- `TF_VAR_intersight_secret_key` can be a file path or inline PEM text.
-
-### Common Sensitive Variables
-
-Depending on your policy model, export additional variables such as:
-
-```bash
-export TF_VAR_cco_password="<secure_password>"
-export TF_VAR_binding_parameters_password="<ldap_bind_password>"
-export TF_VAR_local_user_password_1="<secure_password>"
-export TF_VAR_snmp_auth_password_1="<secure_password>"
-export TF_VAR_snmp_privacy_password_1="<secure_password>"
-```
-
-See `variables.tf` and `locals.tf` for full supported variable names.
+Additional sensitive values are discovered from the model and validated during load. Typical examples include local user, LDAP bind, and SNMP credential variables.
 
 [Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
@@ -162,56 +120,64 @@ See `variables.tf` and `locals.tf` for full supported variable names.
 cd Cisco-AI-Pods/intersight
 ```
 
-2. Initialize Terraform.
+2. Run a normal deployment.
 
 ```bash
-terraform init
+python3 deploy_intersight_ucs.py
 ```
 
-3. Validate configuration.
+3. Run in check mode (compare only, no changes).
 
 ```bash
-terraform validate
+python3 deploy_intersight_ucs.py -c
 ```
 
-4. Create plan.
+4. Optional flags:
 
 ```bash
-terraform plan -out main.plan
+python3 deploy_intersight_ucs.py -d configuration/ -ni -dl 5
 ```
 
-5. Apply plan.
+Where:
+
+- `-d` sets the configuration folder name
+- `-ni` runs non-interactive mode
+- `-dl` sets debug level
+- `-i` ignores TLS server certificate verification
+
+[Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
+
+## C885A-M8/C880A-M8 BMC Configuration
+
+### When to Run It
+
+Run BMC pre-stage after BMC management interfaces are reachable. It is commonly used to apply BIOS, BMC networking, LDAP, NTP, local user, and device connector settings.
+
+Example:
 
 ```bash
-terraform apply main.plan
+examples/C885A/configuration.ezai.yaml
 ```
+
+### How to Run It
+
+```bash
+python3 deploy_intersight_ucs.py -d examples/C885A
+```
+
+The above command would run against the `examples/C885A` directory.
+
 
 [Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
 ## Validation
 
-Check module outputs:
+Validation occurs in two places:
 
-```bash
-terraform output
-```
+- Schema/model load validation before execution
+- Sensitive variable validation against required model fields
 
-Inspect created state objects:
-
-```bash
-terraform state list
-```
-
-Optional output checks:
-
-```bash
-terraform output organizations
-terraform output pools
-terraform output policies
-terraform output profiles
-```
-
-In Intersight UI, confirm objects under:
+After execution, confirm object state in Intersight UI:
 
 - Organizations and Resource Groups
 - Pools
@@ -220,35 +186,35 @@ In Intersight UI, confirm objects under:
 
 [Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 
+## Docs Guidance
+
+### Policy Template Guidance
+
+Use these references when selecting template names in policy models:
+
+- [BIOS templates](docs/intersight_policy_templates/README_bios_templates.md)
+- [Ethernet adapter templates](docs/intersight_policy_templates/README_ethernet_adapter_templates.md)
+- [Fibre Channel adapter templates](docs/intersight_policy_templates/README_fibre_channel_adapter_templates.md)
+- [Storage templates](docs/intersight_policy_templates/README_storage_templates.md)
+
+### Name Prefix and Suffix Conventions
+
+For naming conventions across pools, policies, profiles, and templates, see:
+
+- [Name prefix and suffix support](docs/README_prefix_suffix.md)
+
+[Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
+
 ## Troubleshooting
 
-### Authentication Failures
-
-- Verify `TF_VAR_intersight_api_key_id` format (`24hex/24hex/24hex`).
-- Verify `TF_VAR_intersight_secret_key` path exists and is readable.
-- Ensure endpoint in `global_settings.ezi.yaml` is correct.
-
-### Model Not Applied
-
-- Confirm model files are in recognized paths (`*.ezi.yaml`, `o*/`, `p*/`, `t*/`).
-- Run `terraform plan` and check for zero-change output due to missing model keys.
-
-### Provider or Module Issues
-
-```bash
-terraform init -upgrade
-terraform providers
-terraform version
-```
-
-### State Conflicts
-
-Use with care:
-
-```bash
-terraform state rm <resource>
-terraform import <resource> <id>
-```
+- Authentication failure:
+  - Verify `intersight_api_key_id` and `intersight_secret_key` are set and valid.
+- TLS/connectivity issues:
+  - Confirm endpoint reachability and, when needed, use `-i` to bypass cert verification for test environments.
+- Missing sensitive variables:
+  - Export the missing variable names printed by the validator.
+- No changes applied:
+  - Confirm your model files are under the directory passed by `-d` and use the expected schema keys.
 
 [Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 

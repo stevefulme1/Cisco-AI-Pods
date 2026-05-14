@@ -1,0 +1,33 @@
+---
+# yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/intersight-tools/schema/cisco-ai-pods.json --- IGNORE ---
+intersight:
+  system:
+    locations:
+      - input_by: Address
+        address_details:
+          address1: 170 W Tasman Dr
+          address2: Suite 150
+          city: San Jose
+          country: US
+          postal_code: '95134'
+          state_province: California
+        name: San Jose
+    organizations:
+      - name: common
+        organizations_to_share_with:
+          - Asgard
+          - Wakanda
+      - name: testing123
+        resource_groups:
+          - testing123
+      - name: Wakanda
+        resource_groups:
+          - Wakanda
+    resource_groups:
+      - name: testing123
+      - name: Wakanda
+        resources:
+          targets:
+            - r143e-2
+    path_tags:
+      - path_tag: Richfield/SE Lab/Room 142/Rack r142b

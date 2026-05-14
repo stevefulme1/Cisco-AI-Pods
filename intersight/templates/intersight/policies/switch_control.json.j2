@@ -1,0 +1,50 @@
+{
+{% set _aging = 300 if item.target_platform | default('UCS Domain') == 'Unified Edge' else 14500 %}
+{% set _platform = item.target_platform | default('UCS Domain') %}
+{% if _platform == 'UCS Domain' and item.aes_primary_key is defined %}
+  "AesPrimaryKey": "{{ sensitive_vars['switch_control_aes_primary_key_' ~ item.aes_primary_key] }}",
+{% endif %}
+  "Description": "{{ item.description | default('') }}",
+  "EnableJumboFrame": {% if _platform == 'Unified Edge' %}{{ item.enable_jumbo_frame | default(false) | tojson }}{% else %}false{% endif %},
+  "EthernetSwitchingMode": {% if _platform == 'UCS Domain' %}"{{ item.switching_mode_ethernet | default('end-host') }}"{% else %}"switch"{% endif %},
+  "FabricPcVhbaReset": {% if _platform == 'UCS Domain' %}"{{ item.fabric_port_channel_vhba_reset | default('Disabled') }}"{% else %}"Disabled"{% endif %},
+  "FcSwitchingMode": {% if _platform == 'UCS Domain' %}"{{ item.switching_mode_fc | default('end-host') }}"{% else %}"end-host"{% endif %},
+  "MacAgingSettings": {
+    "MacAgingOption": {% if _platform == 'UCS Domain' %}"{{ item.mac_address_table_aging | default('Default') }}"{% else %}"Default"{% endif %},
+    "MacAgingTime": {{ item.mac_aging_time | default(_aging) | int }},
+    "ObjectType": "fabric.MacAgingSettings"
+  },
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "fabric.SwitchControlPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "ReservedVlanStartId": {% if _platform == 'UCS Domain' %}{{ item.reserved_vlan_start_id | default(3915) | int }}{% else %}3915{% endif %},
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TargetPlatform": "{{ _platform }}",
+{% set _udld_settings = item.udld_global_settings | default({}) %}
+  "UdldSettings": {
+    "MessageInterval": {% if _platform == 'UCS Domain' %}{{ _udld_settings.get('message_interval', 15) | int }}{% else %}15{% endif %},
+    "ObjectType": "fabric.UdldGlobalSettings",
+    "RecoveryAction": {% if _platform == 'UCS Domain' %}{{ _udld_settings.get('recovery_action') | default('none', true) | tojson }}{% else %}"none"{% endif %}
+  },
+  "VlanPortOptimizationEnabled": {% if _platform == 'UCS Domain' %}{{ item.vlan_port_count_optimization | default(false) | tojson }}{% else %}false{% endif %}
+}

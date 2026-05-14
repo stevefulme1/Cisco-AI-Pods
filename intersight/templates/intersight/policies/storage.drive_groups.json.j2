@@ -1,0 +1,68 @@
+{
+  "ManualDriveGroup": {
+    "DedicatedHotSpares": {{ item.dedicated_hot_spares | default('', true) | tojson }},
+    "ObjectType": "storage.ManualDriveGroup",
+    "SpanGroups": [
+{% if item.drive_array_spans is defined and item.drive_array_spans | length > 0 %}
+{% for span in item.drive_array_spans %}
+      {
+        "ObjectType": "storage.SpanDrives",
+        "Slots": {{ span.slots | tojson }}
+      }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+    ]
+  },
+  "Name": {{ item.name | default('default') | tojson }},
+  "ObjectType": "storage.DriveGroup",
+  "Parent": {
+    "Moid": {{ item.parent | tojson }},
+    "ObjectType": "storage.StoragePolicy"
+  },
+  "RaidLevel": {{ item.raid_level | default('Raid0') | tojson }},
+  "SecureDriveGroup": {{ item.secure_drive_group | default(false) | tojson }},
+  "StoragePolicy": {
+    "Moid": {{ item.parent | tojson }},
+    "ObjectType": "storage.StoragePolicy"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "VirtualDrives": [
+{% if item.virtual_drives is defined and item.virtual_drives | length > 0 %}
+{% for vd in item.virtual_drives %}
+{% set _vdp = vd.virtual_drive_policy | default({})%}
+    {
+      "BootDrive": {{ vd.boot_drive | default(false) | tojson }},
+      "ExpandToAvailable": {{ vd.expand_to_available | default(true) | tojson }},
+      "Name": {{ vd.name | default('vd' ~ loop.index0) | tojson }},
+      "ObjectType": "storage.VirtualDriveConfiguration",
+      "Size": {{ vd.size | default(0) }},
+      "VirtualDrivePolicy": {
+        "AccessPolicy": {{ _vdp.access_policy | default('Default') | tojson }},
+        "DriveCache": {{ _vdp.drive_cache | default('Default') | tojson }},
+        "ObjectType": "storage.VirtualDrivePolicy",
+        "ReadPolicy": {{ _vdp.read_policy | default('Default') | tojson }},
+        "StripSize": {{ _vdp.strip_size | default(64) | tojson }},
+        "WritePolicy": {{ _vdp.write_policy | default('Default') | tojson }}
+      }
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ]
+}

@@ -33,7 +33,6 @@
     - [4. Security Planning](#4-security-planning)
     - [Required Access and Credentials](#required-access-and-credentials)
     - [Back to Table of Contents](#back-to-table-of-contents-4)
-  - [Cisco AI Pods Network Configuration Guide](#cisco-ai-pods-network-configuration-guide)
   - [Cisco AI Pods Intersight Deployment Guide](#cisco-ai-pods-intersight-deployment-guide)
   - [Cisco AI Pods C885A M8 Server Deployment Guide](#cisco-ai-pods-c885a-m8-server-deployment-guide)
   - [Cisco AI Pods Everpure Deployment Guide](#cisco-ai-pods-everpure-deployment-guide)
@@ -178,10 +177,6 @@ If any phase fails, follow this rollback approach:
 
 ### [<ins>Back to Table of Contents<ins>](#table-of-contents)
 
-## Cisco AI Pods Network Configuration Guide
-
-Follow the steps in the network configuration section.
-
 [Cisco AI Pods Network Configuration Guide](./network/README.md#cisco-ai-pods-network-configuration-guide)
 
 ## Cisco AI Pods Intersight Deployment Guide
@@ -191,10 +186,6 @@ Follow the steps in the Intersight configuration section.
 [Cisco AI Pods Intersight Deployment Guide](./intersight/README.md#cisco-ai-pods-intersight-deployment-guide)
 
 ## Cisco AI Pods C885A M8 Server Deployment Guide
-
-Follow the steps in the C885A M8 configuration section.
-
-[Cisco AI Pods C885A M8 Server Deployment Guide](./c885/README.md#cisco-ai-pods-c885a-m8-server-deployment-guide)
 
 ## Cisco AI Pods Everpure Deployment Guide
 

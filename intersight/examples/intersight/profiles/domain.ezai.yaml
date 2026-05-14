@@ -1,0 +1,54 @@
+---
+# yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/intersight-tools/schema/cisco-ai-pods.json --- IGNORE ---
+# =========================================================
+#   Profiles -> Domain - Variables
+# =========================================================
+intersight:
+  configure:
+    Wakanda:
+      profiles:
+        domain:
+          - action: Deploy
+            attach_template: false
+            name: r143e-2
+            network_connectivity_policy: common/dns
+            ntp_policy: common/ntp
+            port_policies:
+              - common/r143e-2-a
+              - common/r143e-2-b
+            serial_numbers:
+              - FDO23360XWU
+              - FDO23360Y8U
+            snmp_policy: common/snmp
+            switch_control_policy: common/sw-ctrl
+            system_qos_policy: common/qos
+            vlan_policies:
+              - common/aci-vlans
+          - action: No-op
+            name: ucsai5200
+            network_connectivity_policy: common/DNS
+            ntp_policy: common/NTP
+            port_policies:
+              - common/XDirectA
+              - common/XDirectB
+            serial_numbers:
+              - FCH29130000
+              - FCH29130001
+            snmp_policy: common/SNMP
+            switch_control_policy: common/SwCtrl
+            system_qos_policy: common/QoS
+            vlan_policies:
+              - common/VLANs
+        unified_edge:
+          - action: No-op
+            name: unified_edge
+            network_connectivity_policy: common/DNS
+            ntp_policy: common/NTP
+            port_policies:
+              - common/XDirectA
+              - common/XDirectB
+            serial_number: FCH29130000
+            switch_control_policy: common/SwCtrl
+            system_qos_policy: common/QoS
+            vlan_policies:
+              - common/VLANs

@@ -1,10 +1,8 @@
 {
   "files.associations": {
-    "*.ezai.yaml": "yaml",
-    "*.ezia.yaml": "yaml"
+    "*.ezai.yaml": "yaml"
   },
   "yaml.schemas": {
-    "/home/tyscott@rich.ciscolabs.com/scotttyso/Cisco-AI-Pods/schema/cisco-ai-pods.json": "**/*.ezai.yaml",
-    "/home/tyscott@rich.ciscolabs.com/scotttyso/easy-imm/yaml_schema/easy-imm.json": "*.ezi.yaml"
+    "schema/cisco-ai-pods.json": "**/*.ezai.yaml"
   }
 }

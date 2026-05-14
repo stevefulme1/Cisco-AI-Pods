@@ -125,22 +125,18 @@ everpure:
             user_login_attribute: sAMAccountName
             user_object_class: User
         role_mappings:
-          - name: array_admin
-            role: array_admin
-            group: pureadmins
-            group_base: OU=PureStorage,OU=Hosting,OU=Process,OU=GM,OU=Service Provider,OU=Domain
-          - name: ops_admin
-            role: ops_admin
-            group: pureusers
-            group_base: OU=PureStorage,OU=Hosting,OU=Process,OU=GM,OU=Service Provider,OU=Domain
-          - name: readonly
-            role: readonly
-            group: purereadonly
-            group_base: OU=PureStorage,OU=Hosting,OU=Process,OU=GM,OU=Service Provider,OU=Domain
-          - name: storage_admin
+          - group: Storage Admins,OU=Everpure
+            group_base: DC=example,DC=com
             role: storage_admin
-            group: pure_storage_admins
-            group_base: OU=PureStorage,OU=Hosting,OU=Process,OU=GM,OU=Service Provider,OU=Domain
+          - group: Operation Administrators,OU=Everpure
+            group_base: DC=example,DC=com
+            role: ops_admin
+          - group: Array Administrators,OU=Everpure
+            group_base: DC=example,DC=com
+            role: array_admin
+          - group: Ready Only,OU=Everpure
+            group_base: DC=example,DC=com
+            role: readonly
     system:
       alerts_and_notifications:
         alert_routing:
