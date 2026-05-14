@@ -1,8 +1,0 @@
-{
-  "files.associations": {
-    "*.ezai.yaml": "yaml"
-  },
-  "yaml.schemas": {
-    "schema/cisco-ai-pods.json": "**/*.ezai.yaml"
-  }
-}

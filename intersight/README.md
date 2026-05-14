@@ -29,6 +29,7 @@ This folder deploys Cisco UCS GPU Servers (C885A/C880A), Intersight organization
   - [Best Practices Phase Navigation](#best-practices-phase-navigation)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
+  - [Examples Overview](#examples-overview)
   - [Folder Structure](#folder-structure)
   - [Prerequisites](#prerequisites)
   - [Configuration Model](#configuration-model)
@@ -54,6 +55,18 @@ Deployment in this folder is Python-based and uses:
 - Model and schema: YAML models validated with `schema/cisco-ai-pods.json`
 
 This deployment reads model files, validates schema/sensitive variables, and then applies changes through Intersight APIs.
+
+[Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
+
+## Examples Overview
+
+The `examples/` folder contains reference model sets for different deployment patterns:
+
+- `examples/C885A/`: C885A/C880A oriented example models, including BMC pre-stage configuration.
+- `examples/standalone/`: standalone UCS deployment examples.
+- `examples/x-direct/`: X-Direct topology examples.
+
+Use these as starting points for your own site models and copy them into your target configuration directory before deployment.
 
 [Back to Table of Contents](#table-of-contents) | [Back to Main README](../README.md) | [Back to Best Practices README](../best_practices/README.md)
 

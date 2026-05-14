@@ -1,0 +1,18 @@
+---
+# =========================================================
+#   Policies -> Fibre Channel - Variables
+# =========================================================
+intersight:
+  configure:
+    default:
+      policies:
+        fibre_channel_adapter:
+          - adapter_template: Initiator
+            name: Initiator
+        fibre_channel_network:
+          - name: VSAN-A
+            vsan_id: 201
+          - name: VSAN-B
+            vsan_id: 202
+        fibre_channel_qos:
+          - name: FC-QoS

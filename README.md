@@ -4,14 +4,16 @@ This repository contains automation and runbooks for Cisco AI Pods infrastructur
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Primary Workstreams](#primary-workstreams)
-- [Repository Layout](#repository-layout)
-- [Runbook Documents](#runbook-documents)
-- [Environment Preparation](#environment-preparation)
-- [Quick Start Workflow](#quick-start-workflow)
-- [Common Commands](#common-commands)
-- [Troubleshooting and Operations](#troubleshooting-and-operations)
+- [Cisco AI Pods Repository Guide](#cisco-ai-pods-repository-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Primary Workstreams](#primary-workstreams)
+  - [Repository Layout](#repository-layout)
+  - [Runbook Documents](#runbook-documents)
+  - [Environment Preparation](#environment-preparation)
+  - [Quick Start Workflow](#quick-start-workflow)
+  - [Common Commands](#common-commands)
+  - [Troubleshooting and Operations](#troubleshooting-and-operations)
 
 ## Overview
 
@@ -85,7 +87,7 @@ Prepare tools and dependencies first:
 
 ```bash
 cd intersight
-python3 deploy_intersight_ucs.py -d QA/
+python3 deploy_intersight_ucs.py
 ```
 
 3. Run Everpure workflows as needed:
@@ -118,7 +120,7 @@ Run the Intersight deployment in check mode:
 
 ```bash
 cd intersight
-python3 deploy_intersight_ucs.py -d QA/ -c
+python3 deploy_intersight_ucs.py -c
 ```
 
 ## Troubleshooting and Operations

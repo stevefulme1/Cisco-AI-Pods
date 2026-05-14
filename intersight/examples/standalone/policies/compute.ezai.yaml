@@ -1,0 +1,38 @@
+---
+# =========================================================
+#   Policies -> Compute - Variables
+# =========================================================
+intersight:
+  configure:
+    default:
+      policies:
+        bios:
+          - baud_rate: '115200'
+            bios_template: GPUTraining-M8-Intel-Tpm
+            console_redirection: com-0
+            name: GPUTraining-M8-Intel-Tpm
+            serial_port_aenable: enabled
+            terminal_type: vt100
+        boot_order:
+          - boot_devices:
+              - device_name: '0'
+                device_type: local_disk
+                slot: MSTOR-RAID
+              - device_name: '1'
+                device_type: uefi_shell
+            boot_mode: Uefi
+            enable_secure_boot: false
+            name: M2-Boot
+        firmware:
+          - name: Recommended
+            model_bundle_version:
+              - firmware_version: 6.0(2.260040)
+                server_models:
+                  - UCSC-C240-M8
+            target_platform: Standalone
+        storage:
+          - name: ModelCache
+            storage_template: model_cache
+        virtual_kvm:
+          - allow_tunneled_vkvm: true
+            name: vKVM

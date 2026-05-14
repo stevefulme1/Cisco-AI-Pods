@@ -1,0 +1,22 @@
+---
+# ============================================
+#   Profiles -> Name Pfx Sfx - Variables
+# ============================================
+# If a specific prefix/suffix is undefined default will be used You only need to define the ones you want to have a specific prefix/suffix.
+# Below are examples of all that can be defined.  You can remove the ones you do not want to have a specific prefix/suffix.
+intersight:
+  configure:
+    common:
+      profiles:
+        name_prefix:
+          chassis: ''
+          default: ''
+          domain: ''
+          server: ''
+          unified_edge: ''
+        name_suffix:
+          chassis: ''
+          default: ''
+          domain: ''
+          server: ''
+          unified_edge: ''

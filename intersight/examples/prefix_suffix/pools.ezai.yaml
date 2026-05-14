@@ -1,0 +1,28 @@
+---
+# =========================================
+#   Pools -> Name Pfx Sfx - Variables
+# =========================================
+# If a specific prefix/suffix is undefined default will be used You only need to define the ones you want to have a specific prefix/suffix.
+# Below are examples of all that can be defined.  You can remove the ones you do not want to have a specific prefix/suffix.
+intersight:
+  configure:
+    common:
+      pools:
+        name_prefix:
+          default: ''
+          ip: ''
+          iqn: ''
+          mac: ''
+          resource: ''
+          uuid: ''
+          wwnn: ''
+          wwpn: ''
+        name_suffix:
+          default: ''
+          ip: ''
+          iqn: ''
+          mac: ''
+          resource: ''
+          uuid: ''
+          wwnn: ''
+          wwpn: ''

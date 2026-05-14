@@ -1,0 +1,29 @@
+---
+# =========================================================
+#   Policies -> Ethernet - Variables
+# =========================================================
+intersight:
+  configure:
+    default:
+      policies:
+        ethernet_adapter:
+          - adapter_template: Linux-NVMe-RoCE
+            name: Linux-NVMe-RoCE
+          - adapter_template: Linux-v2
+            name: Linux-v2
+        ethernet_network_control:
+          - cdp_enable: true
+            lldp_enable_receive: true
+            lldp_enable_transmit: true
+            name: Both
+        ethernet_network_group:
+          - allowed_vlans: '100'
+            name: MachineNetwork
+            native_vlan: 100
+          - allowed_vlans: '101'
+            name: Storage
+            native_vlan: 101
+        ethernet_qos:
+          - mtu: 9000
+            name: Platinum
+            priority: Platinum
