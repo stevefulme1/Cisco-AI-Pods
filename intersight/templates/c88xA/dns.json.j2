@@ -1,0 +1,15 @@
+{# /redfish/v1/Managers/bmc/EthernetInterfaces/eth0 #}
+{
+    "DHCPv4": {
+        "UseDNSServers": {% if item.dns_servers | default([]) | length > 0 %}true{% else %}false{% endif %},
+        "UseDomainName": {% if item.domain_name %}true{% else %}false{% endif %},
+        "UseNTPServers": {% if item.ntp_servers | default([]) | length > 0 %}true{% else %}false{% endif %}
+    },
+    "DomainName": "{{ item.domain_name }}",
+    "HostName": "{{ item.hostname }}",
+    "StaticNameServers": [
+{% for dns_server in item.dns_servers | default([]) %}
+        "{{ dns_server }}"{% if not loop.last %},{% endif %}
+{% endfor %}
+    ]
+}

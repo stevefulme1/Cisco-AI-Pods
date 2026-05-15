@@ -1,12 +1,20 @@
 # Centralized Python dependencies for Cisco-AI-Pods automation
 distro
+dotmap
+intersight-auth
+Jinja2
 jmespath
+json-ref-dict
 kubernetes
 netaddr
+numpy
 openshift
 purestorage>=1.19.0
-py-pure-client>=1.67.2
 pycountry
 pyOpenSSL
+py-pure-client>=1.67.2
 pytz
+PyYAML
+requests
 urllib3>=1.26.5
+validators

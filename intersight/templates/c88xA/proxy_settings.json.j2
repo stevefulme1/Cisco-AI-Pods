@@ -1,0 +1,19 @@
+{
+{% set _host = item.https_server | replace('https://', '') | replace('http://', '') %}
+{% set _port = item.https_server.split(':')[1] if ':' in item.https_server else 443 %}
+    "AuthenticationEnabled": {% if item.proxy_username | default('') != '' %}true{% else %}false{% endif %},
+    "HostProperties": {
+        "ProxyHost": "{{ _host }}",
+        "ProxyPort": {{ _port | int }}
+    },
+    "ProxyHost": "{{ _host }}",
+{% if item.proxy_username | default('') != '' %}
+    "ProxyPassword": "{{ sensitive_variables['proxy_password' + item.password] }}",
+    "ProxyUsername": "{{ item.proxy_username | default('') }}",
+{% else %}
+    "ProxyPassword": "",
+    "ProxyUsername": "{{ item.proxy_username | default('') }}",
+{% endif %}
+    "ProxyPort": {{ _port | int }},
+    "ProxyType": "Manual"
+}

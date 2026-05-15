@@ -1,0 +1,28 @@
+---
+# =========================================================
+#   Templates -> Server - Variables
+# =========================================================
+intersight:
+  configure:
+    default:
+      templates:
+        server:
+          - bios_policy: GPUTraining-M8-Intel-Tpm
+            boot_order_policy: M2-Boot
+            certificate_management_policy: LDAP-Certificates
+            create_template: true
+            firmware_policy: Recommended
+            ipmi_over_lan_policy: IPMIWithEncryption
+            local_user_policy: LocalUsers
+            ldap_policy: LDAP
+            name: AIOptimized
+            network_connectivity_policy: DNS
+            ntp_policy: NTP
+            power_policy: Server
+            serial_over_lan_policy: SoL
+            server_family: UCSC2XX/4XX
+            storage_policy: ModelCache
+            syslog_policy: Syslog
+            target_platform: Standalone
+            thermal_policy: Balanced
+            virtual_kvm_policy: vKVM

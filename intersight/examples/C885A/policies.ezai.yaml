@@ -1,0 +1,37 @@
+---
+# =========================================================
+#   Policies -> LAN Connectivity - Variables
+# =========================================================
+intersight:
+  configure:
+    default:
+      policies:
+        bios:
+          - bios_template: MLPerf-Inference-C885A-M8-AMD
+            name: MLPerf-Inference-C885A-M8-AMD
+            ipv4http: disabled
+            ipv4pxe: disabled
+            ipv6http: disabled
+            ipv6pxe: disabled
+        ntp:
+          - name: C885A
+            ntp_servers:
+              - 0.pool.ntp.org
+              - 1.pool.ntp.org
+            timezone: America/New_York
+        ipmi_over_lan:
+          - name: C885A
+            privilege: admin
+        local_user:
+          - name: C885A
+            users:
+              - password: 1
+                role: admin
+                username: root
+        ssh:
+          - name: C885A
+            ssh_port: 22
+        power:
+          - name: C885A
+            power_restore: LastState
+            target_platform: Standalone

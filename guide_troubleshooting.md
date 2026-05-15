@@ -10,13 +10,6 @@ This guide provides comprehensive troubleshooting procedures for Cisco AI Pods d
 - **Everpure Support:** 1-650-729-4088  
 - **Internal IT Escalation:** [Your internal escalation process]
 
-### Critical Commands Quick Reference
-```bash
-# Intersight/Terraform
-terraform state list
-terraform refresh
-terraform plan -detailed-exitcode
-
 # Everpure
 ansible all -i inventory -m ping
 purearray list --array
@@ -27,7 +20,7 @@ show vlan brief
 show port-channel summary
 ```
 
-## Terraform/Intersight Issues
+## Intersight Issues
 
 ### Authentication Problems
 
@@ -41,25 +34,22 @@ show port-channel summary
 **Diagnosis:**
 ```bash
 # Check environment variables are set
-echo $TF_VAR_intersight_api_key_id
-echo $TF_VAR_intersight_secret_key
-echo $TF_VAR_intersight_fqdn
+echo $intersight_api_key_id
+echo $intersight_secret_key
 
 # Verify API key format (should be UUID format)
 # Expected: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 # Verify secret key file exists and has correct permissions
-ls -la $TF_VAR_intersight_secret_key
+ls -la $intersight_secret_key
 # Should show: -rw------- (600 permissions)
 
 # Check secret key file format
-head -1 $TF_VAR_intersight_secret_key
+head -1 $intersight_secret_key
 # Should start with: -----BEGIN RSA PRIVATE KEY-----
 
 # Enable debug logging for detailed error information
-export TF_LOG=DEBUG
-terraform plan
-unset TF_LOG
+python3 deploy_intersight_ucs.py -dl 7
 ```
 
 **Resolution:**
@@ -84,13 +74,11 @@ unset TF_LOG
    ```bash
    # For SaaS Intersight
    curl -X GET "https://intersight.com/api/v1/organizations/Organizations" \
-     -H "Authorization: Bearer $TF_VAR_intersight_api_key_id"
+     -H "Authorization: Bearer $intersight_api_key_id"
    
    # For CVA/PVA
-   curl -k -X GET "https://$TF_VAR_intersight_fqdn/api/v1/organizations/Organizations"
+   curl -k -X GET "https://<intersight_fqdn>/api/v1/organizations/Organizations"
    ```
-export TF_LOG=DEBUG
-terraform plan
 ```
 
 **Resolution:**
@@ -114,8 +102,6 @@ telnet your-cva-fqdn 443
 # Check certificate
 openssl s_client -connect your-cva-fqdn:443
 
-# Verify FQDN setting
-echo $TF_VAR_intersight_fqdn
 ```
 
 **Resolution:**
@@ -128,7 +114,7 @@ echo $TF_VAR_intersight_fqdn
 
 #### Issue: Executing Phases Out of Sequence
 **Symptoms:**
-- Terraform/Ansible failures due to missing dependencies
+- Ansible failures due to missing dependencies
 - Network connectivity issues
 - Resource creation failures
 - Authentication problems due to missing infrastructure
@@ -180,88 +166,6 @@ ping intersight.com  # or your CVA/PVA FQDN
 # 1. Verify UCS hosts are discovered in Intersight
 # 2. Confirm server profiles are created
 # 3. Validate host connectivity before storage configuration
-```
-
-### Resource Creation Issues
-
-#### Issue: Resource Already Exists
-**Symptoms:**
-- "Resource already exists" errors
-- Terraform plan shows resources to create that already exist
-- State file inconsistencies
-
-**Diagnosis:**
-```bash
-# Check current state
-terraform state list
-
-# Compare with Intersight GUI
-# Look for naming conflicts
-```
-
-**Resolution:**
-```bash
-# Import existing resource
-terraform import module.pools["map"].intersight_pool_organization.pools["org/pool-name"] "moid"
-
-# Or remove from state and recreate
-terraform state rm module.pools["map"].intersight_pool_organization.pools["org/pool-name"]
-```
-
-#### Issue: Module Version Conflicts
-**Symptoms:**
-- Module version incompatibility errors
-- Provider version conflicts
-- API version mismatches
-
-**Diagnosis:**
-```bash
-# Check current versions
-terraform version
-terraform providers
-
-# Review module requirements
-cat main.tf | grep version
-```
-
-**Resolution:**
-```bash
-# Update modules
-terraform init -upgrade
-
-# Pin specific versions in main.tf
-source  = "terraform-cisco-modules/pools/intersight"
-version = "4.2.11-20250410042505151"
-```
-
-### State File Issues
-
-#### Issue: Corrupted State File
-**Symptoms:**
-- State file corruption errors
-- Inconsistent resource tracking
-- Unable to plan/apply
-
-**Diagnosis:**
-```bash
-# Validate state file
-terraform state list
-terraform state show resource-name
-
-# Check for state file backup
-ls -la terraform.tfstate*
-```
-
-**Resolution:**
-```bash
-# Restore from backup
-cp terraform.tfstate.backup terraform.tfstate
-
-# Refresh state from remote
-terraform refresh
-
-# Rebuild state if necessary
-terraform import [resources]
 ```
 
 ## Everpure Issues
@@ -565,10 +469,6 @@ show system resources
 # Check system health via API
 curl -X GET "https://intersight.com/api/v1/compute/PhysicalSummaries"
 
-# Monitor via Terraform outputs
-terraform output
-```
-
 #### Everpure Monitoring
 ```bash
 # Check array health
@@ -593,9 +493,9 @@ show hardware
 
 #### Collecting Logs
 ```bash
-# Terraform logs
-export TF_LOG=DEBUG
-terraform apply 2>&1 | tee terraform.log
+# Intersight Logs
+python3 deploy_intersight_ucs.py -dl 7
+in your Home Folder look under the Logs Directory
 
 # Ansible logs  
 ansible-playbook -vvv playbook.yml 2>&1 | tee ansible.log

@@ -1,0 +1,31 @@
+---
+# =========================================================
+#   Profiles -> Chassis - Variables
+# =========================================================
+intersight:
+  configure:
+    default:
+      profiles:
+        server:
+          - action: No-op
+            attach_template: true
+            server_family: UCSC2XX/4XX
+            target_platform: Standalone
+            targets:
+              - name: UCSAI-1
+                serial_number: FDO29100001
+              - name: UCSAI-2
+                serial_number: FDO29100002
+              - name: UCSAI-3
+                serial_number: FDO29100003
+              - name: UCSAI-4
+                serial_number: FDO29100004
+              - name: UCSAI-5
+                serial_number: FDO29100005
+              - name: UCSAI-6
+                serial_number: FDO29100006
+              - name: UCSAI-7
+                serial_number: FDO29100007
+              - name: UCSAI-8
+                serial_number: FDO29100008
+            ucs_server_profile_template: AIOptimized

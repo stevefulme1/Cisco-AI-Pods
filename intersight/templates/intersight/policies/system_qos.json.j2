@@ -1,0 +1,57 @@
+{
+  "Classes": [
+{% if item.classes | length > 0 %}
+{% for class in item.classes %}
+    {
+      "AdminState": "{{ class.state | default('Disabled') }}",
+      "Cos": {{ class.cos | default(255) | int }},
+      "Mtu": {{ class.mtu | default(1500) | int }},
+      "MulticastOptimize": {% if class.priority | default('Gold') == 'Silver' %}true{% else %}false{% endif %},
+      "Name": "{{ class.priority | default('Best Effort') }}",
+      "ObjectType": "fabric.QosClass",
+      "PacketDrop": {% if class.priority | default('Gold') == 'Fc' %}false{% else %}{{ class.packet_drop | default(true) | lower }}{% endif %},
+      "Weight": {{ class.weight | default(5) | int }}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "Description": "{{ item.description | default('') }}",
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "fabric.SystemQosPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "PfcWatchdog": {
+{% if item.target_platform | default('Unified Edge') == 'UCS Domain' %}
+    "IsWatchdogEnabled": {{ (item.priority_flow_control_watchdog_configuration | default({})).get('watchdog_enabled', true) | tojson }},
+    "ObjectType": "fabric.PfcWatchDog",
+    "ShutdownMultiplier": {{ (item.priority_flow_control_watchdog_configuration | default({})).get('shutdown_multiplier', 1) | int }},
+    "WatchdogInterval": {{ (item.priority_flow_control_watchdog_configuration | default({})).get('watchdog_interval', 500) | int }}
+{% else %}
+    "IsWatchdogEnabled": false,
+    "ObjectType": "fabric.PfcWatchDog",
+    "ShutdownMultiplier": 1,
+    "WatchdogInterval": 500
+  },
+{% endif %}
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TargetPlatform": "{{ item.target_platform | default('UCS Domain') }}"
+}

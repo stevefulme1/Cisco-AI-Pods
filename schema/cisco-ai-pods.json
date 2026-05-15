@@ -2222,7 +2222,7 @@
                         "$ref": "#/definitions/everpure.settings.security.directory_service.role_mappings"
                     },
                     "maxItems": 4,
-                    "minItems": 1,
+                    "minItems": 4,
                     "title": "Everpure > Settings > Security > Directory Service > Role Mappings",
                     "type": "array",
                     "uniqueItems": true
@@ -2375,7 +2375,7 @@
                 "group": {
                     "default": "",
                     "description": "The default value is ``.  In the Group field, enter the common name (CN) of the directory group. The name should be the Common Name of the group without the \"CN=\" specifier. If the configured groups are not in the same OU, also specify the OU. For example, \"pureusers,OU=PureStorage\", where pureusers is the common name of the directory service group.",
-                    "examples": [
+                    "example": [
                         "pureusers,OU=PureStorage"
                     ],
                     "maxLength": 300,
@@ -2412,8 +2412,8 @@
                 }
             },
             "required": [
+                "group",
                 "group_base",
-                "name",
                 "role"
             ],
             "title": "Everpure - Settings > Security > Directory Service > Role Mappings",
@@ -3708,7 +3708,7 @@
                     }
                 }
             ],
-            "description": "This dictionary defines the Intersight deployment settings.\n\nRequired Fields are:\n  * `organizations`\n\nOptional Fields are:\n  * `global_settings`",
+            "description": "This dictionary defines the Intersight deployment settings.\n\nOptional Fields are:\n  * `configure` - Configuration of Pools, Policies, Profiles, and Templates\n  * `script_settings` - Global Script Settings like `intersight_fqdn`\n  * `system` - System settings for Intersight",
             "required": [],
             "title": "Intersight deployment settings",
             "type": "object",
@@ -3907,7 +3907,7 @@
                     "type": "object"
                 }
             ],
-            "description": "Organization provides multi-tenancy within an account. Multiple organizations can be present under an account. Resources are associated to organization using resource groups. Organization can have heterogeneous resources. Resources can be shared among multiple organizations. Organizations are associated to user permissions and privileges can be specified to provide access control. User can have access to multiple organizations in same permission and with different privileges on each organization.\n\nOptional Attributes:\n  * `create_organization`\n  * `description`\n  * `organizations_to_share_with`\n  * `policies`\n  * `pools`\n  * `profiles`\n  * `resource_groups`\n  * `templates`",
+            "description": "Organization provides multi-tenancy within an account. Multiple organizations can be present under an account. Resources are associated to organization using resource groups. Organization can have heterogeneous resources. Resources can be shared among multiple organizations. Organizations are associated to user permissions and privileges can be specified to provide access control. User can have access to multiple organizations in same permission and with different privileges on each organization.\n\nOptional Attributes:\n  * `policies`\n  * `pools`\n  * `profiles`\n  * `templates`",
             "intersight_type": "organization",
             "intersight_uri": "organization/Organizations",
             "object_type": "organization.Organization",
@@ -19568,13 +19568,6 @@
                 }
             },
             "required": [
-                "always_send_user_password",
-                "enable_password_expiry",
-                "enforce_strong_password",
-                "grace_period",
-                "notification_period",
-                "password_expiry_duration",
-                "password_history"
             ],
             "title": "password_properties - Local User Policy Password Settings.\nintersight_api: iam/EndPointPasswordProperties",
             "type": "object"
@@ -20172,7 +20165,7 @@
         },
         "intersight.policies.name_prefix": {
             "additionalProperties": false,
-            "description": "A list of prefixes/suffixes to add to the Policy Names.  If `default` is defined that will be assigned to any policies that don't have a more specific prefix/suffix defined.\n Options are:\n* `adapter_configuration`\n  * `auditd`\n  * `bios`\n  * `boot_order`\n  * `certificate_management`\n  * `default`\n  * `device_connector`\n  * `drive_security`\n  * `ethernet_adapter`\n  * `ethernet_network`\n  * `ethernet_network_control`\n  * `ethernet_network_group`\n  * `ethernet_qos`\n  * `fc_zone`\n  * `fibre_channel_adapter`\n  * `fibre_channel_network`\n  * `fibre_channel_qos`\n  * `firmware`\n  * `firmware_authenticate`\n  * `flow_control`\n  * `id_mapping`\n  * `imc_access`\n  * `ipmi_over_lan`\n  * `iscsi_adapter`\n  * `iscsi_boot`\n  * `iscsi_static_target`\n  * `lan_connectivity`\n  * `ldap`\n  * `link_aggregation`\n  * `link_control`\n  * `local_user`\n  * `mac_sec`\n  * `memory`\n  * `multicast`\n  * `netflow_configuration`\n  * `network_connectivity`\n  * `ntp`\n  * `persistent_memory`\n  * `port`\n  * `power`\n  * `san_connectivity`\n  * `scrub`\n  * `sd_card`\n  * `serial_over_lan`\n  * `server_pool_qualification`\n  * `smtp`\n  * `snmp`\n  * `ssh`\n  * `storage`\n  * `switch_control`\n  * `syslog`\n  * `system_qos`\n  * `thermal`\n  * `vhba_template`\n  * `virtual_kvm`\n  * `virtual_media`\n  * `vlan`\n  * `vnic_template`\n  * `vsan`",
+            "description": "A list of prefixes/suffixes to add to the Policy Names.  If `default` is defined that will be assigned to any policies that don't have a more specific prefix/suffix defined.\n Options are:\n* `adapter_configuration`\n  * `auditd`\n  * `bios`\n  * `boot_order`\n  * `certificate_management`\n  * `default`\n  * `device_connector`\n  * `drive_security`\n  * `ethernet_adapter`\n  * `ethernet_network`\n  * `ethernet_network_control`\n  * `ethernet_network_group`\n  * `ethernet_qos`\n  * `fc_zone`\n  * `fibre_channel_adapter`\n  * `fibre_channel_network`\n  * `fibre_channel_qos`\n  * `firmware`\n  * `firmware_authenticate`\n  * `flow_control`\n  * `id_mapping`\n  * `imc_access`\n  * `ipmi_over_lan`\n  * `iscsi_adapter`\n  * `iscsi_boot`\n  * `iscsi_static_target`\n  * `lan_connectivity`\n  * `ldap`\n  * `link_aggregation`\n  * `link_control`\n  * `local_user`\n  * `mac_sec`\n  * `memory`\n  * `multicast`\n  * `netflow_configuration`\n  * `network_connectivity`\n  * `ntp`\n  * `persistent_memory`\n  * `port`\n  * `power`\n  * `san_connectivity`\n  * `scrub`\n  * `sd_card`\n  * `serial_over_lan`\n  * `server_pool_qualification`\n  * `smtp`\n  * `snmp`\n  * `ssh`\n  * `storage`\n  * `switch_control`\n  * `syslog`\n  * `system_qos`\n  * `thermal`\n  * `virtual_kvm`\n  * `virtual_media`\n  * `vlan`\n  * `vsan`",
             "properties": {
                 "adapter_configuration": {
                     "default": "",
@@ -20876,19 +20869,6 @@
                     "title": "thermal",
                     "type": "string"
                 },
-                "vhba_template": {
-                    "default": "",
-                    "description": "The default value is ``.  A value to add to the vHBA Template name.",
-                    "examples": [
-                        ""
-                    ],
-                    "intersight_api": "not_applicable",
-                    "maxLength": 12,
-                    "minLength": 0,
-                    "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
-                    "title": "virtual_kvm",
-                    "type": "string"
-                },
                 "virtual_kvm": {
                     "default": "",
                     "description": "The default value is ``.  A value to add to the Virtual KVM Policy names.",
@@ -20926,19 +20906,6 @@
                     "minLength": 0,
                     "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
                     "title": "vlan",
-                    "type": "string"
-                },
-                "vnic_template": {
-                    "default": "",
-                    "description": "The default value is ``.  A value to add to the vNIC Template name.",
-                    "examples": [
-                        ""
-                    ],
-                    "intersight_api": "not_applicable",
-                    "maxLength": 12,
-                    "minLength": 0,
-                    "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
-                    "title": "virtual_kvm",
                     "type": "string"
                 },
                 "vsan": {
@@ -20960,7 +20927,7 @@
         },
         "intersight.policies.name_suffix": {
             "additionalProperties": false,
-            "description": "A list of prefixes/suffixes to add to the Policy Names.  If `default` is defined that will be assigned to any policies that don't have a more specific prefix/suffix defined.\n Options are:\n* `adapter_configuration`\n  * `auditd`\n  * `bios`\n  * `boot_order`\n  * `certificate_management`\n  * `default`\n  * `device_connector`\n  * `drive_security`\n  * `ethernet_adapter`\n  * `ethernet_network`\n  * `ethernet_network_control`\n  * `ethernet_network_group`\n  * `ethernet_qos`\n  * `fc_zone`\n  * `fibre_channel_adapter`\n  * `fibre_channel_network`\n  * `fibre_channel_qos`\n  * `firmware`\n  * `firmware_authenticate`\n  * `flow_control`\n  * `id_mapping`\n  * `imc_access`\n  * `ipmi_over_lan`\n  * `iscsi_adapter`\n  * `iscsi_boot`\n  * `iscsi_static_target`\n  * `lan_connectivity`\n  * `ldap`\n  * `link_aggregation`\n  * `link_control`\n  * `local_user`\n  * `mac_sec`\n  * `memory`\n  * `multicast`\n  * `netflow_configuration`\n  * `network_connectivity`\n  * `ntp`\n  * `persistent_memory`\n  * `port`\n  * `power`\n  * `san_connectivity`\n  * `scrub`\n  * `sd_card`\n  * `serial_over_lan`\n  * `server_pool_qualification`\n  * `smtp`\n  * `snmp`\n  * `ssh`\n  * `storage`\n  * `switch_control`\n  * `syslog`\n  * `system_qos`\n  * `thermal`\n  * `vhba_template`\n  * `virtual_kvm`\n  * `virtual_media`\n  * `vlan`\n  * `vnic_template`\n  * `vsan`",
+            "description": "A list of prefixes/suffixes to add to the Policy Names.  If `default` is defined that will be assigned to any policies that don't have a more specific prefix/suffix defined.\n Options are:\n* `adapter_configuration`\n  * `auditd`\n  * `bios`\n  * `boot_order`\n  * `certificate_management`\n  * `default`\n  * `device_connector`\n  * `drive_security`\n  * `ethernet_adapter`\n  * `ethernet_network`\n  * `ethernet_network_control`\n  * `ethernet_network_group`\n  * `ethernet_qos`\n  * `fc_zone`\n  * `fibre_channel_adapter`\n  * `fibre_channel_network`\n  * `fibre_channel_qos`\n  * `firmware`\n  * `firmware_authenticate`\n  * `flow_control`\n  * `id_mapping`\n  * `imc_access`\n  * `ipmi_over_lan`\n  * `iscsi_adapter`\n  * `iscsi_boot`\n  * `iscsi_static_target`\n  * `lan_connectivity`\n  * `ldap`\n  * `link_aggregation`\n  * `link_control`\n  * `local_user`\n  * `mac_sec`\n  * `memory`\n  * `multicast`\n  * `netflow_configuration`\n  * `network_connectivity`\n  * `ntp`\n  * `persistent_memory`\n  * `port`\n  * `power`\n  * `san_connectivity`\n  * `scrub`\n  * `sd_card`\n  * `serial_over_lan`\n  * `server_pool_qualification`\n  * `smtp`\n  * `snmp`\n  * `ssh`\n  * `storage`\n  * `switch_control`\n  * `syslog`\n  * `system_qos`\n  * `thermal`\n  * `virtual_kvm`\n  * `virtual_media`\n  * `vlan`\n  * `vsan`",
             "properties": {
                 "adapter_configuration": {
                     "default": "",
@@ -21664,19 +21631,6 @@
                     "title": "thermal",
                     "type": "string"
                 },
-                "vhba_template": {
-                    "default": "",
-                    "description": "The default value is ``.  A value to add to the vHBA Template name.",
-                    "examples": [
-                        ""
-                    ],
-                    "intersight_api": "not_applicable",
-                    "maxLength": 12,
-                    "minLength": 0,
-                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
-                    "title": "virtual_kvm",
-                    "type": "string"
-                },
                 "virtual_kvm": {
                     "default": "",
                     "description": "The default value is ``.  A value to add to the Virtual KVM Policy names.",
@@ -21714,19 +21668,6 @@
                     "minLength": 0,
                     "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
                     "title": "vlan",
-                    "type": "string"
-                },
-                "vnic_template": {
-                    "default": "",
-                    "description": "The default value is ``.  A value to add to the vNIC Template name.",
-                    "examples": [
-                        ""
-                    ],
-                    "intersight_api": "not_applicable",
-                    "maxLength": 12,
-                    "minLength": 0,
-                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
-                    "title": "virtual_kvm",
                     "type": "string"
                 },
                 "vsan": {
@@ -32044,7 +31985,8 @@
                         }
                     },
                     "required": [
-                        "action"
+                        "action",
+                        "attach_template"
                     ],
                     "title": "domain",
                     "type": "object"
@@ -32952,6 +32894,15 @@
                         "pre_assign": {
                             "$ref": "#/definitions/intersight.profiles.server.targets.pre_assign"
                         },
+                        "password": {
+                            "default": 1,
+                            "description": "The default value is `1`.  The Local User Authentication Password Sensitive Variable Identifier used to login to a CC85A Server for policy deployment.  A number Between 1-64 to denote the variables local_user_password_[1-64].  i.e. `export local_user_password_1='cisco123'`.",
+                            "intersight_api": "Password",
+                            "maximum": 64,
+                            "minimum": 1,
+                            "title": "password",
+                            "type": "integer"
+                        },
                         "reservations": {
                             "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\n\nRequired Attributes:\n  * `identity`\n  * `identity_type`\n  * `interface - vHBA/vNIC Name - Required for MAC, iSCSI (IP) and WWPN Assignments.\n  * `ip_usage - For IP Reservations`\n  * `management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * `pool_name`",
                             "items": {
@@ -32965,6 +32916,17 @@
                         },
                         "serial_number": {
                             "$ref": "#/definitions/intersight.abstract.serial/properties/serial_number"
+                        },
+                        "server_address": {
+                            "default": "",
+                            "description": "The default value is ``.  IP or Hostname for a C885A Server.",
+                            "examples": [
+                                "hgxnode01.example.com"
+                            ],
+                            "intersight_api": "ServerAddress",
+                            "$ref": "#/definitions/abstract.hostname_ip_or_ipv6",
+                            "title": "server_address",
+                            "type": "string"
                         },
                         "static_uuid_address": {
                             "default": "",
@@ -32990,6 +32952,19 @@
                             "minLength": 0,
                             "pattern": "^$|^[ !#$%&\\(\\)\\*\\+,\\-\\./:;\\?@\\[\\]_\\{\\|\\}~a-zA-Z0-9]+$",
                             "title": "user_label",
+                            "type": "string"
+                        },
+                        "username": {
+                            "default": "root",
+                            "description": "The default value is `root`.  Username used to Login to a UCS C885A for server configuration. It can be any string that adheres to the following constraints. It can have alphanumeric characters, dots, underscores and hyphen. It cannot be more than 16 characters.",
+                            "examples": [
+                                "root"
+                            ],
+                            "intersight_api": "Username",
+                            "maxLength": 16,
+                            "minLength": 1,
+                            "pattern": "^[a-zA-Z0-9\\._\\-]+$",
+                            "title": "username",
                             "type": "string"
                         }
                     },
@@ -34311,10 +34286,10 @@
                     "uniqueItems": true
                 },
                 "name_prefix": {
-                    "$ref": "#/definitions/intersight.profiles.name.prefix_suffix"
+                    "$ref": "#/definitions/intersight.templates.name.prefix_suffix"
                 },
                 "name_suffix": {
-                    "$ref": "#/definitions/intersight.profiles.name.prefix_suffix"
+                    "$ref": "#/definitions/intersight.templates.name.prefix_suffix"
                 },
                 "server": {
                     "description": "In Cisco Intersight, a Server Profile Template enables resource management by streamlining policy alignment, and server configuration. You can create Server Profile Templates using the UCS Server Profile Template wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profile Templates wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:\n  * Compute Policies \u2014 BIOS, Boot Order, Firmware, Power, Thermal, UUID Pool, and Virtual Media.\n  * Management Policies \u2014 Certificate Management, Device Connector, IMC Access, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, and Virtual KVM policies\n  * Network Policies \u2014 Adapter Configuration, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create an Ethernet Adapter Policy, Ethernet Network Policy (Standalone only), and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create an Fibre Channel Adapter Policy, Fibre Channel Network Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * Storage Policies \u2014 Drive Security, SD Card, and Storage policies.\n\nRequired Attributes:\n  * `create_template`\n  * `name`\n  * `server_family` - Set to All unless Standalone\n  * `target_platform`\n\nOptional Attributes:\n  * `description`\n  * `tags`\n\n\n#===========================================================\n# FIAttached and Unified Edge Server - Pools/Policies\n#===========================================================\n\n#===========================================\n# Compute Configuration\n#===========================================\n  * `bios_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `memory_policy`\n  * `pcie_connectivity_policy` - FIAttached\n  * `power_policy`\n  * `scrub_policy\n  * `thermal_policy` - FIAttached\n  * `uuid_pool`\n  * `virtual_media_policy`\n\n#===========================================\n# Management Configuration\n#===========================================\n  * `certificate_management_policy`\n  * `imc_access_policy`\n  * `ipmi_over_lan_policy`\n  * `local_user_policy`\n  * `serial_over_lan_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#===========================================\n# Storage Configuration\n#===========================================\n  * `drive_security_policy` - FIAttached\n  * `sd_card_policy` - FIAttached\n  * `storage_policy`\n\n#===========================================\n# Network Configuration\n#===========================================\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy` - FIAttached\n\n\n#===========================================================\n# Standalone - Policies -  C845A and UCSC2XX/4XX\n#===========================================================\n\n#===========================================\n# Compute Configuration\n#===========================================\n  * `bios_policy`\n  * `boot_order_policy`  - UCSC2XX/4XX Only\n  * `firmware_policy`\n  * `memory_policy` - UCSC2XX/4XX Only\n  * `persistent_memory_policy` - UCSC2XX/4XX Only\n  * `power_policy`\n  * `thermal_policy` - UCSC2XX/4XX Only\n  * `virtual_media_policy`\n\n#===========================================\n# Management Configuration\n#===========================================\n  * `certificate_management_policy`\n  * `device_connector_policy` - UCSC2XX/4XX Only\n  * `ipmi_over_lan_policy`\n  * `ldap_policy` - UCSC2XX/4XX Only\n  * `local_user_policy`\n  * `network_connectivity_policy` - UCSC2XX/4XX Only\n  * `ntp_policy`\n  * `serial_over_lan_policy`\n  * `smtp_policy`\n  * `snmp_policy` - UCSC2XX/4XX Only\n  * `ssh_policy`\n  * `syslog_policy` - UCSC2XX/4XX Only\n  * `virtual_kvm_policy`\n\n#===========================================\n# Storage Configuration - UCSC2XX/4XX Only\n#===========================================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n\n#===========================================\n# Network Configuration - UCSC2XX/4XX Only\n#===========================================\n  * `adapter_configuration_policy`\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`",
@@ -34700,6 +34675,106 @@
             "title": "domain - Switch Profile Template - Intersight Uri: fabric/SwitchProfileTemplates",
             "type": "object",
             "unevaluatedProperties": false
+        },
+        "intersight.templates.name.prefix_suffix": {
+            "additionalProperties": false,
+            "description": "A list of prefixes/suffixes to add to the Profile/Template Names.  If `default` is defined that will be assigned to any profiles/templates that don't have a more specific prefix/suffix defined.\n Options are:\n\n  * `chassis`\n  * `default`\n  * `domain`\n  * `server`\n  * `vhba_template`\n  * `vnic_template`",
+            "object_type": "not_applicable",
+            "properties": {
+                "chassis": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Chassis Profile/Template names.",
+                    "examples": [
+                        ""
+                    ],
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "chassis",
+                    "type": "string"
+                },
+                "default": {
+                    "default": "",
+                    "description": "The default value is ``.  A default prefix/suffix value to add to the all the profile/template names.  An individual profile/template prefix/suffix will override this.",
+                    "examples": [
+                        ""
+                    ],
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "default",
+                    "type": "string"
+                },
+                "domain": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Domain Profile/Template names.",
+                    "examples": [
+                        ""
+                    ],
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "domain",
+                    "type": "string"
+                },
+                "server": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Server Profile/Template Names.",
+                    "examples": [
+                        ""
+                    ],
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "server",
+                    "type": "string"
+                },
+                "unified_edge": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Unified Edge Profile/Template names.",
+                    "examples": [
+                        ""
+                    ],
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "unified_edge",
+                    "type": "string"
+                },
+                "vhba_template": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the vHBA Template name.",
+                    "examples": [
+                        ""
+                    ],
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "vhba_template",
+                    "type": "string"
+                },
+                "vnic_template": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the vNIC Template name.",
+                    "examples": [
+                        ""
+                    ],
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "vnic_template",
+                    "type": "string"
+                }
+            },
+            "title": "Profile Name Prefix/Suffix",
+            "type": "object"
         },
         "intersight.templates.server": {
             "allOf": [

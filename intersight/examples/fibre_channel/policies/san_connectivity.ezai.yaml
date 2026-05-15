@@ -1,0 +1,29 @@
+---
+# =========================================================
+#   Policies -> SAN Connectivity - Variables
+# =========================================================
+intersight:
+  configure:
+    common:
+      policies:
+        san_connectivity:
+          - name: SCP
+            target_platform: FIAttached
+            vhbas:
+              - fibre_channel_adapter_policy: Initiator
+                fibre_channel_network_policies:
+                  - VSAN-A
+                  - VSAN-B
+                fibre_channel_qos_policy: fc-qos
+                names:
+                  - vhba-a
+                  - vhba-b
+                placement:
+                  pci_order:
+                    - 0
+                    - 1
+                vhba_type: fc-initiator
+                wwpn_pools:
+                  - WWPN-A
+                  - WWPN-B
+            wwnn_pool: WWNN

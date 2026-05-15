@@ -1,0 +1,42 @@
+---
+# yaml-language-server: $schema=/home/tyscott@rich.ciscolabs.com/scotttyso/Cisco-AI-Pods/schema/cisco-ai-pods.json --- IGNORE ---
+# =========================================================
+#   Policies -> LAN Connectivity - Variables
+# =========================================================
+intersight:
+  configure:
+    default:
+      policies:
+        lan_connectivity:
+          # Balance interfaces across both switches with failover enabled on each interface.  This is the recommended configuration for LAN connectivity.
+          - name: RoCEv2Optimized
+            target_platform: FIAttached
+            vnics:
+              - enable_failover: true
+                ethernet_adapter_policy: Linux-v2
+                ethernet_network_control_policy: Both
+                ethernet_network_group_policies:
+                  - MachineNetwork
+                ethernet_qos_policy: Platinum
+                mac_address_pools:
+                  - Single
+                names:
+                  - eno5
+                placement:
+                  pci_order:
+                    - 0
+              - enable_failover: true
+                ethernet_adapter_policy: Linux-NVMe-RoCE
+                ethernet_network_control_policy: Both
+                ethernet_network_group_policies:
+                  - Storage
+                ethernet_qos_policy: Platinum
+                mac_address_pools:
+                  - Single
+                names:
+                  - eno6
+                placement:
+                  pci_order:
+                    - 1
+                  switch_ids:
+                    - B

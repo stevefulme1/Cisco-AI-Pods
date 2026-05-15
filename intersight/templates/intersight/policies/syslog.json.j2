@@ -1,0 +1,50 @@
+{
+  "Description": {{ (item.description | default('', true)) | tojson }},
+  "LocalClients": [
+    {
+      "MinSeverity": {{ ((item.local_logging | default({})).get('minimum_severity', 'warning')) | tojson }},
+      "ObjectType": "syslog.LocalFileLoggingClient"
+    }
+  ],
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
+  "ObjectType": "syslog.Policy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "RemoteClients": [
+{% if item.remote_logging is defined and item.remote_logging | length > 0 %}
+{% for remote in item.remote_logging %}
+    {
+      "Enabled": {{ remote.enabled | default(true) | tojson }},
+      "Facility": "",
+      "Hostname": {{ remote.hostname | tojson }},
+      "MinSeverity": {{ remote.minimum_severity | default('warning') | tojson }},
+      "ObjectType": "syslog.RemoteLoggingClient",
+      "Port": {{ remote.port | default(514) }},
+      "Protocol": {{ remote.protocol | default('udp') | tojson }},
+      "Protocol": "udp",
+      "VrfName": ""
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}
