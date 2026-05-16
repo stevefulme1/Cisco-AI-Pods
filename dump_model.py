@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Dump Intersight model structure to JSON for inspection.
 """
 import json
-import os
 import sys
 from pathlib import Path
 import yaml
