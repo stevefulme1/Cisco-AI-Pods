@@ -5,6 +5,8 @@
 # Source Modules
 # =============================================================================
 import sys
+
+
 def prRed(skk):
     print("\033[91m {}\033[00m" .format(skk))
 
@@ -852,7 +854,7 @@ class api(object):
                 kwargs.rsg_moids[e] = DotMap(kwargs.pmoids[e])
             for rsg in kwargs.resource_groups:
                 if rsg not in list(kwargs.rsg_moids.keys()):
-                    kwargs = create_resource_group(rsg, org, kwargs)
+                    kwargs = create_resource_group(rsg, kwargs.get('org', rsg), kwargs)
         else:
             # =====================================================================
             # Get Resource Groups from the API
