@@ -46,6 +46,7 @@ def process(fname: str) -> None:
     d: Dict = read_file(fname)
     traverse("root", d)
 
+
 ##############################################################################
 
 if __name__ == "__main__":

@@ -499,7 +499,6 @@ def cleanup_existing_nmstate_templates(output_dir: Path) -> None:
         file_path.unlink(missing_ok=True)
 
 
-
 def validate_ssh_public_key_value(value: str, context: str) -> None:
     """Validate that a value looks like an SSH public key."""
     parts = value.strip().split()
