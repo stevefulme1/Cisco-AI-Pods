@@ -470,7 +470,7 @@ class api(object):
                         kwargs.pmoids[kwargs.api_body['Name']] = kwargs.pmoid
             elif 'inventory' in kwargs.uri:
                 pass
-            elif kwargs.build_skip == False:
+            elif kwargs.build_skip is False:
                 kwargs = self.build_intersight_api_dict(api_results, kwargs)
             # =================================================================
             # Print Progress Notifications

@@ -231,7 +231,7 @@ def intersight_config(kwargs):
                 'https://', '')).split('/')[0]
 
     valid = False
-    while valid == False:
+    while valid is False:
         varValue = kwargs.args.intersight_fqdn
         valid = False
         if varValue is not None:
@@ -405,12 +405,12 @@ def variable_from_list(kwargs):
     # =========================================================================
     # Sort the Variables
     # =========================================================================
-    if kwargs.jdata.get('sort') == False:
+    if kwargs.jdata.get('sort') is False:
         vars = kwargs.jdata.enum
     else:
         vars = sorted(kwargs.jdata.enum, key=str.casefold)
     valid = False
-    while valid == False:
+    while valid is False:
         pcolor.LightPurple(f'\n{"-" * 108}\n')
         if '\n' in description:
             description = description.split('\n')
@@ -458,13 +458,13 @@ def variable_from_list(kwargs):
                 var_selection = input(
                     f'\nPlease Enter the Option Number to select for {title}: ')
         if kwargs.jdata.get(
-                'optional') and var_selection == '' and kwargs.jdata.multi_select == False:
+                'optional') and var_selection == '' and kwargs.jdata.multi_select is False:
             return '', True
         elif kwargs.jdata.get('optional') and var_selection == '' and kwargs.jdata.multi_select:
             return [], True
         elif not default == '' and var_selection == '':
             var_selection = default_index
-        if kwargs.jdata.multi_select == False and re.search(
+        if kwargs.jdata.multi_select is False and re.search(
                 r'^[0-9]+$', str(var_selection)):
             for index, value in enumerate(vars):
                 index += 1
@@ -546,7 +546,7 @@ def variable_prompt(kwargs):
     # Prompt User for Answer
     # =========================================================================
     valid = False
-    while valid == False:
+    while valid is False:
         if kwargs.jdata.get('enum'):
             answer, valid = variable_from_list(kwargs)
         elif kwargs.jdata.type == 'boolean':

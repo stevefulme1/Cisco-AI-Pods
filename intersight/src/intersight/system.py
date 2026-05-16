@@ -73,7 +73,7 @@ class system(object):
             kwargs = kwargs | DotMap(
                 names=names, org='default', method='get', uri=uri)
         kwargs = api(category=self.category, type=self.type).calls(kwargs)
-        if empty == False and kwargs.results == []:
+        if empty is False and kwargs.results == []:
             empty_results(names, kwargs)
         elif empty and kwargs.results == []:
             pcolor.Yellow(f"  * API Query Results were empty for {kwargs.uri}")
@@ -186,7 +186,11 @@ class system(object):
                 if v.result.SharedResource.Moid == api_body['SharedResource'][
                         'Moid'] and v.result.SharedWithResource.Moid == api_body['SharedWithResource']['Moid']:
                     pcolor.Cyan(
-                        f"     * Skipping System -> IAM Sharing Rule: Moid - `{k}`.  Intersight Matches Configuration. Shared Resource: `{shared_org}` -> Shared With: `{org}`")
+                        (
+                            f"     * Skipping System -> IAM Sharing Rule: Moid - `{k}`."
+                            f"  Intersight Matches Configuration."
+                            f" Shared Resource: `{shared_org}` -> Shared With: `{org}`"
+                        ))
                     check_count = True
                     break
             if not check_count:
@@ -194,7 +198,9 @@ class system(object):
                     shared_org = kwargs.org_names[api_body['SharedResource']['Moid']]
                     org = kwargs.org_names[api_body['SharedWithResource']['Moid']]
                     pcolor.Cyan(
-                        f"     * Running Check Mode: Non-Check mode would create new System -> IAM Sharing Rule: Shared Resource: `{shared_org}` -> Shared With: `{org}`.")
+                        f"     * Running Check Mode: Non-Check mode would create new System"
+                        f" -> IAM Sharing Rule: Shared Resource: `{shared_org}`"
+                        f" -> Shared With: `{org}`.")
                 else:
                     kwargs.bulk_list.append(deepcopy(api_body))
             return kwargs

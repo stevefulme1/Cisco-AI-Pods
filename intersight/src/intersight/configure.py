@@ -1898,11 +1898,10 @@ class configure(object):
                             x = int(x)
                         if x in reserved_list:
                             pcolor.Yellow(
-                                f'!!! WARNING !!! VLAN ID {x} is a reserved VLAN and cannot be used.' f'  Skipping assignment of VLAN ID {x} under VLAN Policy `{
-                                    np +
-                                    e.name +
-                                    ns}` in Org `{
-                                    kwargs.org}`.')
+                                f'!!! WARNING !!! VLAN ID {x} is a reserved VLAN'
+                                f' and cannot be used. Skipping assignment of'
+                                f' VLAN ID {x} under VLAN Policy'
+                                f' `{np + e.name + ns}` in Org `{kwargs.org}`.')
                             continue
                         if len(vlans) > 1 and name_prefix:
                             item.name = deepcopy(f"{original_name}{x}")

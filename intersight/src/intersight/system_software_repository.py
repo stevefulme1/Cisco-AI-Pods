@@ -385,7 +385,7 @@ class system_software_repository(object):
                 kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_install = DotMap(
                     moid=kwargs.pmoid, workflow='')
         names = [e.os_install.moid for e in kwargs.imm_dict.orgs[kwargs.org]
-                 .wizard.server_profiles if v.os_installed == False and len(e.os_install.moid) > 0]
+                 .wizard.server_profiles if v.os_installed is False and len(e.os_install.moid) > 0]
         if install_flag:
             pcolor.Cyan(
                 f'\n{
@@ -409,7 +409,7 @@ class system_software_repository(object):
             if indx is not None:
                 v.os_install.workflow = install_results[indx].WorkflowInfo.Moid
                 install_complete = False
-                while install_complete == False:
+                while install_complete is False:
                     kwargs = kwargs | DotMap(
                         method='get_by_moid',
                         pmoid=v.os_install.workflow,
@@ -459,7 +459,7 @@ class system_software_repository(object):
                         tag_server_profile=v.name)
                     kwargs.uri = f'{v.object_type}s'.replace('.', '/')
                     kwargs = api('update_tags').calls(kwargs)
-            elif v.os_installed == False:
+            elif v.os_installed is False:
                 os_install_fail_count += 1
                 pcolor.Red(
                     f'      * Something went wrong with the OS Install Request for {
