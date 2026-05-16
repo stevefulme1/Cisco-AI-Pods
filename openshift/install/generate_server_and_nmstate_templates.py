@@ -318,11 +318,11 @@ def get_first_interface_ip(server: Dict[str, Any]) -> Optional[str]:
     if template_type == "ethernet":
         interfaces = server.get("interfaces", {}).get("ethernet", [])
         if interfaces:
-            return str(interfaces[0].get("ipv4", "")).split("/")[0] or None
+            return str(interfaces[0].get("ipv4", "")).split("/", maxsplit=1)[0] or None
     if template_type == "bond":
         bonds = server.get("interfaces", {}).get("bond", [])
         if bonds:
-            return str(bonds[0].get("ipv4", "")).split("/")[0] or None
+            return str(bonds[0].get("ipv4", "")).split("/", maxsplit=1)[0] or None
     return None
 
 

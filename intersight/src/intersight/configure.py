@@ -3029,8 +3029,8 @@ class configure(object):
             template_cfg = configure(category='templates', type=ttype)
             for org in orgs:
                 if ttype == 'domain.switch':
-                    names = [f'{e}-{l}' for e in kwargs.templates[org].keys()
-                             for l in ['A', 'B'] if len(e.toDict()) == 0]
+                    names = [f'{e}-{side}' for e in kwargs.templates[org].keys()
+                             for side in ['A', 'B'] if len(e.toDict()) == 0]
                 else:
                     names = [
                         e for e in kwargs.templates[org].keys() if len(

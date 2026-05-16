@@ -43,6 +43,10 @@ build_ignore:
   - model_structure.json
   - netapp
   - requirements.txt
+  - CONTRIBUTING.md
+  - SECURITY.md
+  - NOTICE.txt
+  - CHANGELOG.md
 dependencies:
   kubernetes.core: '>=6.3.0'
   purestorage.flasharray: '>=1.42.0'

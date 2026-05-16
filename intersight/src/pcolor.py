@@ -112,31 +112,37 @@ def Black(ptext):
     cchar = '98m'
     print_process(cchar, ptext)
 
+
 def Cyan(ptext):
     cchar = '96m'
     print_process(cchar, ptext)
+
 
 def Green(ptext):
     cchar = '92m'
     print_process(cchar, ptext)
 
+
 def Red(ptext):
     cchar = '91m'
     print_process(cchar, ptext)
+
 
 def LightGray(ptext):
     cchar = '97m'
     print_process(cchar, ptext)
 
+
 def LightPurple(ptext):
     cchar = '94m'
     print_process(cchar, ptext)
+
 
 def Purple(ptext):
     cchar = '95m'
     print_process(cchar, ptext)
 
+
 def Yellow(ptext):
     cchar = '93m'
     print_process(cchar, ptext)
-
