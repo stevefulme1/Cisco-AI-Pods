@@ -175,8 +175,7 @@ def _resolve_sensitive_identifier(
         return
     if not isinstance(var_id, int) or var_id <= 0:
         raise ValueError(
-            f"{context} must be a positive integer sensitive variable identifier."
-        )
+            f"{context} must be a positive integer sensitive variable identifier.")
 
     env_var_name = f"{env_prefix}_{var_id}"
     env_value = os.environ.get(env_var_name)

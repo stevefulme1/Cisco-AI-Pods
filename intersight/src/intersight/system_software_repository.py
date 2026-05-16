@@ -121,12 +121,12 @@ class system_software_repository(object):
             api_body=api_body,
             method='post',
             uri='os/ConfigurationFiles')
-        if existing == True:
+        if existing:
             kwargs.method = 'patch'
         kwargs = api('os_configuration').calls(kwargs)
         kwargs.os_cfg_moids[template_name] = DotMap(moid=kwargs.pmoid)
         kwargs.os_cfg_moid = kwargs.os_cfg_moids[template_name].moid
-        if existing == False:
+        if not existing:
             kwargs.os_cfg_results.append(kwargs.results)
             kwargs.os_cfg_moids = kwargs.os_cfg_moids | kwargs.pmoids
         else:
@@ -236,7 +236,9 @@ class system_software_repository(object):
             os_cfg_moids.append(
                 kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_configuration)
             for e in compute_moids[v.serial].tags:
-                if e.Key == 'os_installed' and e.Value == f'{v.os_vendor}: {v.os_version.name}':
+                if e.Key == 'os_installed' and e.Value == f'{
+                        v.os_vendor}: {
+                        v.os_version.name}':
                     kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_installed = True
                 else:
                     install_flag = True
@@ -248,7 +250,7 @@ class system_software_repository(object):
                     if re.search('MSTOR-RAID', v.slot):
                         m2_found = True
                         kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].virtual_drive = v.virtual_drives['0'].name
-                if m2_found == False:
+                if not m2_found:
                     pcolor.Red(f'\n{"-" * 108}\n')
                     pcolor.Red(
                         f'  !!! ERROR !!!\n  Could not determine the Controller Slot for:')
@@ -272,7 +274,7 @@ class system_software_repository(object):
         # =====================================================================
         # Get Software Repository Data - If os_install is True
         # =====================================================================
-        if install_flag == True:
+        if install_flag:
             kwargs = system_software_repository(
                 'os_cfg').os_configuration_files(kwargs)
             kwargs = system_software_repository('scu').scu_links(kwargs)
@@ -283,7 +285,7 @@ class system_software_repository(object):
         # =====================================================================
         # Deployment Type Customization
         # =====================================================================
-        if install_flag == True and kwargs.script_name == 'ezci' and kwargs.args.deployment_type == 'azure_stack':
+        if install_flag and kwargs.script_name == 'ezci' and kwargs.args.deployment_type == 'azure_stack':
             kwargs.os_version = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[0].os_version
             # kwargs = sensitive_list_check(['azure_stack_lcm_password', 'local_administrator_password'], kwargs)
             kwargs = sensitive_list_check(
@@ -293,7 +295,7 @@ class system_software_repository(object):
             for x in range(0, len(
                     kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
                 kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_configuration = kwargs.os_cfg_moid
-        elif install_flag == True and kwargs.script_name == 'ezci':
+        elif install_flag and kwargs.script_name == 'ezci':
             kwargs = sensitive_list_check(['vmware_esxi_password'], kwargs)
         # =====================================================================
         # Install Operating System on Servers
@@ -302,12 +304,12 @@ class system_software_repository(object):
         for x in range(0, len(
                 kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
             v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
-            if v.os_installed == False:
+            if not v.os_installed:
                 # =============================================================
                 # Test Intersight Transition URL
                 # =============================================================
                 url = kwargs.scu[v.scu].Source.LocationLink
-                if kwargs.args.repository_check_skip == False:
+                if not kwargs.args.repository_check_skip:
                     shared_functions.test_repository_url(url)
                 # =============================================================
                 # Get Installation Interface
@@ -384,7 +386,7 @@ class system_software_repository(object):
                     moid=kwargs.pmoid, workflow='')
         names = [e.os_install.moid for e in kwargs.imm_dict.orgs[kwargs.org]
                  .wizard.server_profiles if v.os_installed == False and len(e.os_install.moid) > 0]
-        if install_flag == True:
+        if install_flag:
             pcolor.Cyan(
                 f'\n{
                     "-" *
@@ -434,7 +436,7 @@ class system_software_repository(object):
                 # =============================================================
                 # Add os_installed Tag to Physical Server
                 # =============================================================
-                if v.install_success == True:
+                if v.install_success:
                     tags = deepcopy(v.tags)
                     tag_body = []
                     os_installed = False
@@ -445,7 +447,7 @@ class system_software_repository(object):
                                 {'Key': e.Key, 'Value': f'{v.os_vendor}: {v.os_version.name}'})
                         else:
                             tag_body.append(e.toDict())
-                    if os_installed == False:
+                    if not os_installed:
                         tag_body.append(
                             {'Key': 'os_installed', 'Value': f'{v.os_vendor}: {v.os_version.name}'})
                     tags = list({d['Key']: d for d in tags}.values())
@@ -477,7 +479,7 @@ class system_software_repository(object):
             for x in range(0, len(
                     kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
                 v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
-                if not v.install_success == True:
+                if not v.install_success:
                     pcolor.Red(
                         f'      * OS Install Failed for `{v.name}`.  Please Validate the Logs.')
             pcolor.Red(f'\n{"-" * 108}\n')

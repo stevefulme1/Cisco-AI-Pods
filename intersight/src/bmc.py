@@ -124,8 +124,17 @@ class api(object):
     # =========================================================================
     @staticmethod
     def patch(kwargs):
-        return api._request('patch', kwargs, ok_statuses={
-                            200, 201, 202, 203, 204}, payload_mode='json', allow_empty=True)
+        return api._request(
+            'patch',
+            kwargs,
+            ok_statuses={
+                200,
+                201,
+                202,
+                203,
+                204},
+            payload_mode='json',
+            allow_empty=True)
 
     # =========================================================================
     # Function - API - POST
@@ -496,8 +505,10 @@ class build(object):
             if kwargs.shared_services.get('dns_servers') and len(
                     kwargs.shared_services.dns_servers) > 0:
                 build(category=self.category, type='dns').dns(pdata, kwargs)
-            if isinstance(ntp, DotMap) and ntp.get('ntp_servers',
-                                                   None) and len(ntp.ntp_servers) > 0:
+            if isinstance(
+                    ntp, DotMap) and ntp.get(
+                    'ntp_servers', None) and len(
+                    ntp.ntp_servers) > 0:
                 build(category=self.category, type='ntp').ntp(ntp, kwargs)
             if kwargs.shared_services.get('proxy_servers') and len(
                     kwargs.shared_services.proxy_servers) > 0:

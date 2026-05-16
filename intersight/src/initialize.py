@@ -71,7 +71,7 @@ class begin(object):
             if match:
                 rtype = match.group(1)
                 r = category_regex.sub('', k)
-                if not '.' in r and v.get('object_type'):
+                if '.' not in r and v.get('object_type'):
                     kwargs[f'{rtype}_list'].append(r)
         if 'switch' in kwargs.profiles_list:
             kwargs.profiles_list.remove('switch')

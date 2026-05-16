@@ -29,7 +29,8 @@ def load_yaml_files(model_dir):
                     # Merge recursively
                     def deep_merge(base, update):
                         for key, value in update.items():
-                            if isinstance(value, dict) and key in base and isinstance(
+                            if isinstance(
+                                    value, dict) and key in base and isinstance(
                                     base[key], dict):
                                 deep_merge(base[key], value)
                             elif isinstance(value, list) and key in base and isinstance(base[key], list):

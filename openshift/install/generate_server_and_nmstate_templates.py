@@ -158,8 +158,7 @@ def _resolve_sensitive_identifier(
         return
     if not isinstance(var_id, int) or var_id <= 0:
         raise ValueError(
-            f"{context} must be a positive integer sensitive variable identifier."
-        )
+            f"{context} must be a positive integer sensitive variable identifier.")
 
     env_var_name = f"{env_prefix}_{var_id}"
     env_value = os.environ.get(env_var_name)
@@ -327,8 +326,10 @@ def get_first_interface_ip(server: Dict[str, Any]) -> Optional[str]:
     return None
 
 
-def applicable_routes(
-        interface_ipv4: str, cluster_routes: List[Dict[str, str]]) -> List[Dict[str, str]]:
+def applicable_routes(interface_ipv4: str,
+                      cluster_routes: List[Dict[str,
+                                                str]]) -> List[Dict[str,
+                                                                    str]]:
     """Return routes whose gateway is on the same network as the interface IP."""
     if not interface_ipv4:
         return []
@@ -437,8 +438,10 @@ def build_bond_context(
     }
 
 
-def render_jinja_template(
-        env: Environment, template_name: str, context: Dict[str, Any]) -> Optional[str]:
+def render_jinja_template(env: Environment,
+                          template_name: str,
+                          context: Dict[str,
+                                        Any]) -> Optional[str]:
     """Render and normalize a Jinja template."""
     try:
         template = env.get_template(template_name)
@@ -584,17 +587,14 @@ def collect_required_credential_env_vars(
             if not fi_entry:
                 config_issues.append(
                     f"host {hostname}: unable to resolve fabric_interconnect reference {
-                        fi_ref.get('id')}"
-                )
+                        fi_ref.get('id')}")
                 continue
             suffix = fi_entry.get("password")
             if suffix in (None, ""):
                 config_issues.append(
                     f"host {hostname}: missing fabric_interconnect password suffix for endpoint {
                         fi_entry.get(
-                            'ip',
-                            '')}"
-                )
+                            'ip', '')}")
                 continue
             required_env_vars.add(f"fabric_interconnect_password_{suffix}")
             continue
@@ -606,11 +606,8 @@ def collect_required_credential_env_vars(
                 config_issues.append(
                     f"host {hostname}: missing redfish password suffix for endpoint {
                         redfish.get(
-                            'ip',
-                            redfish.get(
-                                'endpoint_ip',
-                                ''))}"
-                )
+                            'ip', redfish.get(
+                                'endpoint_ip', ''))}")
                 continue
             required_env_vars.add(f"redfish_password_{suffix}")
 
@@ -678,8 +675,7 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help=(
             "Validate required fi_password_<suffix> and redfish_password_<suffix> "
-            "environment variables and exit without generating files."
-        ),
+            "environment variables and exit without generating files."),
     )
     return parser.parse_args()
 
@@ -719,9 +715,8 @@ def download_and_extract_latest_iserver_release(output_dir: Path) -> None:
     If an iServer Linux tar.gz already exists in the output directory, skip downloading
     and extract from the existing local archive.
     """
-    existing_archives = sorted(
-        path for path in output_dir.glob("*.tar.gz") if "iserver" in path.name.lower() and "linux" in path.name.lower()
-    )
+    existing_archives = sorted(path for path in output_dir.glob(
+        "*.tar.gz") if "iserver" in path.name.lower() and "linux" in path.name.lower())
 
     if existing_archives:
         archive_path = existing_archives[0]
@@ -833,18 +828,30 @@ def resolve_redfish(
     if server.get("redfish"):
         redfish = server.get("redfish", {})
         return {
-            "endpoint_ip": redfish.get("endpoint_ip", redfish.get("ip", "")),
-            "endpoint_type": redfish.get("endpoint_type", redfish.get("type", "bmc")),
+            "endpoint_ip": redfish.get(
+                "endpoint_ip",
+                redfish.get(
+                    "ip",
+                    "")),
+            "endpoint_type": redfish.get(
+                "endpoint_type",
+                redfish.get(
+                    "type",
+                    "bmc")),
             "password": _resolve_sensitive_var(
                 redfish.get("password"),
                 "redfish_password",
                 "redfish_password",
                 f"host {hostname} redfish endpoint {
                     redfish.get(
-                        'ip', redfish.get(
-                            'endpoint_ip', ''))}",
+                        'ip',
+                        redfish.get(
+                            'endpoint_ip',
+                            ''))}",
             ),
-            "username": redfish.get("username", ""),
+            "username": redfish.get(
+                "username",
+                ""),
         }
 
     return None

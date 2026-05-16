@@ -75,7 +75,7 @@ class system(object):
         kwargs = api(category=self.category, type=self.type).calls(kwargs)
         if empty == False and kwargs.results == []:
             empty_results(names, kwargs)
-        elif empty == True and kwargs.results == []:
+        elif empty and kwargs.results == []:
             pcolor.Yellow(f"  * API Query Results were empty for {kwargs.uri}")
             pcolor.Yellow(f"    - Names: `{', '.join(names)}`.  Continuing...")
         return kwargs
@@ -189,7 +189,7 @@ class system(object):
                         f"     * Skipping System -> IAM Sharing Rule: Moid - `{k}`.  Intersight Matches Configuration. Shared Resource: `{shared_org}` -> Shared With: `{org}`")
                     check_count = True
                     break
-            if check_count == False:
+            if not check_count:
                 if check_flag:
                     shared_org = kwargs.org_names[api_body['SharedResource']['Moid']]
                     org = kwargs.org_names[api_body['SharedWithResource']['Moid']]
@@ -256,7 +256,7 @@ class system(object):
         kwargs = kwargs | DotMap(method='get', names=names, uri=uri)
         kwargs = api(category=self.category, type=self.type).calls(kwargs)
         for item in rdict:
-            if not item.path_tag in (kwargs.intersight_api.system.path_tags):
+            if item.path_tag not in (kwargs.intersight_api.system.path_tags):
                 np = ''
                 ns = ''
                 api_body = self.create_api_body(item, np, ns, kwargs)
@@ -374,10 +374,12 @@ class system(object):
                     self.type).compare_body_result(
                     api_body, intersight_api.result)
                 api_body['pmoid'] = intersight_api.moid
-                if patch_resource == True:
-                    if check_flag == True:
-                        pcolor.Cyan(f"     * Running Check Mode: Non-Check mode would update {category} -> {ptitle}: `{api_body['Name']}`."
-                                    f"  Moid: `{api_body['pmoid']}`")
+                if patch_resource:
+                    if check_flag:
+                        pcolor.Cyan(
+                            f"     * Running Check Mode: Non-Check mode would update {category} -> {ptitle}: `{
+                                api_body['Name']}`." f"  Moid: `{
+                                api_body['pmoid']}`")
                     else:
                         kwargs.bulk_list.append(deepcopy(api_body))
                         kwargs.pmoids[api_body['Name']
@@ -388,7 +390,7 @@ class system(object):
                             api_body['Name']}` - Moid: `{
                             api_body['pmoid']}`.  Intersight Matches Configuration.")
             else:
-                if check_flag == True:
+                if check_flag:
                     pcolor.Cyan(
                         f"     * Running Check Mode: Non-Check mode would create new {category} -> {ptitle}: `{
                             api_body['Name']}`.")

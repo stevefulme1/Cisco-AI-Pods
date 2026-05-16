@@ -114,7 +114,8 @@ def base_script_settings(kwargs):
         vkeys = list(v.keys())
         if 'intersight.' in k and 'object_type' in vkeys:
             if re.search(
-                    '^intersight\\.(policies|pools|profiles|system|templates)\\.', k):
+                '^intersight\\.(policies|pools|profiles|system|templates)\\.',
+                    k):
                 ptype = re.search('^intersight\\.([a-z_]+)\\.', k).group(1)
                 if not kwargs.intersight_object_map.get(v.object_type):
                     kwargs.intersight_object_map[v.object_type] = k.replace(
@@ -248,7 +249,7 @@ def intersight_config(kwargs):
                         108}\n\n  "{varValue}" is not a valid address.\n\n{
                         "-" *
                         108}\n')
-        if valid == False:
+        if not valid:
             if non_interactive:
                 pcolor.Red(
                     '!!! ERROR !!! Non-interactive mode requires a valid Intersight FQDN/IP via CLI/env or loaded variables.')
@@ -256,10 +257,11 @@ def intersight_config(kwargs):
                     '  Expected: --intersight-fqdn or env `intersight_fqdn` or `intersight.script_settings.intersight_fqdn` in loaded config.')
                 sys.exit(1)
             kwargs.jdata = kwargs.ezdata['abstract.hostname_ip_or_ipv6']
-            kwargs.jdata.update(DotMap(
-                description='Hostname of the Intersight Fully Qualified Domain Name (FQDN) or IP Address.',
-                default=kwargs.args.intersight_fqdn or 'intersight.com', title='Intersight FQDN/IP'
-            ))
+            kwargs.jdata.update(
+                DotMap(
+                    description='Hostname of the Intersight Fully Qualified Domain Name (FQDN) or IP Address.',
+                    default=kwargs.args.intersight_fqdn or 'intersight.com',
+                    title='Intersight FQDN/IP'))
             kwargs.args.intersight_fqdn = variable_prompt(kwargs)
     kwargs.args.url = 'https://%s' % (kwargs.args.intersight_fqdn)
     # Return kwargs
@@ -350,9 +352,15 @@ def load_configurations(kwargs):
         validator = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(validator)
         model = {
-            'intersight': kwargs.intersight.toDict() if hasattr(kwargs.intersight, 'toDict') else kwargs.intersight,
-            'openshift': kwargs.openshift.toDict() if hasattr(kwargs.openshift, 'toDict') else kwargs.openshift,
-            'everpure': kwargs.everpure.toDict() if hasattr(kwargs.everpure, 'toDict') else kwargs.everpure,
+            'intersight': kwargs.intersight.toDict() if hasattr(
+                kwargs.intersight,
+                'toDict') else kwargs.intersight,
+            'openshift': kwargs.openshift.toDict() if hasattr(
+                kwargs.openshift,
+                'toDict') else kwargs.openshift,
+            'everpure': kwargs.everpure.toDict() if hasattr(
+                kwargs.everpure,
+                'toDict') else kwargs.everpure,
         }
         schema_path = Path(
             os.path.join(
@@ -410,10 +418,10 @@ def variable_from_list(kwargs):
                 pcolor.LightGray(line)
         else:
             pcolor.LightGray(description)
-        if kwargs.jdata.get('multi_select') == True:
+        if kwargs.jdata.get('multi_select'):
             pcolor.Yellow(
                 '\n     Note: Answer can be:\n       * Single: 1\n       * Multiple: `1,2,3` or `1-3,5-6`')
-        if kwargs.jdata.get('multi_select') == True:
+        if kwargs.jdata.get('multi_select'):
             pcolor.Yellow(f'    Select Option(s) Below:')
         else:
             pcolor.Yellow(f'\n    Select an Option Below:')
@@ -427,8 +435,8 @@ def variable_from_list(kwargs):
                 pcolor.Cyan(f'     {index}. {value}')
             elif index > 99:
                 pcolor.Cyan(f'    {index}. {value}')
-        if kwargs.jdata.get('multi_select') == True:
-            if kwargs.jdata.get('optional') == True:
+        if kwargs.jdata.get('multi_select'):
+            if kwargs.jdata.get('optional'):
                 optional = True
                 var_selection = input(
                     f'\nPlease Enter the Option Number(s) to select for {title}.  [press enter to skip]: ')
@@ -439,7 +447,7 @@ def variable_from_list(kwargs):
                 var_selection = input(
                     f'\nPlease Enter the Option Number(s) to select for {title}: ')
         else:
-            if kwargs.jdata.get('optional') == True:
+            if kwargs.jdata.get('optional'):
                 optional = True
                 var_selection = input(
                     f'\nPlease Enter the Option Number to select for {title}.  [press enter to skip]: ')
@@ -450,9 +458,9 @@ def variable_from_list(kwargs):
                 var_selection = input(
                     f'\nPlease Enter the Option Number to select for {title}: ')
         if kwargs.jdata.get(
-                'optional') == True and var_selection == '' and kwargs.jdata.multi_select == False:
+                'optional') and var_selection == '' and kwargs.jdata.multi_select == False:
             return '', True
-        elif kwargs.jdata.get('optional') == True and var_selection == '' and kwargs.jdata.multi_select == True:
+        elif kwargs.jdata.get('optional') and var_selection == '' and kwargs.jdata.multi_select:
             return [], True
         elif not default == '' and var_selection == '':
             var_selection = default_index
@@ -463,8 +471,8 @@ def variable_from_list(kwargs):
                 if int(var_selection) == index:
                     selection = value
                     valid = True
-        elif kwargs.jdata.multi_select == True and re.search(r'(^[0-9]+$|^[0-9\-,]+[0-9]$)', str(var_selection)):
-            if kwargs.jdata.keep_order == True:
+        elif kwargs.jdata.multi_select and re.search(r'(^[0-9]+$|^[0-9\-,]+[0-9]$)', str(var_selection)):
+            if kwargs.jdata.keep_order:
                 var_list = var_selection.split(',')
                 kwargs.selection_list = var_list
             else:
@@ -487,7 +495,7 @@ def variable_from_list(kwargs):
                         108}\n\n  The list of Vars {var_list} did not match the available list.\n\n{
                         "-" *
                         108}\n')
-        if valid == False:
+        if not valid:
             notifications.message_invalid_selection()
     return selection, valid
 
@@ -542,7 +550,7 @@ def variable_prompt(kwargs):
         if kwargs.jdata.get('enum'):
             answer, valid = variable_from_list(kwargs)
         elif kwargs.jdata.type == 'boolean':
-            if default == True:
+            if default:
                 default = 'Y'
             else:
                 default = 'N'
@@ -565,17 +573,17 @@ def variable_prompt(kwargs):
         elif kwargs.jdata.type == 'integer':
             maximum = kwargs.jdata.maximum
             minimum = kwargs.jdata.minimum
-            if kwargs.jdata.get('optional') == True:
+            if kwargs.jdata.get('optional'):
                 optional = True
                 answer = input(
                     f'Enter the value for {title} [press enter to skip]: ')
             else:
                 answer = input(f'Enter the Value for {title}. [{default}]: ')
-            if optional == True and answer == '':
+            if optional and answer == '':
                 valid = True
             elif answer == '':
                 answer = default
-            if optional == False:
+            if not optional:
                 if re.fullmatch(r'^[0-9]+$', str(answer)):
                     if kwargs.jdata.title == 'snmp_port':
                         valid = notifications.snmp_port(
@@ -586,7 +594,7 @@ def variable_prompt(kwargs):
                 else:
                     invalid_integer(title, answer)
         elif kwargs.jdata.type == 'string':
-            if kwargs.jdata.get('optional') == True:
+            if kwargs.jdata.get('optional'):
                 optional = True
                 answer = input(
                     f'Enter the value for {title} [press enter to skip]: ')
@@ -594,7 +602,7 @@ def variable_prompt(kwargs):
                 answer = input(f'Enter the value for {title} [{default}]: ')
             else:
                 answer = input(f'Enter the value for {title}: ')
-            if optional == True and answer == '':
+            if optional and answer == '':
                 valid = True
             elif answer == '':
                 answer = default

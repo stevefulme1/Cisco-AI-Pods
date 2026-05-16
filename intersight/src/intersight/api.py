@@ -74,11 +74,13 @@ class api(object):
                 kwargs.rsg_moids[i.Name] = DotMap(moid=i.Moid, tags=i.Tags)
                 kwargs.rsg_names[i.Moid] = i.Name
             return kwargs
-        if not kwargs.build_skip == True and api_results.get('Results'):
+        if not kwargs.build_skip and api_results.get('Results'):
             def check_for_dotmap_key(kwargs):
                 if not kwargs.get('intersight_api'):
                     kwargs.intersight_api = DotMap()
-                if isinstance(kwargs.org, str) and not kwargs.intersight_api.get(
+                if isinstance(
+                        kwargs.org,
+                        str) and not kwargs.intersight_api.get(
                         kwargs.org):
                     kwargs.intersight_api[kwargs.org] = DotMap()
                 return kwargs
@@ -141,9 +143,7 @@ class api(object):
                         parent_name = kwargs.pools[parent_type][i.Pool.Moid].name
                         organization = kwargs.pools[parent_type][i.Pool.Moid].organization
                         kwargs.intersight_api[organization][self.category][parent_type][parent_name][child_type][iname] = DotMap(
-                            moid=i.Moid,
-                            result=i
-                        )
+                            moid=i.Moid, result=i)
                         continue
                     else:
                         split_name = kwargs.intersight_object_map[i.ObjectType].split(
@@ -174,9 +174,7 @@ class api(object):
                         parent_name = kwargs.intersight_api[kwargs.org][
                             self.category][parent_type][i[parent_match].Moid]
                         kwargs.intersight_api[kwargs.org][self.category][parent_type][parent_name][child_type][iname] = DotMap(
-                            moid=i.Moid,
-                            result=i
-                        )
+                            moid=i.Moid, result=i)
                         continue
                 elif 'Name' in ikeys and isinstance(self.category, type(kwargs.org)) == str:
                     # fcpool.Pool backs both wwnn and wwpn; keep the requested
@@ -456,7 +454,7 @@ class api(object):
                 kwargs.results = api_results.Results
             else:
                 kwargs.results = api_results
-            if not kwargs.build_skip == True:
+            if not kwargs.build_skip:
                 kwargs.build_skip = False
             if 'post' in method:
                 if api_results.get('Responses'):
@@ -536,7 +534,7 @@ class api(object):
             def build_api_args(kwargs_keys, kwargs):
                 scategory = self.category
                 stype = self.type
-                if not 'api_filter' in kwargs_keys:
+                if 'api_filter' not in kwargs_keys:
                     regex1 = re.compile(
                         'moid_filter|registered_device|workflow_os_install')
                     regex2 = re.compile('(ip|iqn|mac|uuid|wwnn|wwpn)_leases')
@@ -651,7 +649,8 @@ class api(object):
                     kwargs.names = i
                     kwargs.api_args = build_api_args(kwargs_keys, kwargs)
                     if re.search(
-                            'leases|port.port|reservations|user_role|vhbas|vlans|vsans|vnics', self.type):
+                        'leases|port.port|reservations|user_role|vhbas|vlans|vsans|vnics',
+                            self.type):
                         kwargs.pmoid = parent_moid
                     kwargs = api_calls(kwargs)
                     results.extend(kwargs.results)
@@ -789,7 +788,9 @@ class api(object):
             kwargs.jdata = DotMap(
                 default='Targets',
                 description=f'  Will the organization `{org}` be shared with other organizations, or will you be assigning targets (servers, domains, etc.)?',
-                enum=['Shared', 'Targets'],
+                enum=[
+                    'Shared',
+                    'Targets'],
                 sort=False,
                 title='Intersight Organization',
                 type='string')
@@ -799,7 +800,7 @@ class api(object):
             if 'resource_groups' in okeys and len(
                     kwargs.imm_dict.orgs[org].resource_groups) > 0:
                 for rg in kwargs.imm_dict.orgs[org].resource_groups:
-                    if not rg in list(kwargs.rsg_moids.keys()):
+                    if rg not in list(kwargs.rsg_moids.keys()):
                         kwargs = create_resource_group(rg, org, kwargs)
                 rgs = [{'Moid': kwargs.rsg_moids[rg].moid, 'ObjectType': 'resource.Group'}
                        for rg in kwargs.imm_dict.orgs[org].resource_groups]
@@ -810,9 +811,9 @@ class api(object):
                 kwargs = create_org_api_call(api_body, kwargs)
             elif 'organizations_to_share_with' in okeys and len(kwargs.imm_dict.orgs[org].organizations_to_share_with) > 0:
                 for o in kwargs.imm_dict.orgs[org].organizations_to_share_with:
-                    if not o in list(kwargs.org_moids.keys()):
+                    if o not in list(kwargs.org_moids.keys()):
                         create_org = create_org_question(o, kwargs)
-                        if create_org == True:
+                        if create_org:
                             kwargs = create_shared_organization(o, kwargs)
                         else:
                             notifications.error_organization(o)
@@ -847,7 +848,7 @@ class api(object):
             for e in kwargs.pmoids:
                 kwargs.rsg_moids[e] = DotMap(kwargs.pmoids[e])
             for rsg in kwargs.resource_groups:
-                if not rsg in list(kwargs.rsg_moids.keys()):
+                if rsg not in list(kwargs.rsg_moids.keys()):
                     kwargs = create_resource_group(rsg, org, kwargs)
         else:
             # =====================================================================
@@ -887,14 +888,14 @@ class api(object):
             # =====================================================================
             okeys = list(kwargs.org_moids.keys())
             for org in kwargs.orgs:
-                if not org in okeys:
+                if org not in okeys:
                     okeys = list(kwargs.imm_dict.orgs[org].keys())
                     if 'create_organization' in okeys and kwargs.imm_dict.orgs[
-                            org].create_organization == True:
+                            org].create_organization:
                         kwargs = create_organization(org, okeys, kwargs)
                     else:
                         create_org = create_org_question(org, kwargs)
-                        if create_org == True:
+                        if create_org:
                             kwargs = create_organization(org, okeys, kwargs)
                         else:
                             notifications.error_organization(org)

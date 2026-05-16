@@ -49,10 +49,15 @@ except ImportError as error:
 
 def base_arguments(parser):
     parser.add_argument(
-        '-a', '--intersight-api-key-id', default=os.getenv('intersight_api_key_id'),
+        '-a',
+        '--intersight-api-key-id',
+        default=os.getenv('intersight_api_key_id'),
         help='The Intersight API key id for HTTP signature scheme.')
     parser.add_argument(
-        '-d', '--dir', default='user_environment', help='The Directory where the YAML configuration files are located.')
+        '-d',
+        '--dir',
+        default='user_environment',
+        help='The Directory where the YAML configuration files are located.')
     parser.add_argument(
         '-dl', '--debug-level', default=0,
         help='Used for troubleshooting.  The Amount of Debug output to Show: '
@@ -72,7 +77,9 @@ def base_arguments(parser):
         action='store_false',
         help='Ignore TLS server-side certificate verification.  Default is False.')
     parser.add_argument(
-        '-k', '--intersight-secret-key', default=os.getenv('intersight_secret_key'),
+        '-k',
+        '--intersight-secret-key',
+        default=os.getenv('intersight_secret_key'),
         help='Name of the file containing The Intersight secret key or contents of the secret key in environment.')
     parser.add_argument(
         '-ni',

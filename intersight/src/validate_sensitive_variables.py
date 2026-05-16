@@ -128,8 +128,8 @@ def _format_export_command(env_var_name: str,
         if description:
             wrapped_description = _wrap_cli_text(description, indent="    ")
             if _supports_color(sys.stderr):
-                wrapped_description = "\n".join(
-                    _colorize(line, "36") for line in wrapped_description.splitlines())
+                wrapped_description = "\n".join(_colorize(
+                    line, "36") for line in wrapped_description.splitlines())
             lines.append("")
             lines.append(_colorize("  Description:", "1;36"))
             lines.append(wrapped_description)
@@ -138,7 +138,9 @@ def _format_export_command(env_var_name: str,
 
 
 def _validate_value_against_schema(
-        env_var_name: str, env_value: str, schema_key: Optional[str]) -> Optional[str]:
+        env_var_name: str,
+        env_value: str,
+        schema_key: Optional[str]) -> Optional[str]:
     """Validate env var value against schema constraints and return error text when invalid."""
     if not schema_key or schema_key not in _SENSITIVE_SCHEMA_PROPS:
         return None
@@ -147,11 +149,13 @@ def _validate_value_against_schema(
 
     min_len = rule.get("minLength")
     if isinstance(min_len, int) and len(env_value) < min_len:
-        return f"Environment variable '{env_var_name}' is invalid: length {len(env_value)} is less than minimum {min_len}."
+        return f"Environment variable '{env_var_name}' is invalid: length {
+            len(env_value)} is less than minimum {min_len}."
 
     max_len = rule.get("maxLength")
     if isinstance(max_len, int) and len(env_value) > max_len:
-        return f"Environment variable '{env_var_name}' is invalid: length {len(env_value)} exceeds maximum {max_len}."
+        return f"Environment variable '{env_var_name}' is invalid: length {
+            len(env_value)} exceeds maximum {max_len}."
 
     pattern = rule.get("pattern")
     if isinstance(pattern, str) and pattern:

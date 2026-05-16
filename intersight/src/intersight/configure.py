@@ -304,8 +304,9 @@ class configure(object):
                 else:
                     kwargs.bulk_list.append(deepcopy(api_body))
             else:
-                pcolor.Cyan(f"     * Skipping Organization: `{org}`; {ptitle}: `{parent_name}` - {child_title}: `{api_body[pkey]}`"
-                            f"  Moid: `{pmoid}`.  Intersight Matches Configuration.")
+                pcolor.Cyan(
+                    f"     * Skipping Organization: `{org}`; {ptitle}: `{parent_name}` - {child_title}: `{
+                        api_body[pkey]}`" f"  Moid: `{pmoid}`.  Intersight Matches Configuration.")
         else:
             if check_flag:
                 pcolor.Cyan(
@@ -518,11 +519,8 @@ class configure(object):
                 # index alignment.
                 if path.endswith('Tags') and all(
                         isinstance(item, dict) for item in v1):
-                    v2_by_key = {
-                        str(tag.get('Key', tag.get('key'))): tag
-                        for tag in v2
-                        if isinstance(tag, dict) and (tag.get('Key') is not None or tag.get('key') is not None)
-                    }
+                    v2_by_key = {str(tag.get('Key', tag.get('key'))): tag for tag in v2 if isinstance(
+                        tag, dict) and (tag.get('Key') is not None or tag.get('key') is not None)}
                     for tag in v1:
                         tkey = str(tag.get('Key', tag.get('key')))
                         tpath = f'{path}[Key={tkey}]'
@@ -588,14 +586,20 @@ class configure(object):
             api_body['pmoid'] = intersight_api.moid
             if patch_resource:
                 if check_flag:
-                    pcolor.Cyan(f"     * Running Check Mode: Organization: `{kwargs.org}`; Non-Check mode would update {category} -> {ptitle}: `{api_body['Name']}`."
-                                f"  Moid: `{api_body['pmoid']}`")
+                    pcolor.Cyan(
+                        f"     * Running Check Mode: Organization: `{
+                            kwargs.org}`; Non-Check mode would update {category} -> {ptitle}: `{
+                            api_body['Name']}`." f"  Moid: `{
+                            api_body['pmoid']}`")
                 else:
                     kwargs.bulk_list.append(deepcopy(api_body))
                     kwargs.pmoids[api_body['Name']].moid = api_body['pmoid']
             else:
-                pcolor.Cyan(f"     * Skipping Organization: `{kwargs.org}`; {category} -> {ptitle}: `{api_body['Name']}` - Moid: `{api_body['pmoid']}`."
-                            f"  Intersight Matches Configuration.")
+                pcolor.Cyan(
+                    f"     * Skipping Organization: `{
+                        kwargs.org}`; {category} -> {ptitle}: `{
+                        api_body['Name']}` - Moid: `{
+                        api_body['pmoid']}`." f"  Intersight Matches Configuration.")
         else:
             if check_flag:
                 pcolor.Cyan(
@@ -750,8 +754,17 @@ class configure(object):
         elif 'snmp' == self.type:
             kwargs = self.policies_snmp(kwargs)
         elif re.search(r'^ldap|local_user||(l|s)an_connectivity|storage|v(l|s)an$', self.type):
-            sub_list = ['lan_connectivity.vnics', 'lan_connectivity.vnics_from_template', 'ldap.ldap_groups', 'ldap.ldap_servers', 'local_user.users',
-                        'san_connectivity.vhbas', 'san_connectivity.vhbas_from_template', 'storage.drive_groups', 'vlan.vlans', 'vsan.vsans']
+            sub_list = [
+                'lan_connectivity.vnics',
+                'lan_connectivity.vnics_from_template',
+                'ldap.ldap_groups',
+                'ldap.ldap_servers',
+                'local_user.users',
+                'san_connectivity.vhbas',
+                'san_connectivity.vhbas_from_template',
+                'storage.drive_groups',
+                'vlan.vlans',
+                'vsan.vsans']
             for e in sub_list:
                 a, b = e.split('.')
                 if a == self.type:
@@ -870,12 +883,18 @@ class configure(object):
             if e.get('pmoid'):
                 tmoid = e['pmoid']
                 e.pop('pmoid')
-                patch_list.append({
-                    'Body': e, 'ClassId': 'bulk.RestSubRequest', 'ObjectType': 'bulk.RestSubRequest', 'TargetMoid': tmoid,
-                    'Uri': f'/v1/{kwargs.uri}', 'Verb': 'PATCH'})
+                patch_list.append({'Body': e,
+                                   'ClassId': 'bulk.RestSubRequest',
+                                   'ObjectType': 'bulk.RestSubRequest',
+                                   'TargetMoid': tmoid,
+                                   'Uri': f'/v1/{kwargs.uri}',
+                                   'Verb': 'PATCH'})
             else:
-                post_list.append({
-                    'Body': e, 'ClassId': 'bulk.RestSubRequest', 'ObjectType': 'bulk.RestSubRequest', 'Uri': f'/v1/{kwargs.uri}', 'Verb': 'POST'})
+                post_list.append({'Body': e,
+                                  'ClassId': 'bulk.RestSubRequest',
+                                  'ObjectType': 'bulk.RestSubRequest',
+                                  'Uri': f'/v1/{kwargs.uri}',
+                                  'Verb': 'POST'})
         if len(patch_list) > 0:
             kwargs.api_body = {'Requests': patch_list}
             kwargs = loop_thru_lists(kwargs)
@@ -961,9 +980,16 @@ class configure(object):
                 item, key, old_name, new_name, is_ip_type=False):
             """Update item dictionary with adjusted resource name. Mutates item in place."""
             CHILD_CONTAINER_KEYS = [
-                'vhbas', 'vhbas_from_template', 'vnics', 'vnics_from_template',
-                'port_channel_appliances', 'port_channel_ethernet_uplinks', 'port_channel_fcoe_uplinks',
-                'port_role_appliances', 'port_role_ethernet_uplinks', 'port_role_fcoe_uplinks',
+                'vhbas',
+                'vhbas_from_template',
+                'vnics',
+                'vnics_from_template',
+                'port_channel_appliances',
+                'port_channel_ethernet_uplinks',
+                'port_channel_fcoe_uplinks',
+                'port_role_appliances',
+                'port_role_ethernet_uplinks',
+                'port_role_fcoe_uplinks',
             ]
             if is_ip_type:
                 for ip_block_type in IP_BLOCK_TYPES:
@@ -1084,8 +1110,7 @@ class configure(object):
                 'ethernet_qos_policy': 'ethernet_qos_policy',
                 'ethernet_qos_policies': 'ethernet_qos_policy',
                 'mac_address_pool': 'mac',
-                'mac_address_pools': 'mac'
-            }
+                'mac_address_pools': 'mac'}
             for vnic_container_key in ['vnics', 'vnics_from_template']:
                 if vnic_container_key in item:
                     for vnic_item in item[vnic_container_key]:
@@ -1120,11 +1145,14 @@ class configure(object):
                 'flow_control_policy': 'flow_control_policy',
                 'link_aggregation_policy': 'link_aggregation_policy',
                 'link_control_policy': 'link_control_policy',
-                'mac_sec_policy': 'mac_sec_policy'
-            }
-            for port_type_key in ['port_channel_appliances', 'port_channel_ethernet_uplinks',
-                                  'port_channel_fcoe_uplinks', 'port_role_appliances',
-                                  'port_role_ethernet_uplinks', 'port_role_fcoe_uplinks']:
+                'mac_sec_policy': 'mac_sec_policy'}
+            for port_type_key in [
+                'port_channel_appliances',
+                'port_channel_ethernet_uplinks',
+                'port_channel_fcoe_uplinks',
+                'port_role_appliances',
+                'port_role_ethernet_uplinks',
+                    'port_role_fcoe_uplinks']:
                 if port_type_key in item:
                     for policy_item in item[port_type_key]:
                         for sub_key, rtype in port_sub_map.items():
@@ -1164,8 +1192,7 @@ class configure(object):
                 'fibre_channel_network_policies': 'fibre_channel_network_policy',
                 'fibre_channel_qos_policy': 'fibre_channel_qos_policy',
                 'wwpn_pool': 'wwpn',
-                'wwpn_pools': 'wwpn'
-            }
+                'wwpn_pools': 'wwpn'}
             for vhba_container_key in ['vhbas', 'vhbas_from_template']:
                 if vhba_container_key in item:
                     for vhba_item in item[vhba_container_key]:
@@ -1858,7 +1885,7 @@ class configure(object):
                 for item in e[child_type]:
                     ikeys = list(item.keys())
                     item.parent = kwargs.intersight_api[org][self.category][self.type][np + e.name + ns].moid
-                    if not 'name_prefix' in ikeys:
+                    if 'name_prefix' not in ikeys:
                         name_prefix = True
                     else:
                         name_prefix = item.name_prefix
@@ -1870,8 +1897,12 @@ class configure(object):
                         if isinstance(x, str):
                             x = int(x)
                         if x in reserved_list:
-                            pcolor.Yellow(f'!!! WARNING !!! VLAN ID {x} is a reserved VLAN and cannot be used.'
-                                          f'  Skipping assignment of VLAN ID {x} under VLAN Policy `{np + e.name + ns}` in Org `{kwargs.org}`.')
+                            pcolor.Yellow(
+                                f'!!! WARNING !!! VLAN ID {x} is a reserved VLAN and cannot be used.' f'  Skipping assignment of VLAN ID {x} under VLAN Policy `{
+                                    np +
+                                    e.name +
+                                    ns}` in Org `{
+                                    kwargs.org}`.')
                             continue
                         if len(vlans) > 1 and name_prefix:
                             item.name = deepcopy(f"{original_name}{x}")
@@ -1932,18 +1963,18 @@ class configure(object):
                 'iscsi_boot_policies': 'iscsi_boot_policy',
                 'mac_address_pools': 'mac_address_pool',
                 'wwpn_pools': 'wwpn_pool',
-                'mac_addresses_static': 'mac_address_static'
-            }
+                'mac_addresses_static': 'mac_address_static'}
             list_policy_keys = {
                 'ethernet_network_group_policies',
                 'fc_zone_policies',
                 'flow_monitor_policies',
             }
-            if not 'template' in child_type:
+            if 'template' not in child_type:
                 if item.get('placement') and isinstance(item.placement, dict):
                     for plural_key, singular_key in placement_key_map.items():
                         if plural_key in item.placement and isinstance(
-                                item.placement[plural_key], list) and len(item.placement[plural_key]) > 0:
+                                item.placement[plural_key], list) and len(
+                                item.placement[plural_key]) > 0:
                             if len(item.placement[plural_key]) == len(
                                     item.names):
                                 item.placement[singular_key] = item.placement[plural_key][x]
@@ -2467,8 +2498,10 @@ class configure(object):
                                      uri=kwargs.ezdata[self.type].switch_intersight_uri)
             kwargs = api('parent_moids').calls(kwargs)
             for e in kwargs.results:
-                if len(e.ConfigChanges.Changes) > 0 or re.search(
-                        "Assigned|Failed|Pending-changes", e.ConfigContext.ConfigState):
+                if len(
+                        e.ConfigChanges.Changes) > 0 or re.search(
+                        "Assigned|Failed|Pending-changes",
+                        e.ConfigContext.ConfigState):
                     pending_changes = True
                     kwargs.cluster_update[clusters[e.Parent.Moid]
                                           ].pending_changes = True
@@ -2575,8 +2608,8 @@ class configure(object):
             pcolor.LightPurple(
                 '    * Pending Activations.  Sleeping for 300 Seconds')
             time.sleep(300)
-        activate_moids = [kwargs.intersight_api[kwargs.org].profiles[self.type]
-                          [e].moid for e in profile_keys if kwargs.profile_update[e].pending_changes != 'Empty']
+        activate_moids = [kwargs.intersight_api[kwargs.org].profiles[self.type][
+            e].moid for e in profile_keys if kwargs.profile_update[e].pending_changes != 'Empty']
         activate_results = []
         if activate_moids:
             dt = datetime.today().strftime('%Y-%m-%d')
@@ -2716,7 +2749,7 @@ class configure(object):
             profile = f'{np}{item.name}{ns}'
             reservations = pdata.get(
                 'reservation', {}) if pdata.get('reservation') else {}
-            if not e.identity in leases.keys():
+            if e.identity not in leases.keys():
                 if e.identity not in reservations.keys():
                     org, pool = e.pool_name.split('/')
                     pdata = kwargs.intersight_api[org].pools[ptype][pool].result
@@ -2736,12 +2769,22 @@ class configure(object):
                     bulk_list[ptype].append(api_body)
                 else:
                     reservations[e.identity].moid
-                    pcolor.Cyan(f"  * Skipping Org: {kwargs.org} > Server Profile: `{profile}` > {ptype.upper()} Reservation: {e.identity}. "
-                                f"Existing reservation: {reservations[e.identity].moid}")
+                    pcolor.Cyan(
+                        f"  * Skipping Org: {
+                            kwargs.org} > Server Profile: `{profile}` > {
+                            ptype.upper()} Reservation: {
+                            e.identity}. " f"Existing reservation: {
+                            reservations[
+                                e.identity].moid}")
             else:
                 entity = leases[e.identity].result['AssignedToEntity']
-                pcolor.Yellow(f"  * NOTIFICATION: Org: {kwargs.org} > Server Profile: `{profile}` > {ptype.upper()} Reservation: {e.identity}. "
-                              f"Currently leased to {entity['ObjectType']} - Moid: {entity['Moid']}")
+                pcolor.Yellow(
+                    f"  * NOTIFICATION: Org: {
+                        kwargs.org} > Server Profile: `{profile}` > {
+                        ptype.upper()} Reservation: {
+                        e.identity}. " f"Currently leased to {
+                        entity['ObjectType']} - Moid: {
+                        entity['Moid']}")
             return kwargs
         bulk_list = DotMap()
         for item in kwargs.resources:
@@ -2826,9 +2869,19 @@ class configure(object):
             'snmp_policy',
             'thermal_policy']
         domain_ = [
-            'auditd_policy', 'certificate_management_policy', 'ldap_policy', 'netflow_configuration_policy', 'network_connectivity_policy',
-            'ntp_policy', 'port_policy', 'snmp_policy', 'switch_control_policy', 'syslog_policy', 'system_qos_policy', 'vlan_policy', 'vsan_policy'
-        ]
+            'auditd_policy',
+            'certificate_management_policy',
+            'ldap_policy',
+            'netflow_configuration_policy',
+            'network_connectivity_policy',
+            'ntp_policy',
+            'port_policy',
+            'snmp_policy',
+            'switch_control_policy',
+            'syslog_policy',
+            'system_qos_policy',
+            'vlan_policy',
+            'vsan_policy']
         fi_only = [
             'drive_security_policy',
             'pcie_connectivity_policy',
@@ -2836,23 +2889,64 @@ class configure(object):
             'sd_card_policy',
             'thermal_policy']
         fi_unified_common = [
-            'bios_policy', 'boot_order_policy', 'certificate_management_policy', 'firmware_policy', 'imc_access_policy', 'ipmi_over_lan_policy',
-            'lan_connectivity_policy', 'local_user_policy', 'memory_policy', 'power_policy', 'scrub_policy', 'serial_over_lan_policy', 'snmp_policy',
-            'storage_policy', 'syslog_policy', 'virtual_kvm_policy', 'virtual_media_policy'
-        ]
+            'bios_policy',
+            'boot_order_policy',
+            'certificate_management_policy',
+            'firmware_policy',
+            'imc_access_policy',
+            'ipmi_over_lan_policy',
+            'lan_connectivity_policy',
+            'local_user_policy',
+            'memory_policy',
+            'power_policy',
+            'scrub_policy',
+            'serial_over_lan_policy',
+            'snmp_policy',
+            'storage_policy',
+            'syslog_policy',
+            'virtual_kvm_policy',
+            'virtual_media_policy']
         standalone_common = [
-            'bios_policy', 'certificate_management_policy', 'firmware_policy', 'ipmi_over_lan_policy', 'local_user_policy', 'power_policy',
-            'serial_over_lan_policy', 'smtp_policy', 'ssh_policy', 'virtual_kvm_policy', 'virtual_media_policy',
+            'bios_policy',
+            'certificate_management_policy',
+            'firmware_policy',
+            'ipmi_over_lan_policy',
+            'local_user_policy',
+            'power_policy',
+            'serial_over_lan_policy',
+            'smtp_policy',
+            'ssh_policy',
+            'virtual_kvm_policy',
+            'virtual_media_policy',
         ]
         standalone_2xx_4xx_only = [
-            'boot_order_policy', 'memory_policy', 'persistent_memory_policy', 'thermal_policy', 'device_connector_policy', 'ldap_policy',
-            'network_connectivity_policy', 'ntp_policy', 'snmp_policy', 'syslog_policy', 'drive_security_policy', 'sd_card_policy',
-            'storage_policy', 'adapter_configuration_policy', 'lan_connectivity_policy', 'san_connectivity_policy'
-        ]
+            'boot_order_policy',
+            'memory_policy',
+            'persistent_memory_policy',
+            'thermal_policy',
+            'device_connector_policy',
+            'ldap_policy',
+            'network_connectivity_policy',
+            'ntp_policy',
+            'snmp_policy',
+            'syslog_policy',
+            'drive_security_policy',
+            'sd_card_policy',
+            'storage_policy',
+            'adapter_configuration_policy',
+            'lan_connectivity_policy',
+            'san_connectivity_policy']
         unified_edge_ = [
-            'power_policy', 'thermal_policy', 'port_policy', 'switch_control_policy', 'system_qos_policy', 'vlan_policy',
-            'local_user_policy', 'network_connectivity_policy', 'ntp_policy', 'syslog_policy'
-        ]
+            'power_policy',
+            'thermal_policy',
+            'port_policy',
+            'switch_control_policy',
+            'system_qos_policy',
+            'vlan_policy',
+            'local_user_policy',
+            'network_connectivity_policy',
+            'ntp_policy',
+            'syslog_policy']
         target_platform = item.get('target_platform', 'FIAttached')
         server_family = item.get('server_family', 'All')
 
@@ -3020,7 +3114,7 @@ class configure(object):
                                                 plural_type, None):
                                             kwargs.templates[org][tname][plural_type] = [
                                             ]
-                                        if not v in kwargs.templates[org][tname][plural_type]:
+                                        if v not in kwargs.templates[org][tname][plural_type]:
                                             kwargs.templates[org][tname][plural_type].append(
                                                 v)
                                     elif not kwargs.templates[org][tname].get(k, None):
@@ -3112,7 +3206,8 @@ class configure(object):
                                 e.serial_number}" does not match expected format and will be skipped for profile "{
                                 e.name}".')
                 if self.category == 'profiles' and e.get(
-                        template_type, None) is not None and e.get('attach_template', True) is False:
+                        template_type, None) is not None and e.get(
+                        'attach_template', True) is False:
                     template_check = True
             names.append(f'{np}{e.name}{ns}')
         if template_check:
@@ -3160,7 +3255,8 @@ class configure(object):
             item.parent = kwargs.intersight_api[org][self.category].domain[item.name].moid
             item.target_platform = target_platform
             if self.category == 'profiles' and item.get(
-                    'attach_template', True) is False and item.get(template_type, None) is not None:
+                    'attach_template', True) is False and item.get(
+                    template_type, None) is not None:
                 item = self.profiles_template_merge(
                     item, item[template_type], ptitle, kwargs)
             i_orginal = deepcopy(item)
