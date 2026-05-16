@@ -1,10 +1,9 @@
 ---
 # Ansible-lint configuration for cisco.ai_pods collection
-offline: true
-
 skip_list:
-  # kubernetes.core.all module_defaults is valid but ansible-lint
-  # doesn't recognize it as a valid action group
+  # kubernetes.core.all module_defaults causes syntax-check failures
+  # when the collection isn't installed
+  - internal-error
   - fqcn[action-core]
   - args[module]
   - name[missing]
