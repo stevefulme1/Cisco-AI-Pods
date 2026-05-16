@@ -9,6 +9,7 @@ skip_list:
   - name[missing]
   - yaml[truthy]
   - yaml[line-length]
+  - var-naming[no-role-prefix]
 
 # Exclude Helm templates (Go templating, not valid Ansible YAML)
 exclude_paths:
