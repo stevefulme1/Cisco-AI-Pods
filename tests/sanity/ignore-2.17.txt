@@ -1,1 +1,1 @@
-openshift/install/generate_server_and_nmstate_templates.py shebang!skip
+openshift/install/generate_server_and_nmstate_templates.py shebang
