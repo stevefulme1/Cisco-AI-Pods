@@ -55,7 +55,6 @@ build_ignore:
   - everpure/validate_everpure_env_vars.py
   - tests
 dependencies:
-  kubernetes.core: '>=6.3.0'
   purestorage.flasharray: '>=1.42.0'
   purestorage.flashblade: '>=1.24.0'
   ansible.posix: '>=1.5.0'
