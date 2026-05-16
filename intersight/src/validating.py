@@ -1,11 +1,13 @@
-#=============================================================================
+# =============================================================================
 # Source Modules
-#=============================================================================
+# =============================================================================
+import sys
+
+
 def prRed(skk):
     print("\033[91m {}\033[00m" .format(skk))
 
 
-import sys
 try:
     import re
     import validators
@@ -15,9 +17,9 @@ except ImportError as e:
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
 
-#=============================================================================
+# =============================================================================
 # Validation Functions
-#=============================================================================
+# =============================================================================
 
 
 def dns_name(varName, varValue):
@@ -34,7 +36,8 @@ def dns_name(varName, varValue):
         valid_count += 1
     if not valid_count == 0:
         print(f'{"-" * 108}')
-        print(f'   Error with {varName}.  "{varValue}" is not a valid Hostname/Domain.')
+        print(
+            f'   Error with {varName}.  "{varValue}" is not a valid Hostname/Domain.')
         print(f'   Confirm that you have entered the DNS Name Correctly.')
         print(f'{"-" * 108}')
         return False
@@ -57,12 +60,14 @@ def ip_address(varName, varValue):
             valid_count += 1
     if not valid_count == 0 and re.search(r'\.', address):
         print(f'{"-" * 108}')
-        print(f'   Error with {varName}. "{varValue}" is not a valid IPv4 Address.')
+        print(
+            f'   Error with {varName}. "{varValue}" is not a valid IPv4 Address.')
         print(f'{"-" * 108}')
         return False
     elif not valid_count == 0:
         print(f'{"-" * 108}')
-        print(f'   Error with {varName}. "{varValue}" is not a valid IPv6 Address.')
+        print(
+            f'   Error with {varName}. "{varValue}" is not a valid IPv6 Address.')
         print(f'{"-" * 108}')
         return False
     else:
