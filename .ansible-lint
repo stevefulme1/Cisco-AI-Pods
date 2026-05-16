@@ -10,6 +10,7 @@ skip_list:
   - yaml[truthy]
   - yaml[line-length]
   - var-naming[no-role-prefix]
+  - yaml[document-start]
 
 # Exclude Helm templates (Go templating, not valid Ansible YAML)
 exclude_paths:
