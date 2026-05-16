@@ -14,7 +14,7 @@ Author:
 
 import json
 import sys
-from typing import Any, Dict, List, Union
+from typing import Any, Dict
 
 
 def traverse(path: str, obj: Any) -> None:

@@ -23,7 +23,7 @@ import re
 import sys
 import textwrap
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 # Schema path (relative to filter_plugins directory)
 _SCHEMA_PATH = Path(__file__).resolve().parent.parent.parent / \
@@ -202,7 +202,7 @@ def collect_required_sensitive_variables(
 
                 # Check if this key matches a sensitive variable prefix pattern
                 for env_prefix, (schema_key,
-                                 _) in _SENSITIVE_VAR_PATTERNS.items():
+                                 _unused) in _SENSITIVE_VAR_PATTERNS.items():
                     # Key could be the field name itself or part of it
                     if key == env_prefix or key.endswith(f"_{env_prefix}"):
                         sid = _sensitive_id(value)

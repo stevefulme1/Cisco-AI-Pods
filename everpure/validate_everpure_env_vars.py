@@ -30,7 +30,7 @@ import re
 import sys
 import textwrap
 from pathlib import Path
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, Optional
 
 # Schema path
 _SCHEMA_PATH = Path(__file__).parent.parent / "schema" / "cisco-ai-pods.json"

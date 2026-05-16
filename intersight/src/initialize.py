@@ -9,7 +9,8 @@
 
 import sys
 import re
-def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
+def prRed(skk):
+    print("\033[91m {}\033[00m" .format(skk))
 
 
 try:
@@ -49,9 +50,9 @@ class begin(object):
         else:
             pcolor.Yellow(f'{"-" * 108}')
             pcolor.Yellow(
-                f'   No Organizations found in the YAML configuration files.')
+                '   No Organizations found in the YAML configuration files.')
             pcolor.Yellow(
-                f'   Confirm that you have created the YAML configuration files correctly and that they contain at least one organization with configurations.')
+                '   Confirm that you have created the YAML configuration files correctly and that they contain at least one organization with configurations.')
             pcolor.Yellow(f'{"-" * 108}')
             raise ValueError(
                 'No organizations found in YAML configuration files')

@@ -38,7 +38,7 @@ def dns_name(varName, varValue):
         print(f'{"-" * 108}')
         print(
             f'   Error with {varName}.  "{varValue}" is not a valid Hostname/Domain.')
-        print(f'   Confirm that you have entered the DNS Name Correctly.')
+        print('   Confirm that you have entered the DNS Name Correctly.')
         print(f'{"-" * 108}')
         return False
     else:

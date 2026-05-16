@@ -5,7 +5,8 @@
 # Source Modules
 # =============================================================================
 import sys
-def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
+def prRed(skk):
+    print("\033[91m {}\033[00m" .format(skk))
 
 
 try:
@@ -55,7 +56,7 @@ class system(object):
         def empty_results(names, kwargs):
             pcolor.Red(f"The API Query Results were empty for {kwargs.uri}.")
             pcolor.Red(f"  Names: `{', '.join(names)}`")
-            pcolor.Red(f"Exiting...")
+            pcolor.Red("Exiting...")
             sys.exit(1)
         if re.search(r'^(blades|rackmounts)$', self.type):
             kwargs = kwargs | DotMap(
@@ -176,6 +177,8 @@ class system(object):
         # =====================================================================
         # Function to Create Resource Groups and Organizations
         # =====================================================================
+
+        check_flag = False
 
         def compare_to_api(api_body, kwargs):
             check_count = False

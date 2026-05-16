@@ -5,7 +5,8 @@
 # Source Modules
 # =============================================================================
 import sys
-def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
+def prRed(skk):
+    print("\033[91m {}\033[00m" .format(skk))
 
 
 try:
@@ -253,11 +254,11 @@ class system_software_repository(object):
                 if not m2_found:
                     pcolor.Red(f'\n{"-" * 108}\n')
                     pcolor.Red(
-                        f'  !!! ERROR !!!\n  Could not determine the Controller Slot for:')
+                        '  !!! ERROR !!!\n  Could not determine the Controller Slot for:')
                     pcolor.Red(f'  * Profile: {server_profiles[x].name}')
                     pcolor.Red(f'  * Serial:  {server_profiles[x].serial}')
                     pcolor.Red(
-                        f'  Exiting... (intersight-tools/new/src/intersight/core.py Line 1448)')
+                        '  Exiting... (intersight-tools/new/src/intersight/core.py Line 1448)')
                     pcolor.Red(f'\n{"-" * 108}\n')
                     len(False)
                     sys.exit(1)
@@ -484,7 +485,7 @@ class system_software_repository(object):
                         f'      * OS Install Failed for `{v.name}`.  Please Validate the Logs.')
             pcolor.Red(f'\n{"-" * 108}\n')
             pcolor.Red(
-                f'  Exiting... (intersight-tools/new/src/intersight/core.py Line 1576)')
+                '  Exiting... (intersight-tools/new/src/intersight/core.py Line 1576)')
             len(False)
             sys.exit(1)
         return kwargs

@@ -2,7 +2,8 @@
 # Source Modules
 # =============================================================================
 import sys
-def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
+def prRed(skk):
+    print("\033[91m {}\033[00m" .format(skk))
 
 
 try:
@@ -166,7 +167,7 @@ def completed_item(category, ptype, kwargs):
     elif 'UserId' in ikeys:
         name = f"{iresults.UserId} CCO User Authentication"
     elif 'eula' in ptype:
-        name = f"Account EULA Acceptance"
+        name = "Account EULA Acceptance"
     elif 'Action' in ikeys:
         if iresults.Action == 'Deploy':
             name = f"Deploy Profile {pmoid}"
@@ -198,7 +199,7 @@ def completed_item(category, ptype, kwargs):
         print(kwargs.parent_name)
         print(kwargs.parent_type)
         print('missing definition')
-        raise
+        raise RuntimeError('missing definition for completed_item')
     elif re.search('^(Activating|Deploy)', name):
         pcolor.Cyan(f'      * {name}.')
     elif re.search('(eula|upgrade)', ptype) and ptype == 'firmware':
@@ -307,17 +308,17 @@ def error_file_location(varName, varValue):
     pcolor.Yellow(f'  !!! ERROR !!! The "{varName}" "{varValue}"')
     pcolor.Yellow(f'  is invalid.  Please valid the Entry for "{varName}".')
     pcolor.LightGray(f'\n{"-" * 108}\n')
-    raise
+    raise ValueError(f'Invalid file location: {varName}={varValue}')
 
 
 def error_organization(org):
     pcolor.LightGray(f'\n{"-" * 108}\n')
-    pcolor.Yellow(f'   !!! ERROR !!!')
+    pcolor.Yellow('   !!! ERROR !!!')
     pcolor.Yellow(
-        f'   The organization was not found in Intersight, but it is referenced in the input file.')
+        '   The organization was not found in Intersight, but it is referenced in the input file.')
     pcolor.Yellow(f'   Organization: {org}')
     pcolor.LightGray(f'\n{"-" * 108}\n')
-    raise
+    raise ValueError(f'Organization not found in Intersight: {org}')
 
 
 def error_requests(method, status, text, uri):
@@ -326,7 +327,7 @@ def error_requests(method, status, text, uri):
     pcolor.Yellow(f'   Exiting on Error {status} with the following output:')
     pcolor.Yellow(f'   {text}')
     pcolor.LightGray(f'\n{"-" * 108}\n')
-    raise
+    raise RuntimeError(f'API request failed: {method} {uri} returned {status}')
 
 
 # =============================================================================

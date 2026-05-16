@@ -2,7 +2,8 @@
 # Source Modules
 # =============================================================================
 import sys
-def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
+def prRed(skk):
+    print("\033[91m {}\033[00m" .format(skk))
 
 
 try:
@@ -472,7 +473,7 @@ class build(object):
         self.get_compare_patch(
             '/redfish/v1/Managers/bmc/EthernetInterfaces/eth0', item, kwargs)
         pcolor.Cyan(
-            f"     * Pausing to allow time for DNS settings to take effect before claiming in Intersight.")
+            "     * Pausing to allow time for DNS settings to take effect before claiming in Intersight.")
         time.sleep(10)
         notifications.section_end(self.category, self.type)
 
@@ -536,7 +537,7 @@ class build(object):
                 valid_time = token[0]['Duration']
                 if valid_time < 60:
                     pcolor.Cyan(
-                        f"     * Waiting for Security Token to be valid for at least 60 seconds.")
+                        "     * Waiting for Security Token to be valid for at least 60 seconds.")
                     pcolor.Cyan(
                         f"     * Current Security Token Duration: {valid_time} seconds")
                     time.sleep(60)
@@ -602,7 +603,7 @@ class build(object):
                      'timezone': '/redfish/v1/Managers/bmc'}.items():
             self.get_compare_patch(v, item, kwargs, type_override=k)
         pcolor.Cyan(
-            f"     * Pausing to allow time for NTP settings to take effect before claiming in Intersight.")
+            "     * Pausing to allow time for NTP settings to take effect before claiming in Intersight.")
         time.sleep(10)
         notifications.section_end(self.category, self.type)
 
@@ -617,7 +618,7 @@ class build(object):
             kwargs,
             method='put')
         pcolor.Cyan(
-            f"     * Pausing to allow time for Proxy settings to take effect before claiming in Intersight.")
+            "     * Pausing to allow time for Proxy settings to take effect before claiming in Intersight.")
         time.sleep(20)
         notifications.section_end(self.category, self.type)
 
@@ -647,7 +648,7 @@ class build(object):
     # =========================================================================
     def power(self, item, kwargs):
         notifications.section_begin(self.category, self.type)
-        _, kwargs = self.get_compare_patch(
+        _unused, kwargs = self.get_compare_patch(
             '/redfish/v1/Systems/system', item, kwargs)
         notifications.section_end(self.category, self.type)
         return kwargs

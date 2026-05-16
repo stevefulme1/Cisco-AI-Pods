@@ -5,7 +5,8 @@
 # Source Modules
 # =============================================================================
 import sys
-def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
+def prRed(skk):
+    print("\033[91m {}\033[00m" .format(skk))
 
 
 try:
@@ -323,7 +324,7 @@ class api(object):
             def send_error(kwargs):
                 pcolor.Red(json.dumps(kwargs.api_body, indent=4))
                 pcolor.Red(kwargs.api_body)
-                pcolor.Red(f'!!! ERROR !!!')
+                pcolor.Red('!!! ERROR !!!')
                 if method == 'get_by_moid':
                     pcolor.Red(f'  URL: {url}/{uri}/{moid}')
                 elif method == 'delete':
@@ -348,22 +349,22 @@ class api(object):
                 try:
                     if method == 'get_by_moid':
                         response = requests.get(
-                            f'{url}/{uri}/{moid}', verify=False, auth=aauth)
+                            f'{url}/{uri}/{moid}', verify=False, auth=aauth, timeout=30)
                     elif method == 'delete':
                         response = requests.delete(
-                            f'{url}/{uri}/{moid}', verify=False, auth=aauth)
+                            f'{url}/{uri}/{moid}', verify=False, auth=aauth, timeout=30)
                     elif method == 'get':
                         response = requests.get(
-                            f'{url}/{uri}{aargs}', verify=False, auth=aauth)
+                            f'{url}/{uri}{aargs}', verify=False, auth=aauth, timeout=30)
                     elif method == 'patch':
                         response = requests.patch(
-                            f'{url}/{uri}/{moid}', verify=False, auth=aauth, json=payload)
+                            f'{url}/{uri}/{moid}', verify=False, auth=aauth, json=payload, timeout=30)
                     elif method == 'post_by_moid':
                         response = requests.post(
-                            f'{url}/{uri}/{moid}', verify=False, auth=aauth, json=payload)
+                            f'{url}/{uri}/{moid}', verify=False, auth=aauth, json=payload, timeout=30)
                     elif method == 'post':
                         response = requests.post(
-                            f'{url}/{uri}', verify=False, auth=aauth, json=payload)
+                            f'{url}/{uri}', verify=False, auth=aauth, json=payload, timeout=30)
 
                     status = response.status_code
 
@@ -375,7 +376,7 @@ class api(object):
                     retry_action = False
                     if status in (400, 403, 409):
                         try:
-                            for _, v in response.json().items():
+                            for _unused, v in response.json().items():
                                 if isinstance(v, str) and (
                                     'user_action_is_not_allowed' in v or
                                     'policy_attached_to_multiple_profiles_cannot_be_edited' in v
@@ -541,7 +542,7 @@ class api(object):
                     if re.search('(vlans|vsans)', self.type):
                         names = ", ".join(map(str, kwargs.names))
                     else:
-                        names = "', '".join(kwargs.names).strip("', '")
+                        names = "', '".join(kwargs.names)
                     if re.search('organizations|resource_groups', self.type):
                         api_filter = f"Name in ('{names}')"
                     elif self.category == 'system':
@@ -757,7 +758,9 @@ class api(object):
             kwargs.rsg_moids[rg].selectors = kwargs.results.Selectors
             return kwargs
 
-        def create_org_api_call(api_body, kwargs):
+        def create_org_api_call(api_body, kwargs, org=None):
+            if org is None:
+                org = api_body.get('Name', '')
             kwargs = kwargs | DotMap(
                 api_body=api_body,
                 method='post',

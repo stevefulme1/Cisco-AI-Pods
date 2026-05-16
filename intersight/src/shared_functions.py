@@ -2,7 +2,8 @@
 # Source Modules
 # =============================================================================
 import sys
-def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
+def prRed(skk):
+    print("\033[91m {}\033[00m" .format(skk))
 
 
 try:
@@ -151,9 +152,9 @@ def base_script_settings(kwargs):
         elif not re.search(r'^[\w\@\-\.\:\/\\]+$', folder):
             pcolor.Red(f'\n{"-" * 108}\n\n  !!ERROR!!')
             pcolor.Red(
-                f'  The Directory structure can only contain the following characters:')
+                '  The Directory structure can only contain the following characters:')
             pcolor.Red(
-                f'  letters(a-z, A-Z), numbers(0-9), hyphen(-), period(.), colon(:), and underscore(-).')
+                '  letters(a-z, A-Z), numbers(0-9), hyphen(-), period(.), colon(:), and underscore(-).')
             pcolor.Red(
                 f'  It can be a short path or a fully qualified path.  `{folder}` does not qualify.')
             pcolor.Red(f'  Exiting...\n\n{"-" * 108}\n')
@@ -294,7 +295,7 @@ def load_configurations(kwargs):
 
     def collect_ezai_files(root_dir):
         file_list = []
-        for current_root, _, files in os.walk(root_dir):
+        for current_root, _unused, files in os.walk(root_dir):
             for file_name in files:
                 if file_name.endswith('ezai.yaml'):
                     file_list.append(os.path.join(current_root, file_name))
@@ -375,13 +376,13 @@ def load_configurations(kwargs):
             for message in error_messages:
                 # Preserve per-line formatting/colors from validator output.
                 print(message, file=sys.stderr)
-            raise
+            raise SystemExit(1)
         else:
             kwargs.sensitive_vars = DotMap(sensitive_vars)
     except Exception as error:
         pcolor.Red(
             f'\n!!! ERROR !!! validate_sensitive_variables failed during load_configurations: {error}')
-        pcolor.Red(f'shared_functions.py line 893')
+        pcolor.Red('shared_functions.py line 893')
         raise
 
     # Return kwargs
@@ -422,9 +423,9 @@ def variable_from_list(kwargs):
             pcolor.Yellow(
                 '\n     Note: Answer can be:\n       * Single: 1\n       * Multiple: `1,2,3` or `1-3,5-6`')
         if kwargs.jdata.get('multi_select'):
-            pcolor.Yellow(f'    Select Option(s) Below:')
+            pcolor.Yellow('    Select Option(s) Below:')
         else:
-            pcolor.Yellow(f'\n    Select an Option Below:')
+            pcolor.Yellow('\n    Select an Option Below:')
         for index, value in enumerate(vars):
             index += 1
             if value == default:
@@ -516,7 +517,7 @@ def variable_prompt(kwargs):
                 "-" *
                 108}\n')
 
-    def invalid_integer(title, answer):
+    def invalid_integer(title, answer, minimum, maximum):
         pcolor.Red(
             f'\n{
                 "-" * 108}\n   `{title}` value of `{answer}` is Invalid!!!  Valid range is `{minimum}-{maximum}`.\n{
@@ -534,6 +535,8 @@ def variable_prompt(kwargs):
     # =========================================================================
     default = kwargs.jdata.default
     description = kwargs.jdata.description
+    minimum = 0
+    maximum = 0
     optional = False
     title = kwargs.jdata.title
     # =========================================================================
@@ -592,7 +595,7 @@ def variable_prompt(kwargs):
                         valid = notifications.number_in_range(
                             title, answer, minimum, maximum)
                 else:
-                    invalid_integer(title, answer)
+                    invalid_integer(title, answer, minimum, maximum)
         elif kwargs.jdata.type == 'string':
             if kwargs.jdata.get('optional'):
                 optional = True
@@ -645,7 +648,7 @@ def vlan_list_format(vlan_list_expanded):
         key=lambda item,
         c=itertools.count(): item -
         next(c))
-    tempvlans = [list(g) for _, g in vgroups]
+    tempvlans = [list(g) for _unused, g in vgroups]
     vlan_list = [str(x[0]) if len(
         x) == 1 else f'{x[0]}-{x[-1]}' for x in tempvlans]
     return ','.join(vlan_list)

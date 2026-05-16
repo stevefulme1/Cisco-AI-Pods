@@ -8,7 +8,8 @@
 
 
 import sys
-def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
+def prRed(skk):
+    print("\033[91m {}\033[00m" .format(skk))
 
 
 try:
@@ -79,7 +80,7 @@ class configure(object):
             pcolor.Red(f"The API Query Results were empty for {kwargs.uri}.")
             pcolor.Red(f"  Organization: {org}")
             pcolor.Red(f"  Names: `{', '.join(names)}`")
-            pcolor.Red(f"Exiting...")
+            pcolor.Red("Exiting...")
             raise ValueError(
                 f"Empty API query results for {
                     kwargs.uri} (organization={org}, names={
@@ -203,7 +204,7 @@ class configure(object):
             if f"{np}{e.name}{ns}" in ikeys and child_type in ekeys:
                 continue_count += 1
             elif child_type in ekeys and kwargs.args.check:
-                pcolor.Cyan(f"\n     * Running in Check Mode")
+                pcolor.Cyan("\n     * Running in Check Mode")
                 pcolor.Cyan(
                     f"       - Skipping {ptitle} {pcategory} Children Retrieval for Org: {org} > {ptitle}:")
                 pcolor.Cyan(
@@ -1569,7 +1570,7 @@ class configure(object):
                 f"{np}{e}{ns}" for e in item.names if f"{np}{e}{ns}" in ikeys]
             continue_count += len(policy_list)
             if kwargs.args.check and len(policy_list) != len(item.names):
-                pcolor.Cyan(f"\n     * Running in Check Mode")
+                pcolor.Cyan("\n     * Running in Check Mode")
             if len(policy_list) != len(item.names):
                 pcolor.Yellow(
                     f"\n     * Skipping Port Policy Children Retrieval for Org: {org} > Port Policies:")
@@ -2612,9 +2613,9 @@ class configure(object):
         activate_results = []
         if activate_moids:
             dt = datetime.today().strftime('%Y-%m-%d')
-            names = "', '".join(activate_moids).strip("', '")
+            names = "', '".join(activate_moids)
             str1 = f"CreateTime gt {dt}T00:00:00.000Z and CreateTime lt {dt}T23:59:59.999Z and AssociatedObject.Moid in ('{names}')"
-            str2 = f" and WorkflowCtx.WorkflowType eq 'Activate'"
+            str2 = " and WorkflowCtx.WorkflowType eq 'Activate'"
             kwargs = kwargs | DotMap(
                 api_filter=str1 + str2,
                 method='get',
@@ -2691,7 +2692,7 @@ class configure(object):
         # =====================================================================
         pcolor.LightGray(f'  {"-" * 60}\n')
         pcolor.LightPurple(
-            f'   Beginning Server Profile Pool Reservations Deployments\n')
+            '   Beginning Server Profile Pool Reservations Deployments\n')
         # =====================================================================
         # Obtain Pool Names
         # =====================================================================
@@ -2803,7 +2804,7 @@ class configure(object):
         # =====================================================================
         # Send End Notification and return kwargs
         # =====================================================================
-        pcolor.LightPurple(f'\n    Completed Pool Reservations Deployments\n')
+        pcolor.LightPurple('\n    Completed Pool Reservations Deployments\n')
         pcolor.LightGray(f'  {"-" * 60}\n')
         return kwargs
 
@@ -3069,7 +3070,7 @@ class configure(object):
                         kwargs.policies[k][e.Moid] = DotMap(
                             name=e.Name, organization=kwargs.org_names[e.Organization.Moid])
             if kwargs.intersight_pools.get('uuid'):
-                uri = kwargs.ezdata[f'intersight.pools.uuid'].intersight_uri
+                uri = kwargs.ezdata['intersight.pools.uuid'].intersight_uri
                 kwargs = kwargs | DotMap(
                     method='get', names=kwargs.pools['uuid'], uri=uri)
                 kwargs = api(
@@ -3120,7 +3121,7 @@ class configure(object):
                                         kwargs.templates[org][tname][k] = v
         final_check = True
         for org in orgs:
-            templates = [e for e in kwargs.templates[org].keys()]
+            templates = list(kwargs.templates[org].keys())
             for template in templates:
                 if len(kwargs.templates[org][template].toDict()) == 0:
                     final_check = False
