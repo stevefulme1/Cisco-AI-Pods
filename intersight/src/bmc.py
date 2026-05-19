@@ -26,7 +26,6 @@ except ImportError as e:
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Global options for debugging
 print_payload = False
@@ -42,9 +41,10 @@ log_level = 2
 
 
 class api(object):
-    def __init__(self, category=None, type=None):
+    def __init__(self, category=None, type=None, **kwargs):
         self.category = category
         self.type = type
+        self.verify_ssl = kwargs.get("verify_ssl", True)
 
     # =========================================================================
     # Function - API Authentication
@@ -57,7 +57,8 @@ class api(object):
         auth = ''
         while auth == '':
             try:
-                auth = s.post(url, verify=False)
+                verify_ssl = getattr(kwargs, 'verify_ssl', True)
+                auth = s.post(url, verify=verify_ssl)
             except requests.exceptions.ConnectionError as e:
                 pcolor.Red(
                     "Connection error, pausing before retrying. Error: %s" %
@@ -84,7 +85,7 @@ class api(object):
             try:
                 full_url = f'{url}{kwargs.uri}'
                 pcolor.Cyan(f"     * {method}: {full_url}")
-                req_kwargs = {'verify': False}
+                req_kwargs = {'verify': getattr(kwargs, 'verify_ssl', True)}
                 if payload_mode == 'json':
                     req_kwargs['json'] = kwargs.payload
                 elif payload_mode == 'data':

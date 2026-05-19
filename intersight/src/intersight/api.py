@@ -28,7 +28,6 @@ except ImportError as e:
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 parent_regex = re.compile(
     r'^(Parent|((Eth|Fc)Network|(L|S)anConnectivity|Ldap|Port|Storage)Policy)$')
@@ -41,9 +40,10 @@ pool_regex = re.compile(
 
 
 class api(object):
-    def __init__(self, category=None, type=None):
+    def __init__(self, category=None, type=None, **kwargs):
         self.category = category
         self.type = type
+        self.verify_ssl = kwargs.get("verify_ssl", True)
 
     # =========================================================================
     # Function - Get All Organizations from Intersight
@@ -351,22 +351,22 @@ class api(object):
                 try:
                     if method == 'get_by_moid':
                         response = requests.get(
-                            f'{url}/{uri}/{moid}', verify=False, auth=aauth, timeout=30)
+                            f'{url}/{uri}/{moid}', verify=self.verify_ssl, auth=aauth, timeout=30)
                     elif method == 'delete':
                         response = requests.delete(
-                            f'{url}/{uri}/{moid}', verify=False, auth=aauth, timeout=30)
+                            f'{url}/{uri}/{moid}', verify=self.verify_ssl, auth=aauth, timeout=30)
                     elif method == 'get':
                         response = requests.get(
-                            f'{url}/{uri}{aargs}', verify=False, auth=aauth, timeout=30)
+                            f'{url}/{uri}{aargs}', verify=self.verify_ssl, auth=aauth, timeout=30)
                     elif method == 'patch':
                         response = requests.patch(
-                            f'{url}/{uri}/{moid}', verify=False, auth=aauth, json=payload, timeout=30)
+                            f'{url}/{uri}/{moid}', verify=self.verify_ssl, auth=aauth, json=payload, timeout=30)
                     elif method == 'post_by_moid':
                         response = requests.post(
-                            f'{url}/{uri}/{moid}', verify=False, auth=aauth, json=payload, timeout=30)
+                            f'{url}/{uri}/{moid}', verify=self.verify_ssl, auth=aauth, json=payload, timeout=30)
                     elif method == 'post':
                         response = requests.post(
-                            f'{url}/{uri}', verify=False, auth=aauth, json=payload, timeout=30)
+                            f'{url}/{uri}', verify=self.verify_ssl, auth=aauth, json=payload, timeout=30)
 
                     status = response.status_code
 
