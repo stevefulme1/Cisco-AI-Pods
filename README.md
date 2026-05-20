@@ -128,3 +128,11 @@ python3 deploy_intersight_ucs.py -c
 - Use [guide_troubleshooting.md](guide_troubleshooting.md) for cross-component triage.
 - For component-specific issues, start with the README in the corresponding top-level folder.
 - Keep model files and runbook documentation synchronized as workflows evolve.
+
+## Community
+
+- [Contributing](CONTRIBUTING.md) - How to contribute to this project
+- [Code of Conduct](CODE_OF_CONDUCT.md) - Ansible Community Code of Conduct
+- [Security Policy](SECURITY.md) - How to report security vulnerabilities
+- [License](COPYING) - GPL-3.0
+
