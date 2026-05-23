@@ -91,3 +91,16 @@ intersight/src/shared_functions.py pep8:E222
 intersight/src/shared_functions.py pep8:E226
 intersight/src/shared_functions.py pep8:E275
 intersight/src/validate_sensitive_variables.py pep8:E231
+dump_model.py pylint:syntax-error
+intersight/deploy_intersight_ucs.py pylint:syntax-error
+intersight/src/bmc.py pylint:syntax-error
+intersight/src/initialize.py pylint:syntax-error
+intersight/src/intersight/__init__.py pylint:syntax-error
+intersight/src/intersight/api.py pylint:syntax-error
+intersight/src/intersight/configure.py pylint:syntax-error
+intersight/src/intersight/system.py pylint:syntax-error
+intersight/src/intersight/system_software_repository.py pylint:syntax-error
+intersight/src/notifications.py pylint:syntax-error
+intersight/src/shared_functions.py pylint:syntax-error
+intersight/src/validate_sensitive_variables.py pylint:syntax-error
+openshift/install/generate_server_and_nmstate_templates.py pylint:syntax-error
