@@ -22,7 +22,6 @@ try:
     import re
     import requests
     import time
-    import urllib3
 except ImportError as e:
     prRed(f'src/intersight/api.py - !!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
