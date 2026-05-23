@@ -41,4 +41,3 @@ splunk-ai-pods/get_helm.sh shellcheck:SC2155
 splunk-ai-pods/get_helm.sh shellcheck:SC2166
 splunk-ai-pods/get_helm.sh shellcheck:SC2174
 splunk-ai-pods/get_helm.sh shellcheck:SC2223
-splunk-ai-pods/get_helm.sh shellcheck:SC2268
